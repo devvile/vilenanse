@@ -19,26 +19,26 @@ export async function Navbar() {
               Expense Tracker
             </Link>
           </div>
-
-          {/* Navigation Links (if user is logged in) */}
-          {user && (
+             {user && (
             <div className="hidden md:flex md:items-center md:gap-6">
               <Link
                 href="/dashboard"
-                className="text-sm font-medium text-gray-700 hover:text-gray-900"
-              >
+                className="text-sm font-medium text-gray-700 hover:text-gray-900">
                 Dashboard
               </Link>
               <Link
                 href="/expenses"
-                className="text-sm font-medium text-gray-700 hover:text-gray-900"
-              >
+                className="text-sm font-medium text-gray-700 hover:text-gray-900">
                 Expenses
+              </Link>
+              <Link
+                href="/categories"
+                className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                Categories
               </Link>
             </div>
           )}
-
-          {/* User Menu or Auth Buttons */}
+                    {/* User Menu or Auth Buttons */}
           <div className="flex items-center gap-4">
             {user ? (
               <UserMenu user={user} />
@@ -60,6 +60,7 @@ export async function Navbar() {
             )}
           </div>
         </div>
+        
       </div>
     </nav>
   )

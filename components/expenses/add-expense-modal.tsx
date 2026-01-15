@@ -117,7 +117,7 @@ export function AddExpenseModal({ onClose }: AddExpenseModalProps) {
           {/* Category */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Category
+              Rodzaj
             </label>
             <select
               value={formData.category_id}
