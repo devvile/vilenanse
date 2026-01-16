@@ -1,20 +1,50 @@
+// components/expenses/expenses-list.tsx
 'use client'
 
 import { ExpenseWithCategory } from '@/lib/types/database.types'
 import { ExpenseCard } from './expense-card'
-import { useState } from 'react'
-import { bulkDeleteExpenses } from '@/lib/actions/expenses'
+import { useState, useEffect } from 'react'
+import { bulkDeleteExpenses, bulkUpdateExpenseCategories } from '@/lib/actions/expenses'
 import { useRouter } from 'next/navigation'
+
+interface Category {
+  id: string
+  name: string
+  parent_id: string | null
+  color?: string
+  icon?: string
+  display_order?: number
+}
 
 interface ExpensesListProps {
   expenses: ExpenseWithCategory[]
+  categories?: Category[]
 }
 
-export function ExpensesList({ expenses }: ExpensesListProps) {
+export function ExpensesList({ expenses, categories = [] }: ExpensesListProps) {
   const router = useRouter()
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [deleting, setDeleting] = useState(false)
+  const [updating, setUpdating] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('')
+
+  // Get hierarchical categories
+  const mainCategories = categories.filter(cat => !cat.parent_id)
+  const [selectedMainCategory, setSelectedMainCategory] = useState<string>('')
+  const [availableSubcategories, setAvailableSubcategories] = useState<Category[]>([])
+
+  // Update subcategories when main category changes
+  useEffect(() => {
+    if (selectedMainCategory) {
+      const subcats = categories.filter(cat => cat.parent_id === selectedMainCategory)
+      setAvailableSubcategories(subcats)
+      setSelectedCategoryId('') // Reset subcategory selection
+    } else {
+      setAvailableSubcategories([])
+      setSelectedCategoryId('')
+    }
+  }, [selectedMainCategory, categories])
 
   const toggleSelection = (id: string) => {
     const newSelected = new Set(selectedIds)
@@ -51,6 +81,27 @@ export function ExpensesList({ expenses }: ExpensesListProps) {
     }
   }
 
+  const handleBulkCategoryAssignment = async () => {
+    if (selectedIds.size === 0 || !selectedCategoryId) {
+      alert('Please select a category first')
+      return
+    }
+
+    setUpdating(true)
+    try {
+      await bulkUpdateExpenseCategories(Array.from(selectedIds), selectedCategoryId)
+      setSelectedIds(new Set())
+      setSelectedMainCategory('')
+      setSelectedCategoryId('')
+      router.refresh()
+    } catch (error) {
+      console.error('Failed to update categories:', error)
+      alert('Failed to update categories. Please try again.')
+    } finally {
+      setUpdating(false)
+    }
+  }
+
   if (expenses.length === 0) {
     return (
       <div className="rounded-lg border-2 border-dashed border-gray-300 bg-white p-12 text-center">
@@ -80,46 +131,97 @@ export function ExpensesList({ expenses }: ExpensesListProps) {
       {/* Bulk Actions Bar */}
       {selectedIds.size > 0 && (
         <div className="sticky top-0 z-10 rounded-lg border border-blue-200 bg-blue-50 p-4 shadow-md">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <p className="text-sm font-medium text-blue-900">
-                {selectedIds.size} expense{selectedIds.size !== 1 ? 's' : ''} selected
-              </p>
-              <button
-                onClick={() => setSelectedIds(new Set())}
-                className="text-sm text-blue-600 hover:text-blue-800"
-              >
-                Clear selection
-              </button>
-            </div>
-            <div className="flex items-center gap-2">
-              {showDeleteConfirm ? (
-                <>
-                  <p className="text-sm text-red-900 mr-2">
-                    Delete {selectedIds.size} expense{selectedIds.size !== 1 ? 's' : ''}?
-                  </p>
-                  <button
-                    onClick={handleBulkDelete}
-                    disabled={deleting}
-                    className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
-                  >
-                    {deleting ? 'Deleting...' : 'Confirm Delete'}
-                  </button>
-                  <button
-                    onClick={() => setShowDeleteConfirm(false)}
-                    className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                </>
-              ) : (
+          <div className="flex flex-col gap-4">
+            {/* Top Row - Selection Info and Clear */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <p className="text-sm font-medium text-blue-900">
+                  {selectedIds.size} expense{selectedIds.size !== 1 ? 's' : ''} selected
+                </p>
                 <button
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+                  onClick={() => setSelectedIds(new Set())}
+                  className="text-sm text-blue-600 hover:text-blue-800"
                 >
-                  Delete Selected
+                  Clear selection
                 </button>
-              )}
+              </div>
+            </div>
+
+            {/* Bottom Row - Category Assignment and Delete */}
+            <div className="flex items-center gap-3">
+              {/* Main Category Dropdown */}
+              <div className="flex-1">
+                <select
+                  value={selectedMainCategory}
+                  onChange={(e) => setSelectedMainCategory(e.target.value)}
+                  className="w-full rounded-md border border-blue-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  disabled={updating}
+                >
+                  <option value="">Select main category...</option>
+                  {mainCategories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Subcategory Dropdown */}
+              <div className="flex-1">
+                <select
+                  value={selectedCategoryId}
+                  onChange={(e) => setSelectedCategoryId(e.target.value)}
+                  disabled={!selectedMainCategory || availableSubcategories.length === 0 || updating}
+                  className="w-full rounded-md border border-blue-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                >
+                  <option value="">Select subcategory...</option>
+                  {availableSubcategories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Assign Button */}
+              <button
+                onClick={handleBulkCategoryAssignment}
+                disabled={!selectedCategoryId || updating}
+                className="rounded-md bg-blue-600 px-6 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                {updating ? 'Assigning...' : 'Assign Category'}
+              </button>
+
+              {/* Delete Section */}
+              <div className="flex items-center gap-2 border-l border-blue-300 pl-3">
+                {showDeleteConfirm ? (
+                  <>
+                    <p className="text-sm text-red-900 mr-2 whitespace-nowrap">
+                      Delete {selectedIds.size}?
+                    </p>
+                    <button
+                      onClick={handleBulkDelete}
+                      disabled={deleting}
+                      className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50 whitespace-nowrap"
+                    >
+                      {deleting ? 'Deleting...' : 'Confirm'}
+                    </button>
+                    <button
+                      onClick={() => setShowDeleteConfirm(false)}
+                      className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 whitespace-nowrap"
+                  >
+                    Delete Selected
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
