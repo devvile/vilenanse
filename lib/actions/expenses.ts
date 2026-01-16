@@ -50,6 +50,25 @@ export async function getExpenses() {
   return expensesWithParents
 }
 
+export async function bulkDeleteExpenses(ids: string[]) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  const { error } = await supabase
+    .from('expenses')
+    .delete()
+    .in('id', ids)
+    .eq('user_id', user.id)
+
+  if (error) throw error
+  
+  revalidatePath('/expenses')
+  return { success: true, deleted: ids.length }
+}
+
+
 export async function getExpense(id: string) {
   const supabase = await createClient()
   
