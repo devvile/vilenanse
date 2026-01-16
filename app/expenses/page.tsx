@@ -1,21 +1,80 @@
-import { getExpenses } from '@/lib/actions/expenses'
-import { ExpensesList } from '@/components/expenses/expenses-list'
-import { AddExpenseButton } from '@/components/expenses/add-expense-button'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { ExpensesList } from '@/components/expenses/expenses-list'
+import { AddExpenseButton } from '@/components/expenses/add-expense-button'
+import { ExpensesPagination } from '@/components/expenses/expenses-pagination'
+
+const ITEMS_PER_PAGE = 20
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
 
 export default async function ExpensesPage({
   searchParams,
 }: {
-  searchParams: { imported?: string }
+  searchParams: Promise<{ imported?: string; page?: string }> // ✅ Must be Promise type
 }) {
   const supabase = await createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const expenses = await getExpenses()
+  // ✅ CRITICAL: Await searchParams BEFORE using it
+  const resolvedSearchParams = await searchParams
+  const currentPage = parseInt(resolvedSearchParams.page || '1')
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE
+
+  // Get total count
+  const { count } = await supabase
+    .from('expenses')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+
+  const totalCount = count || 0
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE)
+
+  // Get paginated expenses
+  const { data: expenses, error } = await supabase
+    .from('expenses')
+    .select(`
+      *,
+      category:categories(*)
+    `)
+    .eq('user_id', user.id)
+    .order('transaction_date', { ascending: false })
+    .range(offset, offset + ITEMS_PER_PAGE - 1)
+
+  if (error) throw error
+
+  // Get unique parent category IDs
+  const parentCategoryIds = expenses
+    ?.map(e => e.category?.parent_id)
+    .filter(Boolean)
+    .filter((v, i, a) => a.indexOf(v) === i) || []
+
+  // Fetch parent categories separately
+  let parentCategories: any[] = []
+  if (parentCategoryIds.length > 0) {
+    const { data: parents, error: parentsError } = await supabase
+      .from('categories')
+      .select('*')
+      .in('id', parentCategoryIds)
+    
+    if (parentsError) {
+      console.error('Error fetching parent categories:', parentsError)
+    } else {
+      parentCategories = parents || []
+    }
+  }
+
+  // Combine the data
+  const expensesWithParents = expenses?.map(expense => ({
+    ...expense,
+    parent_category: expense.category?.parent_id
+      ? parentCategories.find(p => p.id === expense.category?.parent_id) || null
+      : null
+  })) || []
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -25,7 +84,7 @@ export default async function ExpensesPage({
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Expenses</h1>
             <p className="mt-2 text-gray-600">
-              Manage your expense transactions
+              {totalCount} total expense{totalCount !== 1 ? 's' : ''} • Page {currentPage} of {totalPages}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -43,7 +102,7 @@ export default async function ExpensesPage({
         </div>
 
         {/* Success message after import */}
-        {searchParams.imported === 'true' && (
+        {resolvedSearchParams.imported === 'true' && (
           <div className="mb-6 rounded-lg bg-green-50 p-4">
             <p className="text-sm text-green-800">
               ✅ Expenses imported successfully! You can now categorize them below.
@@ -51,8 +110,38 @@ export default async function ExpensesPage({
           </div>
         )}
 
-        {/* Expenses List */}
-        <ExpensesList expenses={expenses} />
+        {/* Pagination Info */}
+        {totalPages > 1 && (
+          <div className="mb-4 flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3">
+            <p className="text-sm text-gray-700">
+              Showing{' '}
+              <span className="font-medium">{offset + 1}</span>
+              {' '}-{' '}
+              <span className="font-medium">
+                {Math.min(offset + ITEMS_PER_PAGE, totalCount)}
+              </span>
+              {' '}of{' '}
+              <span className="font-medium">{totalCount}</span>
+            </p>
+            <ExpensesPagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+            />
+          </div>
+        )}
+
+        {/* Expenses List with key to force re-render */}
+        <ExpensesList key={`page-${currentPage}`} expenses={expensesWithParents} />
+
+        {/* Bottom Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-6 flex justify-center">
+            <ExpensesPagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+            />
+          </div>
+        )}
       </div>
     </div>
   )

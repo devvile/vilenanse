@@ -68,6 +68,65 @@ export async function bulkDeleteExpenses(ids: string[]) {
   return { success: true, deleted: ids.length }
 }
 
+export async function getExpensesPaginated(page: number = 1, limit: number = 20) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  const offset = (page - 1) * limit
+
+  // Get total count
+  const { count } = await supabase
+    .from('expenses')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+
+  // Get paginated data
+  const { data, error } = await supabase
+    .from('expenses')
+    .select(`
+      *,
+      category:categories!expenses_category_id_fkey(*)
+    `)
+    .eq('user_id', user.id)
+    .order('transaction_date', { ascending: false })
+    .range(offset, offset + limit - 1)
+
+  if (error) throw error
+
+  // Fetch parent categories
+  const categoryIds = data
+    ?.map(e => e.category?.parent_id)
+    .filter(Boolean) || []
+
+  let parentCategories: any[] = []
+  if (categoryIds.length > 0) {
+    const { data: parents, error: parentsError } = await supabase
+      .from('categories')
+      .select('*')
+      .in('id', categoryIds)
+    
+    if (!parentsError) {
+      parentCategories = parents || []
+    }
+  }
+
+  const expensesWithParents = data?.map(expense => ({
+    ...expense,
+    parent_category: expense.category?.parent_id
+      ? parentCategories.find(p => p.id === expense.category?.parent_id)
+      : null
+  }))
+
+  return {
+    expenses: expensesWithParents || [],
+    totalCount: count || 0,
+    totalPages: Math.ceil((count || 0) / limit),
+    currentPage: page,
+  }
+}
+
 
 export async function getExpense(id: string) {
   const supabase = await createClient()
