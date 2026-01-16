@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import type { CreateExpenseInput, UpdateExpenseInput } from '@/lib/types/database.types'
+import { ParsedExpense, findDuplicates } from '@/lib/utils/csv-parser'
 
 export async function getExpenses() {
   const supabase = await createClient()
@@ -155,4 +156,57 @@ export async function deleteExpense(id: string) {
   
   revalidatePath('/expenses')
   return { success: true }
+}
+
+export async function bulkCreateExpenses(expenses: ParsedExpense[]) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  // Prepare data for bulk insert
+  const expensesToInsert = expenses.map(expense => ({
+    user_id: user.id,
+    transaction_date: expense.transaction_date,
+    booking_date: expense.booking_date,
+    amount: expense.amount,
+    currency: expense.currency,
+    merchant: expense.merchant,
+    description: expense.description,
+    transaction_type: expense.transaction_type,
+    original_amount: expense.original_amount,
+    original_currency: expense.original_currency,
+    category_id: null, // All imported expenses are uncategorized initially
+    is_confirmed: false, // User needs to review
+  }))
+
+  const { data, error } = await supabase
+    .from('expenses')
+    .insert(expensesToInsert)
+    .select()
+
+  if (error) throw error
+  
+  revalidatePath('/expenses')
+  return data
+}
+
+// Helper to check for potential duplicates
+export async function checkDuplicates(expenses: ParsedExpense[]) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  // Get all existing expenses for this user
+  const { data: existingExpenses, error } = await supabase
+    .from('expenses')
+    .select('transaction_date, amount, merchant')
+    .eq('user_id', user.id)
+
+  if (error) throw error
+
+  const duplicates = findDuplicates(expenses, existingExpenses || [])
+  
+  return Array.from(duplicates)
 }
