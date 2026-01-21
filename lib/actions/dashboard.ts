@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear, format, parseISO, isWithinInterval, subDays } from 'date-fns'
 
-export type DateRange = 'this_week' | 'this_month' | 'last_month' | 'last_3_months' | 'this_year' | 'all_time'
+export type DateRange = 'this_week' | 'this_month' | 'last_month' | 'last_3_months' | 'this_year' | 'last_year' | 'last_12_months' | 'all_time'
 
 function getDateRangeInterval(range: DateRange) {
   const now = new Date()
@@ -33,6 +33,14 @@ function getDateRangeInterval(range: DateRange) {
     case 'this_year':
       start = startOfYear(now)
       end = endOfYear(now)
+      break
+    case 'last_year':
+      start = startOfYear(subMonths(now, 12))
+      end = endOfYear(subMonths(now, 12))
+      break
+    case 'last_12_months':
+      start = subMonths(now, 12)
+      end = now
       break
     case 'all_time':
       start = new Date('2000-01-01')
@@ -136,9 +144,10 @@ export async function getExpensesByCategory(range: DateRange = 'last_month') {
 
   // Get all unique parent category IDs from subcategories
   const parentIds = expenses
-    ?.map(e => e.category?.parent_id)
+    // @ts-ignore
+    ?.map(e => e.category && !Array.isArray(e.category) ? e.category.parent_id : null)
     .filter(Boolean)
-    .filter((v, i, a) => a.indexOf(v) === i) || []
+    .filter((v, i, a) => a.indexOf(v) === i) as string[] || []
 
   // Fetch parent categories
   let parentCategoriesMap = new Map<string, { id: string, name: string, color: string }>()
@@ -186,7 +195,9 @@ export async function getExpensesByCategory(range: DateRange = 'last_month') {
     }
 
     // If this is a subcategory (has parent_id), group under parent
+    // @ts-ignore
     if (category.parent_id && parentCategoriesMap.has(category.parent_id)) {
+      // @ts-ignore
       const parent = parentCategoriesMap.get(category.parent_id)!
       
       if (categoryMap.has(parent.id)) {
@@ -225,25 +236,44 @@ export async function getExpensesByCategory(range: DateRange = 'last_month') {
   return result
 }
 
-export async function getSpendingOverTime(range: DateRange = 'this_year') {
+export async function getSpendingOverTime(range: DateRange = 'this_year', categoryId?: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
   const { start, end } = getDateRangeInterval(range)
 
-  const { data: expenses, error } = await supabase
+  let query = supabase
     .from('expenses')
     .select('amount, transaction_date')
     .eq('user_id', user.id)
     .gte('transaction_date', start.toISOString())
     .lte('transaction_date', end.toISOString())
-    .lt('amount', 0) 
+    .lt('amount', 0)
 
+  if (categoryId) {
+    if (categoryId === 'uncategorized') {
+      query = query.is('category_id', null)
+    } else {
+      // Fetch expenses for this category or its subcategories
+      // Simplest approach: fetch all expense for time range, then filter in memory if needed,
+      // but let's try to filter in DB if possible.
+      // Getting IDs first is robust.
+      const { data: subcategories } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('parent_id', categoryId)
+      
+      const ids = [categoryId, ...(subcategories?.map(c => c.id) || [])]
+      query = query.in('category_id', ids)
+    }
+  }
+
+  const { data: expenses, error } = await query
   if (error) throw error
 
   // Aggregate by month or day depending on range
-  const isMonthly = range === 'this_year' || range === 'all_time' || range === 'last_3_months'
+  const isMonthly = range === 'this_year' || range === 'all_time' || range === 'last_3_months' || range === 'last_year' || range === 'last_12_months'
   
   const timeMap = new Map<string, number>()
   
@@ -254,6 +284,10 @@ export async function getSpendingOverTime(range: DateRange = 'this_year') {
     
     timeMap.set(key, (timeMap.get(key) || 0) + amount)
   })
+
+  // Fill gaps for better chart visualization? 
+  // For monthly, we should probably ensure all months in range are present with 0
+  // But let's stick to sparse for now to avoid complexity, unless requested.
 
   return Array.from(timeMap.entries())
     .map(([date, amount]) => ({ date, amount }))

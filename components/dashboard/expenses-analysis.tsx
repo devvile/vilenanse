@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { ExpensesDonutChart } from './expenses-donut'
 import { SubcategoryChart } from './subcategory-chart'
+import { SpendingLineChart } from './spending-line-chart'
 import { DateRange, getExpensesBySubcategory } from '@/lib/actions/dashboard'
 
 interface ExpensesAnalysisProps {
@@ -13,9 +14,10 @@ interface ExpensesAnalysisProps {
     color: string
     parent_id: string | null
   }[]
+  initialSpendingData: { date: string; amount: number }[]
 }
 
-export function ExpensesAnalysis({ initialDonutData }: ExpensesAnalysisProps) {
+export function ExpensesAnalysis({ initialDonutData, initialSpendingData }: ExpensesAnalysisProps) {
   const [selectedCategory, setSelectedCategory] = useState<{ id: string; name: string } | null>(null)
   const [subcategoryData, setSubcategoryData] = useState<{ name: string; value: number; color: string }[]>([])
   const [loadingSubcategories, setLoadingSubcategories] = useState(false)
@@ -72,6 +74,13 @@ export function ExpensesAnalysis({ initialDonutData }: ExpensesAnalysisProps) {
           loading={loadingSubcategories}
           categoryName={selectedCategory?.name || ''}
         />
+      </div>
+      <div className="lg:col-span-2 h-[400px]">
+         <SpendingLineChart 
+            initialData={initialSpendingData} 
+            categoryId={selectedCategory?.id}
+            categoryName={selectedCategory?.name}
+         />
       </div>
     </div>
   )

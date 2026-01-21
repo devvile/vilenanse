@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import {
   LineChart,
@@ -19,19 +19,21 @@ import { BarChart3, TrendingUp, Loader2 } from 'lucide-react'
 
 interface SpendingLineChartProps {
   initialData: { date: string; amount: number }[]
+  categoryId?: string
+  categoryName?: string
 }
 
-export function SpendingLineChart({ initialData }: SpendingLineChartProps) {
+export function SpendingLineChart({ initialData, categoryId, categoryName }: SpendingLineChartProps) {
   const [data, setData] = useState(initialData)
   const [dateRange, setDateRange] = useState<DateRange>('this_year')
   const [loading, setLoading] = useState(false)
   const [chartType, setChartType] = useState<'line' | 'bar'>('line')
 
-  const handleRangeChange = async (range: DateRange) => {
+  const handleRangeChange = async (range: DateRange, catId: string | undefined = categoryId) => {
     setDateRange(range)
     setLoading(true)
     try {
-      const newData = await getSpendingOverTime(range)
+      const newData = await getSpendingOverTime(range, catId)
       setData(newData)
     } catch (error) {
       console.error('Failed to fetch spending data', error)
@@ -39,6 +41,11 @@ export function SpendingLineChart({ initialData }: SpendingLineChartProps) {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    // When category changes, keep current range but fetch for new category
+    handleRangeChange(dateRange, categoryId)
+  }, [categoryId])
 
   return (
     <Card className="p-6 bg-[#1a1a24] border-white/[0.08] h-full flex flex-col relative">
@@ -50,8 +57,12 @@ export function SpendingLineChart({ initialData }: SpendingLineChartProps) {
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h3 className="font-semibold text-white">Spending Over Time</h3>
-          <p className="text-sm text-gray-400">Visualizing your expense trends</p>
+          <h3 className="font-semibold text-white">
+             {categoryName ? `Spending on ${categoryName}` : 'Spending Over Time'}
+          </h3>
+          <p className="text-sm text-gray-400">
+             {categoryName ? 'History for this category' : 'Visualizing your expense trends'}
+          </p>
         </div>
         
         <div className="flex items-center gap-2">
@@ -76,29 +87,26 @@ export function SpendingLineChart({ initialData }: SpendingLineChartProps) {
              </button>
            </div>
           
-           <div className="flex bg-[#0d0d12] rounded-lg p-1">
-            <button
-               onClick={() => handleRangeChange('this_month')}
-               className={cn(
-                 "px-3 py-1 text-xs font-medium rounded-md transition-all",
-                 dateRange === 'this_month' 
-                   ? "bg-[#272732] text-white shadow-sm" 
-                   : "text-gray-400 hover:text-gray-300"
-               )}
-             >
-              Month
-             </button>
-             <button
-               onClick={() => handleRangeChange('this_year')}
-               className={cn(
-                 "px-3 py-1 text-xs font-medium rounded-md transition-all",
-                 dateRange === 'this_year' 
-                   ? "bg-[#272732] text-white shadow-sm" 
-                   : "text-gray-400 hover:text-gray-300"
-               )}
-             >
-               Year
-             </button>
+           <div className="flex bg-[#0d0d12] rounded-lg p-1 overflow-x-auto max-w-[200px] sm:max-w-none scrollbar-hide">
+            {[
+              { label: 'Year', value: 'this_year' },
+              { label: 'Last Year', value: 'last_year' },
+              { label: '12 Months', value: 'last_12_months' },
+              { label: 'All Time', value: 'all_time' }
+            ].map((range) => (
+              <button
+                key={range.value}
+                onClick={() => handleRangeChange(range.value as DateRange)}
+                className={cn(
+                  "px-3 py-1 text-xs font-medium rounded-md transition-all whitespace-nowrap",
+                  dateRange === range.value 
+                    ? "bg-[#272732] text-white shadow-sm" 
+                    : "text-gray-400 hover:text-gray-300"
+                )}
+              >
+                {range.label}
+              </button>
+            ))}
           </div>
         </div>
       </div>

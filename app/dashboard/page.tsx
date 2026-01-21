@@ -81,13 +81,10 @@ export default async function DashboardPage() {
 
         {/* Charts Row 1: Line Chart & Donut Chart */}
         <div className="grid grid-cols-1 mb-6">
-            <ExpensesAnalysis initialDonutData={donutData} />
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-1 mb-6">
-          <div className="h-[400px]">
-            <SpendingLineChart initialData={spendingData} />
-          </div>
+            <ExpensesAnalysis 
+                initialDonutData={donutData} 
+                initialSpendingData={spendingData}
+            />
         </div>
 
         {/* Charts Row 2: Income vs Expenses & Top Merchants */}
