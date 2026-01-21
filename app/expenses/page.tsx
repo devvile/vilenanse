@@ -88,11 +88,16 @@ export default async function ExpensesPage({
     summaryQuery = summaryQuery.lt("amount", 0);
   }
 
-  if (resolvedSearchParams.assignment === "assigned") {
+  // Assignment Filter Logic
+  // Default to 'unassigned' if no parameter is provided
+  const assignmentFilter = resolvedSearchParams.assignment || 'unassigned';
+
+  if (assignmentFilter === "assigned") {
     summaryQuery = summaryQuery.not("category_id", "is", null);
-  } else if (resolvedSearchParams.assignment === "unassigned") {
+  } else if (assignmentFilter === "unassigned") {
     summaryQuery = summaryQuery.is("category_id", null);
   }
+  // if 'all', do nothing (show all)
 
   // Add merchant filter - case-insensitive partial match
   if (resolvedSearchParams.merchant) {
@@ -171,9 +176,10 @@ export default async function ExpensesPage({
     expensesQuery = expensesQuery.lt("amount", 0);
   }
 
-  if (resolvedSearchParams.assignment === "assigned") {
+  // Assignment Filter Logic for List
+  if (assignmentFilter === "assigned") {
     expensesQuery = expensesQuery.not("category_id", "is", null);
-  } else if (resolvedSearchParams.assignment === "unassigned") {
+  } else if (assignmentFilter === "unassigned") {
     expensesQuery = expensesQuery.is("category_id", null);
   }
 

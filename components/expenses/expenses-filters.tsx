@@ -25,7 +25,8 @@ export function ExpensesFilters({ categories }: ExpensesFiltersProps) {
   const currentMainCategory = searchParams.get('main_category') || ''
   const currentSubCategory = searchParams.get('sub_category') || ''
   const currentType = searchParams.get('type') || 'all'
-  const currentAssignment = searchParams.get('assignment') || 'all'
+  // Default to 'unassigned' if not present
+  const currentAssignment = searchParams.get('assignment') || 'unassigned'
   const currentMerchant = searchParams.get('merchant') || ''
   const currentDateFrom = searchParams.get('date_from') || ''
   const currentDateTo = searchParams.get('date_to') || ''
@@ -69,7 +70,7 @@ export function ExpensesFilters({ categories }: ExpensesFiltersProps) {
       params.delete('type')
     }
 
-    if (selectedAssignment !== 'all') {
+    if (selectedAssignment !== 'unassigned') {
       params.set('assignment', selectedAssignment)
     } else {
       params.delete('assignment')
@@ -102,7 +103,8 @@ export function ExpensesFilters({ categories }: ExpensesFiltersProps) {
     setSelectedMainCategory('')
     setSelectedSubCategory('')
     setSelectedType('all')
-    setSelectedAssignment('all')
+    // Reset to default 'unassigned'
+    setSelectedAssignment('unassigned')
     setMerchantSearch('')
     setDateFrom('')
     setDateTo('')
@@ -395,11 +397,11 @@ export function ExpensesFilters({ categories }: ExpensesFiltersProps) {
                 </button>
               </span>
             )}
-            {selectedAssignment !== 'all' && (
+            {selectedAssignment !== 'unassigned' && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-sm text-emerald-400">
-                {selectedAssignment === 'assigned' ? 'With category' : 'Without category'}
+                {selectedAssignment === 'assigned' ? 'With category' : 'All Expenses'}
                 <button
-                  onClick={() => setSelectedAssignment('all')}
+                  onClick={() => setSelectedAssignment('unassigned')}
                   className="hover:text-emerald-300"
                 >
                   <X className="h-3.5 w-3.5" />
