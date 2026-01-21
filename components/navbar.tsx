@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { UserMenu } from './user-menu'
-import { LayoutDashboard, BarChart3, FileText, Settings, Bell, Menu } from 'lucide-react'
+import { LayoutDashboard, BarChart3, FileText, Settings, Bell, Menu, Clock } from 'lucide-react'
 
 export async function Navbar() {
   const supabase = await createClient()
@@ -23,7 +23,7 @@ export async function Navbar() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500">
                 <span className="text-sm font-bold text-black">V</span>
               </div>
-              <span className="text-lg font-semibold text-white">Vinance</span>
+              <span className="text-lg font-semibold text-white">Vilenance</span>
             </Link>
           </div>
 
@@ -43,6 +43,13 @@ export async function Navbar() {
               >
                 <FileText className="h-4 w-4" />
                 Expenses
+              </Link>
+              <Link
+                href="/incoming"
+                className="nav-pill flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-400 hover:text-white hover:bg-white/[0.05] transition-all"
+              >
+                <Clock className="h-4 w-4" />
+                Incoming
               </Link>
               <Link
                 href="/categories"
