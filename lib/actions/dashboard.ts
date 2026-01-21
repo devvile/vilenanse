@@ -358,3 +358,73 @@ export async function getIncomeVsExpensesOverTime(range: DateRange = 'this_year'
       return dateA.getTime() - dateB.getTime()
     })
 }
+
+export async function getExpensesBySubcategory(categoryId: string, range: DateRange) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  const { start, end } = getDateRangeInterval(range)
+  const isUncategorized = categoryId === 'uncategorized'
+
+  let query = supabase
+    .from('expenses')
+    .select(`
+      amount,
+      category:categories(id, name, color, parent_id)
+    `)
+    .eq('user_id', user.id)
+    .gte('transaction_date', start.toISOString())
+    .lte('transaction_date', end.toISOString())
+    .lt('amount', 0)
+
+  if (isUncategorized) {
+    query = query.is('category_id', null)
+  } else {
+    // We need to fetch expenses where the category is EITHER the categoryId itself OR a child of it
+    // But since Supabase filter on related tables is tricky for "OR", we might strictly check permissions
+    // Simplest way: Fetch all expenses for this user in time range, filter in memory if the relation logic is complex
+    // OR: Get all category IDs that are children of this category first.
+    
+    // Step 1: Get all child category IDs (and the category itself)
+    const { data: subcategories } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('parent_id', categoryId)
+    
+    const ids = [categoryId, ...(subcategories?.map(c => c.id) || [])]
+    query = query.in('category_id', ids)
+  }
+
+  const { data: expenses, error } = await query
+  if (error) throw error
+
+  const subcategoryMap = new Map<string, { name: string, value: number, color: string }>()
+
+  expenses?.forEach(e => {
+    const amount = Math.abs(e.amount)
+    let catName = 'Uncategorized'
+    let catColor = '#6b7280'
+    let catId = 'uncategorized'
+
+    if (e.category) {
+       // @ts-ignore
+      const cat = Array.isArray(e.category) ? e.category[0] : e.category
+      catId = cat.id
+      catName = cat.name
+      catColor = cat.color
+    }
+
+    if (subcategoryMap.has(catId)) {
+      subcategoryMap.get(catId)!.value += amount
+    } else {
+      subcategoryMap.set(catId, {
+        name: catName,
+        value: amount,
+        color: catColor
+      })
+    }
+  })
+
+  return Array.from(subcategoryMap.values()).sort((a, b) => b.value - a.value)
+}

@@ -15,11 +15,14 @@ interface ExpensesDonutChartProps {
     color: string
     parent_id: string | null
   }[]
+  onCategorySelect?: (category: { id: string; name: string }) => void
+  selectedCategoryId?: string
+  onDateRangeChangeProp?: (range: DateRange) => void
 }
 
 const COLORS = ['#22c55e', '#a855f7', '#3b82f6', '#f97316', '#ef4444', '#eab308', '#ec4899', '#6366f1']
 
-export function ExpensesDonutChart({ initialData }: ExpensesDonutChartProps) {
+export function ExpensesDonutChart({ initialData, onCategorySelect, selectedCategoryId, onDateRangeChangeProp }: ExpensesDonutChartProps) {
   const [data, setData] = useState(initialData)
   const [dateRange, setDateRange] = useState<DateRange>('last_month')
   const [loading, setLoading] = useState(false)
@@ -28,6 +31,9 @@ export function ExpensesDonutChart({ initialData }: ExpensesDonutChartProps) {
 
   const handleRangeChange = async (range: DateRange) => {
     setDateRange(range)
+    if (onDateRangeChangeProp) {
+      onDateRangeChangeProp(range)
+    }
     setLoading(true)
     try {
       const newData = await getExpensesByCategory(range)
@@ -36,6 +42,12 @@ export function ExpensesDonutChart({ initialData }: ExpensesDonutChartProps) {
       console.error('Failed to fetch expenses', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handlePieClick = (entry: any) => {
+    if (onCategorySelect) {
+      onCategorySelect({ id: entry.id, name: entry.name })
     }
   }
 
@@ -154,6 +166,7 @@ export function ExpensesDonutChart({ initialData }: ExpensesDonutChartProps) {
                 dataKey="value"
                 onMouseEnter={onPieEnter}
                 onMouseLeave={onPieLeave}
+                onClick={handlePieClick}
                 // @ts-ignore
                 activeIndex={activeIndex}
               >
@@ -161,9 +174,13 @@ export function ExpensesDonutChart({ initialData }: ExpensesDonutChartProps) {
                   <Cell 
                     key={`cell-${index}`} 
                     fill={entry.color || COLORS[index % COLORS.length]} 
-                    stroke="rgba(26, 26, 36, 1)"
-                    strokeWidth={2}
+                    stroke={selectedCategoryId === entry.id ? "#fff" : "rgba(26, 26, 36, 1)"}
+                    strokeWidth={selectedCategoryId === entry.id ? 2 : 2}
                     className="transition-all duration-300 hover:opacity-80 cursor-pointer"
+                    style={{
+                      filter: selectedCategoryId === entry.id ? 'brightness(1.1)' : 'none',
+                      opacity: selectedCategoryId && selectedCategoryId !== entry.id ? 0.5 : 1
+                    }}
                   />
                 ))}
               </Pie>

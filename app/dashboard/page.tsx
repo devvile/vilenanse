@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { BalanceCard } from "@/components/dashboard/balance-card";
 import { QuickStats } from "@/components/dashboard/quick-stats";
-import { ExpensesDonutChart } from "@/components/dashboard/expenses-donut";
+import { ExpensesAnalysis } from '@/components/dashboard/expenses-analysis'
 import { SpendingLineChart } from "@/components/dashboard/spending-line-chart";
 import { IncomeVsExpensesChart } from "@/components/dashboard/income-vs-expenses";
 import { TopMerchantsChart } from "@/components/dashboard/top-merchants";
@@ -80,10 +80,11 @@ export default async function DashboardPage() {
         </div>
 
         {/* Charts Row 1: Line Chart & Donut Chart */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <div className="h-[400px]">
-            <ExpensesDonutChart initialData={donutData} />
-          </div>
+        <div className="grid grid-cols-1 mb-6">
+            <ExpensesAnalysis initialDonutData={donutData} />
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-1 mb-6">
           <div className="h-[400px]">
             <SpendingLineChart initialData={spendingData} />
           </div>
