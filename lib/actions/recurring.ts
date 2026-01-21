@@ -44,7 +44,24 @@ export async function getRecurringExpenses() {
     throw new Error('Failed to fetch recurring expenses')
   }
 
-  return data as RecurringExpense[]
+  const today = new Date()
+  const currentDay = today.getDate()
+
+  // Custom sort: items due earlier (closer to today or earlier this month) first
+  // If payment_day >= currentDay, it's due this month.
+  // If payment_day < currentDay, it's due next month.
+  const sortedData = (data as RecurringExpense[]).sort((a, b) => {
+    const aDueThisMonth = a.payment_day >= currentDay
+    const bDueThisMonth = b.payment_day >= currentDay
+
+    if (aDueThisMonth && !bDueThisMonth) return -1
+    if (!aDueThisMonth && bDueThisMonth) return 1
+    
+    // If both are due in the same "period" (this month or next month), sort by day
+    return a.payment_day - b.payment_day
+  })
+
+  return sortedData
 }
 
 export async function addRecurringExpense(data: {
