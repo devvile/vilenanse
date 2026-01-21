@@ -24,12 +24,7 @@ export function FinancialHealth({
   isPositive = false,
   data = defaultData
 }: FinancialHealthProps) {
-  const formatAmount = (value: number) => {
-    const [whole, decimal] = value.toFixed(2).split('.')
-    return { whole, decimal }
-  }
-
-  const formatted = formatAmount(amount)
+  const formatted = Math.round(amount)
 
   return (
     <Card className="p-6">
@@ -44,8 +39,8 @@ export function FinancialHealth({
 
       {/* Amount */}
       <div className="mb-2">
-        <span className="text-3xl font-bold text-white">${formatted.whole}</span>
-        <span className="text-xl font-medium text-gray-500">.{formatted.decimal}</span>
+        <span className="text-3xl font-bold text-white">{formatted.toLocaleString()}</span>
+        <span className="text-sm font-medium text-gray-400 ml-1">PLN</span>
       </div>
 
       {/* Percentage change */}

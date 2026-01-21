@@ -17,7 +17,7 @@ export function QuickStats({ income, expenses, avgDaily, largestTransaction }: Q
         </div>
         <div>
           <p className="text-xs text-gray-400">Total Income</p>
-          <p className="text-lg font-bold text-white">${income.toLocaleString()}</p>
+          <p className="text-lg font-bold text-white">{Math.round(income).toLocaleString()} PLN</p>
         </div>
       </Card>
       
@@ -27,7 +27,7 @@ export function QuickStats({ income, expenses, avgDaily, largestTransaction }: Q
         </div>
         <div>
           <p className="text-xs text-gray-400">Total Expenses</p>
-          <p className="text-lg font-bold text-white">${expenses.toLocaleString()}</p>
+          <p className="text-lg font-bold text-white">{Math.round(expenses).toLocaleString()} PLN</p>
         </div>
       </Card>
 
@@ -37,7 +37,7 @@ export function QuickStats({ income, expenses, avgDaily, largestTransaction }: Q
         </div>
         <div>
           <p className="text-xs text-gray-400">Avg. Daily Spend</p>
-          <p className="text-lg font-bold text-white">${avgDaily.toFixed(2)}</p>
+          <p className="text-lg font-bold text-white">{Math.round(avgDaily).toLocaleString()} PLN</p>
         </div>
       </Card>
 
@@ -47,7 +47,7 @@ export function QuickStats({ income, expenses, avgDaily, largestTransaction }: Q
         </div>
         <div>
           <p className="text-xs text-gray-400">Largest Transaction</p>
-          <p className="text-lg font-bold text-white">${largestTransaction.toLocaleString()}</p>
+          <p className="text-lg font-bold text-white">{Math.round(largestTransaction).toLocaleString()} PLN</p>
         </div>
       </Card>
     </div>

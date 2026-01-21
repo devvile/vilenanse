@@ -16,12 +16,7 @@ export function BalanceCard({
 }: BalanceCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const formatCurrency = (value: number) => {
-    const [whole, decimal] = value.toFixed(2).split('.')
-    return { whole, decimal }
-  }
-
-  const balance = formatCurrency(totalBalance)
+  const balance = Math.round(totalBalance)
 
   return (
     <>
@@ -47,9 +42,9 @@ export function BalanceCard({
         {/* Balance */}
         <div className="mb-6">
           <span className="text-4xl font-bold text-white">
-            {totalBalance < 0 ? '-' : ''}${balance.whole}
+            {totalBalance < 0 ? '-' : ''}{balance.toLocaleString()}
           </span>
-          <span className="text-2xl font-medium text-gray-500">.{balance.decimal}</span>
+          <span className="text-sm font-medium text-gray-400 ml-1">PLN</span>
         </div>
 
         {/* Action buttons */}

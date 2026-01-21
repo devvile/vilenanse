@@ -28,8 +28,8 @@ export function BudgetProgress({ spent, limit }: BudgetProgressProps) {
       </div>
       
       <div className="flex justify-between text-sm">
-        <span className="text-white font-medium">${spent.toLocaleString()}</span>
-        <span className="text-gray-400">Limit: ${limit.toLocaleString()}</span>
+        <span className="text-white font-medium">{spent.toLocaleString()} PLN</span>
+        <span className="text-gray-400">Limit: {limit.toLocaleString()} PLN</span>
       </div>
     </Card>
   )

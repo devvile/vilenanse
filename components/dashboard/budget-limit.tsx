@@ -28,10 +28,10 @@ export function BudgetLimit({ spent = 7456.78, limit = 9500.00 }: BudgetLimitPro
       {/* Labels */}
       <div className="flex items-center justify-between text-sm">
         <div>
-          <span className="text-white font-medium">${spent.toLocaleString()}</span>
+          <span className="text-white font-medium">{spent.toLocaleString()} PLN</span>
           <span className="text-gray-500 ml-1">Spend out of</span>
         </div>
-        <span className="text-white font-medium">${limit.toLocaleString()}</span>
+        <span className="text-white font-medium">{limit.toLocaleString()} PLN</span>
       </div>
     </Card>
   )

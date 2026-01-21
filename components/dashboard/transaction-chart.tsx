@@ -30,12 +30,7 @@ export function TransactionChart({
   data = defaultData,
   period = 'Weekly'
 }: TransactionChartProps) {
-  const formatAmount = (value: number) => {
-    const [whole, decimal] = value.toFixed(2).split('.')
-    return { whole, decimal }
-  }
-
-  const formatted = formatAmount(total)
+  const formatted = Math.round(total)
 
   return (
     <Card className="p-6">
@@ -51,8 +46,8 @@ export function TransactionChart({
 
       {/* Total amount */}
       <div className="mb-6">
-        <span className="text-3xl font-bold text-white">${formatted.whole}</span>
-        <span className="text-xl font-medium text-gray-500">.{formatted.decimal}</span>
+        <span className="text-3xl font-bold text-white">{formatted.toLocaleString()}</span>
+        <span className="text-sm font-medium text-gray-400 ml-1">PLN</span>
       </div>
 
       {/* Chart */}

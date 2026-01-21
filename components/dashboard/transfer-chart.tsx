@@ -67,7 +67,7 @@ export function TransferChart({
                 </span>
               </div>
               <span className="text-sm font-medium text-white">
-                {item.value.toLocaleString()}
+                {item.value.toLocaleString()} PLN
               </span>
             </div>
           ))}

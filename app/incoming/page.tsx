@@ -5,6 +5,7 @@ import { RecurringList } from '@/components/incoming/recurring-list'
 import { AddRecurringModal } from '@/components/incoming/add-recurring-modal'
 import { Card } from '@/components/ui/card'
 import { CalendarClock, Wallet, CalendarDays } from 'lucide-react'
+import { UpcomingExpensesProjection } from '@/components/incoming/upcoming-expenses-projection'
 
 export const dynamic = 'force-dynamic'
 
@@ -77,12 +78,32 @@ export default async function IncomingPage() {
           </Card>
         </div>
 
-        {/* List */}
-        <div>
-           <h2 className="text-xl font-bold text-white mb-4">Your Subscriptions</h2>
-           <RecurringList expenses={expenses} categories={categories || []} />
-        </div>
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column: Subscriptions List */}
+          <div className="lg:col-span-2">
+            <h2 className="text-xl font-bold text-white mb-4">Your Subscriptions</h2>
+            <RecurringList expenses={expenses} categories={categories || []} />
+          </div>
 
+          {/* Right Column: Projection & Actions */}
+          <div className="space-y-6">
+            <UpcomingExpensesProjection expenses={expenses} />
+            
+            <Card className="p-6 bg-[#1a1a24]/50 border-white/[0.05] border-dashed">
+              <h4 className="text-sm font-semibold text-white mb-2">Manage Categories</h4>
+              <p className="text-xs text-gray-400 mb-4">
+                Organize your subscriptions by categories to see better analytics.
+              </p>
+              <a 
+                href="/categories" 
+                className="text-xs font-medium text-emerald-400 hover:text-emerald-300 transition-colors"
+              >
+                Go to Categories &rarr;
+              </a>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   )

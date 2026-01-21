@@ -71,9 +71,9 @@ export function AnalyticsChart({ data = defaultData }: AnalyticsChartProps) {
 
       {/* Y-axis labels */}
       <div className="mt-4 flex justify-between text-xs text-gray-500">
-        <span>$2,487.85</span>
-        <span>$3,745.29</span>
-        <span>$6,087.12</span>
+        <span>2,487.85 PLN</span>
+        <span>3,745.29 PLN</span>
+        <span>6,087.12 PLN</span>
       </div>
     </Card>
   )

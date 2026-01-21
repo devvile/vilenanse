@@ -48,7 +48,7 @@ export function IncomeVsExpensesChart({ data = defaultData }: IncomeVsExpensesCh
                 axisLine={false}
                 tickLine={false}
                 tick={{ fill: '#6b7280', fontSize: 12 }}
-                tickFormatter={(value) => `$${value}`}
+                tickFormatter={(value) => `${value} PLN`}
               />
               <Tooltip 
                 cursor={{ fill: 'rgba(255,255,255,0.05)' }}
@@ -57,7 +57,7 @@ export function IncomeVsExpensesChart({ data = defaultData }: IncomeVsExpensesCh
                   border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: '8px'
                 }}
-                formatter={(value: any) => [`$${Number(value).toLocaleString()}`, '']}
+                formatter={(value: any) => [`${Number(value).toLocaleString()} PLN`, '']}
               />
               <Legend />
               <Bar 

@@ -78,7 +78,7 @@ export function TopMerchantsChart({ initialData }: TopMerchantsChartProps) {
                 <span className="text-white font-medium truncate max-w-[180px]" title={item.name}>
                   {item.name}
                 </span>
-                <span className="text-gray-400">${item.value.toLocaleString()}</span>
+                <span className="text-gray-400">{item.value.toLocaleString()} PLN</span>
               </div>
               <div className="h-2 w-full bg-[#0d0d12] rounded-full overflow-hidden">
                 <div 

@@ -73,7 +73,7 @@ export function ExpenseCard({ expense }: ExpenseCardProps) {
           <div className="ml-4 text-right">
             <p className={`text-2xl font-bold ${amountColor}`}>
               {expense.amount >= 0 ? '+' : ''}
-              {expense.amount.toFixed(2)} {expense.currency}
+              {expense.amount.toFixed(2)} <span className="text-sm font-medium opacity-70">PLN</span>
             </p>
             {expense.original_amount && expense.original_currency && (
               <p className="mt-1 text-sm text-gray-500">

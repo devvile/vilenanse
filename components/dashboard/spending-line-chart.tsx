@@ -145,7 +145,7 @@ export function SpendingLineChart({ initialData, categoryId, categoryName }: Spe
                   fontSize={12} 
                   tickLine={false} 
                   axisLine={false}
-                  tickFormatter={(value) => `$${value}`}
+                  tickFormatter={(value) => `${value} PLN`}
                 />
                 <Tooltip
                   contentStyle={{ 
@@ -154,7 +154,7 @@ export function SpendingLineChart({ initialData, categoryId, categoryName }: Spe
                     borderRadius: '8px'
                   }}
                   itemStyle={{ color: '#22c55e' }}
-                  formatter={(value: any) => [`$${Number(value).toFixed(2)}`, 'Spent']}
+                  formatter={(value: any) => [`${Number(value).toFixed(2)} PLN`, 'Spent']}
                   labelStyle={{ color: '#9ca3af', marginBottom: '0.25rem' }}
                 />
                 <Line
@@ -185,7 +185,7 @@ export function SpendingLineChart({ initialData, categoryId, categoryName }: Spe
                   fontSize={12} 
                   tickLine={false} 
                   axisLine={false}
-                  tickFormatter={(value) => `$${value}`}
+                  tickFormatter={(value) => `${value} PLN`}
                 />
                 <Tooltip
                   cursor={{ fill: 'rgba(255,255,255,0.05)' }}
@@ -194,7 +194,7 @@ export function SpendingLineChart({ initialData, categoryId, categoryName }: Spe
                     border: '1px solid rgba(255,255,255,0.1)',
                     borderRadius: '8px'
                   }}
-                  formatter={(value: any) => [`$${Number(value).toFixed(2)}`, 'Spent']}
+                  formatter={(value: any) => [`${Number(value).toFixed(2)} PLN`, 'Spent']}
                   labelStyle={{ color: '#9ca3af', marginBottom: '0.25rem' }}
                 />
                 <Bar 
