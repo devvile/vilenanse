@@ -60,7 +60,7 @@ export function ExpensesAnalysis({ initialDonutData, initialSpendingData }: Expe
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      <div className="h-[400px]">
+      <div className="h-[550px]">
         <ExpensesDonutChart 
           initialData={initialDonutData} 
           onCategorySelect={handleCategorySelect}
@@ -68,7 +68,7 @@ export function ExpensesAnalysis({ initialDonutData, initialSpendingData }: Expe
           onDateRangeChangeProp={handleDateRangeChange}
         />
       </div>
-      <div className="h-[400px]">
+      <div className="h-[550px]">
         <SubcategoryChart 
           data={subcategoryData} 
           loading={loadingSubcategories}

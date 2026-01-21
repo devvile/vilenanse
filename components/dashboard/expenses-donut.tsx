@@ -98,7 +98,7 @@ export function ExpensesDonutChart({ initialData, onCategorySelect, selectedCate
     const { payload } = props
     
     return (
-      <div className="grid grid-cols-2 gap-2 text-xs mt-4">
+      <div className="grid grid-cols-2 gap-2 text-xs">
         {payload.map((entry: any, index: number) => {
            const percent = totalValue > 0 ? (entry.payload.value / totalValue) * 100 : 0
            return (
@@ -191,7 +191,7 @@ export function ExpensesDonutChart({ initialData, onCategorySelect, selectedCate
          )}
         
         {data.length > 0 && !isHovering && (
-          <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none transition-opacity duration-200">
+          <div className="absolute top-[60%] left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none transition-opacity duration-200">
             <p className="text-xs text-gray-400">Total</p>
             <p className="text-xl font-bold text-white">{totalValue.toLocaleString()} PLN</p>
           </div>
