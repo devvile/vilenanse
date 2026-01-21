@@ -146,7 +146,7 @@ export function SpendingLineChart({ initialData }: SpendingLineChartProps) {
                     borderRadius: '8px'
                   }}
                   itemStyle={{ color: '#22c55e' }}
-                  formatter={(value: number) => [`$${value.toFixed(2)}`, 'Spent']}
+                  formatter={(value: any) => [`$${Number(value).toFixed(2)}`, 'Spent']}
                   labelStyle={{ color: '#9ca3af', marginBottom: '0.25rem' }}
                 />
                 <Line
@@ -186,7 +186,7 @@ export function SpendingLineChart({ initialData }: SpendingLineChartProps) {
                     border: '1px solid rgba(255,255,255,0.1)',
                     borderRadius: '8px'
                   }}
-                  formatter={(value: number) => [`$${value.toFixed(2)}`, 'Spent']}
+                  formatter={(value: any) => [`$${Number(value).toFixed(2)}`, 'Spent']}
                   labelStyle={{ color: '#9ca3af', marginBottom: '0.25rem' }}
                 />
                 <Bar 

@@ -7,29 +7,51 @@ export type DateRange = 'this_week' | 'this_month' | 'last_month' | 'last_3_mont
 
 function getDateRangeInterval(range: DateRange) {
   const now = new Date()
+  let start: Date
+  let end: Date
+  
   switch (range) {
     case 'this_week':
-      const startOfWeek = new Date(now)
-      startOfWeek.setDate(now.getDate() - now.getDay()) // Sunday
-      startOfWeek.setHours(0, 0, 0, 0)
-      return { start: startOfWeek, end: now }
+      start = new Date(now)
+      start.setDate(now.getDate() - now.getDay()) // Sunday
+      start.setHours(0, 0, 0, 0)
+      end = now
+      break
     case 'this_month':
-      return { start: startOfMonth(now), end: endOfMonth(now) }
+      start = startOfMonth(now)
+      end = endOfMonth(now)
+      break
     case 'last_month':
       const lastMonth = subMonths(now, 1)
-      return { start: startOfMonth(lastMonth), end: endOfMonth(lastMonth) }
+      start = startOfMonth(lastMonth)
+      end = endOfMonth(lastMonth)
+      break
     case 'last_3_months':
-      return { start: subMonths(now, 3), end: now }
+      start = subMonths(now, 3)
+      end = now
+      break
     case 'this_year':
-      return { start: startOfYear(now), end: endOfYear(now) }
+      start = startOfYear(now)
+      end = endOfYear(now)
+      break
     case 'all_time':
-      return { start: new Date(0), end: now }
+      start = new Date('2000-01-01')
+      end = now
+      break
     default:
-      return { start: startOfMonth(now), end: endOfMonth(now) }
+      start = startOfMonth(subMonths(now, 1))
+      end = endOfMonth(subMonths(now, 1))
   }
+  
+  console.log(`Date range for ${range}:`, {
+    start: start.toISOString(),
+    end: end.toISOString()
+  })
+  
+  return { start, end }
 }
 
-export async function getDashboardStats(range: DateRange = 'this_month') {
+export async function getDashboardStats(range: DateRange = 'last_month') {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
@@ -66,16 +88,11 @@ export async function getDashboardStats(range: DateRange = 'this_month') {
   })
 
   // Calculate average daily spending
-  // For 'this_month', divide by current day of month
-  // For others, divide by days in range
   const daysDiff = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)))
-  const avgDailyValidPixels = totalExpenses / daysDiff
-
-  // Determine actual days passed in the interval for "this month" to be more accurate
-  // If range is this month, use current date - start of month
+  
   let activeDays = daysDiff
   if (range === 'this_month') {
-     activeDays = new Date().getDate()
+    activeDays = new Date().getDate()
   }
   const avgDaily = totalExpenses / Math.max(1, activeDays)
 
@@ -88,17 +105,21 @@ export async function getDashboardStats(range: DateRange = 'this_month') {
   }
 }
 
-export async function getExpensesByCategory(range: DateRange = 'this_month') {
+export async function getExpensesByCategory(range: DateRange = 'last_month') {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
   const { start, end } = getDateRangeInterval(range)
 
+  console.log('Fetching expenses with date range:', { start: start.toISOString(), end: end.toISOString() })
+
   const { data: expenses, error } = await supabase
     .from('expenses')
     .select(`
       amount,
+      category_id,
+      transaction_date,
       category:categories(id, name, color, parent_id)
     `)
     .eq('user_id', user.id)
@@ -106,36 +127,102 @@ export async function getExpensesByCategory(range: DateRange = 'this_month') {
     .lte('transaction_date', end.toISOString())
     .lt('amount', 0) // Only expenses
 
-  if (error) throw error
+  if (error) {
+    console.error('Error fetching expenses by category:', error)
+    throw error
+  }
 
-  // Aggregate by category
+  console.log('Raw expenses data:', expenses?.length, 'expenses found')
+
+  // Get all unique parent category IDs from subcategories
+  const parentIds = expenses
+    ?.map(e => e.category?.parent_id)
+    .filter(Boolean)
+    .filter((v, i, a) => a.indexOf(v) === i) || []
+
+  // Fetch parent categories
+  let parentCategoriesMap = new Map<string, { id: string, name: string, color: string }>()
+  if (parentIds.length > 0) {
+    const { data: parents } = await supabase
+      .from('categories')
+      .select('id, name, color')
+      .in('id', parentIds)
+    
+    parents?.forEach(p => {
+      parentCategoriesMap.set(p.id, { id: p.id, name: p.name, color: p.color })
+    })
+  }
+
+  console.log('Parent categories found:', parentCategoriesMap.size)
+  
+  // Aggregate by MAIN (parent) category
   const categoryMap = new Map<string, { name: string, value: number, color: string, id: string, parent_id: string | null }>()
 
-  expenses?.forEach(e => {
+  expenses?.forEach((e, index) => {
     const amount = Math.abs(e.amount)
-    // Handle uncategorized
-    const category = e.category || { id: 'uncategorized', name: 'Uncategorized', color: '#6b7280', parent_id: null }
-    // @ts-ignore - Supabase types can be tricky with joined relations
-    const catData = Array.isArray(category) ? category[0] : category
     
-    // We want to group by MAIN category essentially, but if we have subcategories, we might want to group by parent
-    // For now, let's just group by the assigned category
-    const catId = catData.id
+    // Handle uncategorized (when category_id is null)
+    if (!e.category_id || !e.category) {
+      const uncatId = 'uncategorized'
+      if (categoryMap.has(uncatId)) {
+        categoryMap.get(uncatId)!.value += amount
+      } else {
+        categoryMap.set(uncatId, {
+          id: uncatId,
+          name: 'Uncategorized',
+          value: amount,
+          color: '#6b7280',
+          parent_id: null
+        })
+      }
+      return
+    }
+
+    const category = e.category
     
-    if (categoryMap.has(catId)) {
-      categoryMap.get(catId)!.value += amount
+    if (!category) {
+      console.warn(`Expense ${index} has category_id but no category data:`, e.category_id)
+      return
+    }
+
+    // If this is a subcategory (has parent_id), group under parent
+    if (category.parent_id && parentCategoriesMap.has(category.parent_id)) {
+      const parent = parentCategoriesMap.get(category.parent_id)!
+      
+      if (categoryMap.has(parent.id)) {
+        categoryMap.get(parent.id)!.value += amount
+      } else {
+        categoryMap.set(parent.id, {
+          id: parent.id,
+          name: parent.name,
+          value: amount,
+          color: parent.color,
+          parent_id: null
+        })
+      }
     } else {
-      categoryMap.set(catId, {
-        id: catId,
-        name: catData.name,
-        value: amount,
-        color: catData.color,
-        parent_id: catData.parent_id
-      })
+      // This is already a main category (no parent_id)
+      const catId = category.id
+      
+      if (categoryMap.has(catId)) {
+        categoryMap.get(catId)!.value += amount
+      } else {
+        categoryMap.set(catId, {
+          id: catId,
+          name: category.name,
+          value: amount,
+          color: category.color,
+          parent_id: category.parent_id
+        })
+      }
     }
   })
 
-  return Array.from(categoryMap.values()).sort((a, b) => b.value - a.value)
+  const result = Array.from(categoryMap.values()).sort((a, b) => b.value - a.value)
+  console.log('Aggregated categories (main only):', result.length, 'categories')
+  console.log('Category breakdown:', result)
+  
+  return result
 }
 
 export async function getSpendingOverTime(range: DateRange = 'this_year') {
@@ -156,14 +243,9 @@ export async function getSpendingOverTime(range: DateRange = 'this_year') {
   if (error) throw error
 
   // Aggregate by month or day depending on range
-  // For 'this_year', aggregate by month
-  // For 'this_month' or shorter, aggregate by day
-  
-  const isMonthly = range === 'this_year' || range === 'all_time'
+  const isMonthly = range === 'this_year' || range === 'all_time' || range === 'last_3_months'
   
   const timeMap = new Map<string, number>()
-  
-  // Initialize map with 0s for the whole range if possible (simplified here: just sparse)
   
   expenses?.forEach(e => {
     const date = new Date(e.transaction_date)
@@ -173,11 +255,12 @@ export async function getSpendingOverTime(range: DateRange = 'this_year') {
     timeMap.set(key, (timeMap.get(key) || 0) + amount)
   })
 
-  // Fill in gaps? For now return sparse
-  return Array.from(timeMap.entries()).map(([date, amount]) => ({ date, amount })).sort((a, b) => a.date.localeCompare(b.date))
+  return Array.from(timeMap.entries())
+    .map(([date, amount]) => ({ date, amount }))
+    .sort((a, b) => a.date.localeCompare(b.date))
 }
 
-export async function getTopMerchants(range: DateRange = 'this_month') {
+export async function getTopMerchants(range: DateRange = 'last_month') {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
@@ -227,4 +310,51 @@ export async function getUncategorizedCount() {
     count: count || 0,
     totalAmount
   }
+}
+
+// New function for Income vs Expenses over multiple months
+export async function getIncomeVsExpensesOverTime(range: DateRange = 'this_year') {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  const { start, end } = getDateRangeInterval(range)
+
+  const { data: expenses, error } = await supabase
+    .from('expenses')
+    .select('amount, transaction_date')
+    .eq('user_id', user.id)
+    .gte('transaction_date', start.toISOString())
+    .lte('transaction_date', end.toISOString())
+
+  if (error) throw error
+
+  // Aggregate by month
+  const monthMap = new Map<string, { income: number, expenses: number }>()
+  
+  expenses?.forEach(e => {
+    const date = new Date(e.transaction_date)
+    const monthKey = format(date, 'MMM yyyy') // e.g., "Dec 2024"
+    const amount = e.amount
+    
+    if (!monthMap.has(monthKey)) {
+      monthMap.set(monthKey, { income: 0, expenses: 0 })
+    }
+    
+    const monthData = monthMap.get(monthKey)!
+    if (amount > 0) {
+      monthData.income += amount
+    } else {
+      monthData.expenses += Math.abs(amount)
+    }
+  })
+
+  return Array.from(monthMap.entries())
+    .map(([month, data]) => ({ month, ...data }))
+    .sort((a, b) => {
+      // Sort by actual date
+      const dateA = new Date(a.month)
+      const dateB = new Date(b.month)
+      return dateA.getTime() - dateB.getTime()
+    })
 }

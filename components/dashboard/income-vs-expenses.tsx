@@ -57,7 +57,7 @@ export function IncomeVsExpensesChart({ data = defaultData }: IncomeVsExpensesCh
                   border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: '8px'
                 }}
-                formatter={(value: number) => [`$${value.toLocaleString()}`, '']}
+                formatter={(value: any) => [`$${Number(value).toLocaleString()}`, '']}
               />
               <Legend />
               <Bar 

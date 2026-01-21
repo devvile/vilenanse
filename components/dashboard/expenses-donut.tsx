@@ -122,6 +122,7 @@ export function ExpensesDonutChart({ initialData }: ExpensesDonutChartProps) {
                 paddingAngle={5}
                 dataKey="value"
                 onMouseEnter={onPieEnter}
+                // @ts-ignore
                 activeIndex={activeIndex}
               >
                 {data.map((entry, index) => (
@@ -143,7 +144,7 @@ export function ExpensesDonutChart({ initialData }: ExpensesDonutChartProps) {
                 }}
                 itemStyle={{ color: '#fff' }}
                 cursor={false}
-                formatter={(value: number) => [`$${value.toFixed(2)}`, 'Amount']}
+                formatter={(value: any) => [`$${Number(value).toFixed(2)}`, 'Amount']}
               />
               <Legend content={renderLegend} verticalAlign="bottom" height={100}/>
             </PieChart>
