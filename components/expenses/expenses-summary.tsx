@@ -1,3 +1,5 @@
+import { TrendingDown, TrendingUp, DollarSign } from 'lucide-react'
+
 interface ExpensesSummaryProps {
   totalExpenses: number
   totalIncome: number
@@ -19,18 +21,16 @@ export function ExpensesSummary({
   return (
     <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
       {/* Total Expenses */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <div className="rounded-xl border border-white/[0.08] bg-[#1a1a24] p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-600">Total Expenses</p>
-            <p className="mt-2 text-3xl font-bold text-red-600">
+            <p className="text-sm font-medium text-gray-400">Total Expenses</p>
+            <p className="mt-2 text-3xl font-bold text-red-400">
               {Math.abs(totalExpenses).toFixed(2)} PLN
             </p>
           </div>
-          <div className="rounded-full bg-red-100 p-3">
-            <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
+          <div className="rounded-xl bg-red-500/10 p-3">
+            <TrendingDown className="h-6 w-6 text-red-400" />
           </div>
         </div>
         {hasActiveFilters && (
@@ -41,18 +41,16 @@ export function ExpensesSummary({
       </div>
 
       {/* Total Income */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <div className="rounded-xl border border-white/[0.08] bg-[#1a1a24] p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-600">Total Income</p>
-            <p className="mt-2 text-3xl font-bold text-green-600">
+            <p className="text-sm font-medium text-gray-400">Total Income</p>
+            <p className="mt-2 text-3xl font-bold text-emerald-400">
               {totalIncome.toFixed(2)} PLN
             </p>
           </div>
-          <div className="rounded-full bg-green-100 p-3">
-            <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-            </svg>
+          <div className="rounded-xl bg-emerald-500/10 p-3">
+            <TrendingUp className="h-6 w-6 text-emerald-400" />
           </div>
         </div>
         {hasActiveFilters && (
@@ -63,28 +61,16 @@ export function ExpensesSummary({
       </div>
 
       {/* Net Balance */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <div className="rounded-xl border border-white/[0.08] bg-[#1a1a24] p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-600">Net Balance</p>
-            <p className={`mt-2 text-3xl font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+            <p className="text-sm font-medium text-gray-400">Net Balance</p>
+            <p className={`mt-2 text-3xl font-bold ${isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
               {isPositive ? '+' : ''}{netAmount.toFixed(2)} PLN
             </p>
           </div>
-          <div className={`rounded-full p-3 ${isPositive ? 'bg-green-100' : 'bg-red-100'}`}>
-            <svg 
-              className={`h-6 w-6 ${isPositive ? 'text-green-600' : 'text-red-600'}`} 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
-              />
-            </svg>
+          <div className={`rounded-xl p-3 ${isPositive ? 'bg-emerald-500/10' : 'bg-red-500/10'}`}>
+            <DollarSign className={`h-6 w-6 ${isPositive ? 'text-emerald-400' : 'text-red-400'}`} />
           </div>
         </div>
         {hasActiveFilters && (

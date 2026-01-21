@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react'
 import { createMainCategory } from '@/lib/actions/categories'
+import { X, Check } from 'lucide-react'
 
 interface AddMainCategoryModalProps {
   onClose: () => void
@@ -52,28 +53,29 @@ export function AddMainCategoryModal({ onClose }: AddMainCategoryModalProps) {
     }
   }
 
+  const inputClasses = "mt-1 block w-full rounded-lg border border-white/[0.08] bg-white/[0.05] px-3 py-2 text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+  const labelClasses = "block text-sm font-medium text-gray-400 mb-1"
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">Add Category</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+      <div className="w-full max-w-lg rounded-2xl border border-white/[0.08] bg-[#1a1a24] p-6 shadow-2xl">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-white">Add Category</h2>
+          <button onClick={onClose} className="rounded-lg p-2 text-gray-400 hover:bg-white/[0.05] hover:text-white transition-colors">
+            <X className="h-5 w-5" />
           </button>
         </div>
 
         {error && (
-          <div className="mb-4 rounded-md bg-red-50 p-4">
-            <p className="text-sm text-red-800">{error}</p>
+          <div className="mb-6 rounded-lg bg-red-500/10 border border-red-500/20 p-4">
+            <p className="text-sm text-red-400 font-medium">{error}</p>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className={labelClasses}>
               Category Name *
             </label>
             <input
@@ -82,13 +84,13 @@ export function AddMainCategoryModal({ onClose }: AddMainCategoryModalProps) {
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="e.g., Food & Dining"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+              className={inputClasses}
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className={labelClasses}>
               Description
             </label>
             <input
@@ -96,25 +98,25 @@ export function AddMainCategoryModal({ onClose }: AddMainCategoryModalProps) {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Optional description"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+              className={inputClasses}
             />
           </div>
 
           {/* Color */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className={labelClasses}>
               Color
             </label>
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-5 gap-3">
               {COLORS.map((color) => (
                 <button
                   key={color.value}
                   type="button"
                   onClick={() => setFormData({ ...formData, color: color.value })}
-                  className={`h-10 rounded-md border-2 transition-all ${
+                  className={`h-10 rounded-lg border-2 transition-all ${
                     formData.color === color.value
-                      ? 'border-gray-900 scale-110'
-                      : 'border-gray-200 hover:border-gray-400'
+                      ? 'border-white scale-110'
+                      : 'border-transparent hover:border-white/[0.2]'
                   }`}
                   style={{ backgroundColor: color.value }}
                   title={color.name}
@@ -125,19 +127,19 @@ export function AddMainCategoryModal({ onClose }: AddMainCategoryModalProps) {
 
           {/* Icon */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className={labelClasses}>
               Icon
             </label>
-            <div className="grid grid-cols-8 gap-2">
+            <div className="grid grid-cols-8 gap-2 mb-3">
               {COMMON_ICONS.map((icon) => (
                 <button
                   key={icon}
                   type="button"
                   onClick={() => setFormData({ ...formData, icon })}
-                  className={`h-10 rounded-md border-2 text-xl transition-all ${
+                  className={`flex h-10 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-xl transition-all ${
                     formData.icon === icon
-                      ? 'border-blue-500 bg-blue-50 scale-110'
-                      : 'border-gray-200 hover:border-gray-400'
+                      ? 'border-emerald-500 bg-emerald-500/10 scale-110'
+                      : 'hover:bg-white/[0.08]'
                   }`}
                 >
                   {icon}
@@ -149,26 +151,33 @@ export function AddMainCategoryModal({ onClose }: AddMainCategoryModalProps) {
               value={formData.icon}
               onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
               placeholder="Or enter custom emoji"
-              className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 text-center text-2xl focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+              className={`${inputClasses} text-center text-xl`}
               maxLength={2}
             />
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-4 border-t border-white/[0.08] mt-6">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="flex-1 rounded-full border border-white/[0.1] bg-white/[0.05] px-4 py-2.5 text-sm font-semibold text-white hover:bg-white/[0.1] transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black hover:bg-emerald-400 disabled:opacity-50 transition-colors"
             >
-              {loading ? 'Creating...' : 'Create Category'}
+              {loading ? (
+                'Creating...'
+              ) : (
+                <>
+                  <Check className="h-4 w-4" />
+                  Create Category
+                </>
+              )}
             </button>
           </div>
         </form>

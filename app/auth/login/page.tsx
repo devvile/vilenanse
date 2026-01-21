@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Sparkles } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -67,18 +68,30 @@ export default function LoginPage() {
     }
   }
 
+  const inputClasses = "mt-1 block w-full rounded-lg border border-white/[0.08] bg-white/[0.05] px-3 py-2 text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+  const labelClasses = "block text-sm font-medium text-gray-400"
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-md">
-        <div>
-          <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
-            Sign in to your account
+    <div className="flex min-h-screen items-center justify-center bg-[#0d0d12] relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      
+      <div className="w-full max-w-md space-y-8 rounded-2xl border border-white/[0.08] bg-[#1a1a24] p-8 shadow-2xl relative z-10">
+        <div className="text-center">
+           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 mb-4">
+             <Sparkles className="h-6 w-6 text-emerald-400" />
+           </div>
+          <h2 className="text-3xl font-bold tracking-tight text-white">
+            Welcome back
           </h2>
+          <p className="mt-2 text-sm text-gray-400">
+            Sign in to access your dashboard
+          </p>
         </div>
 
         {error && (
-          <div className="rounded-md bg-red-50 p-4">
-            <p className="text-sm text-red-800">{error}</p>
+          <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4">
+            <p className="text-sm text-red-400 font-medium">{error}</p>
           </div>
         )}
 
@@ -88,7 +101,7 @@ export default function LoginPage() {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={googleLoading || loading}
-            className="flex w-full items-center justify-center gap-3 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-3 rounded-lg border border-white/[0.1] bg-white/[0.05] px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-white/[0.1] disabled:opacity-50 transition-colors"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path
@@ -115,10 +128,10 @@ export default function LoginPage() {
         {/* Divider */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
+            <div className="w-full border-t border-white/[0.1]" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="bg-white px-2 text-gray-500">Or continue with email</span>
+            <span className="bg-[#1a1a24] px-2 text-gray-500">Or continue with email</span>
           </div>
         </div>
 
@@ -126,7 +139,7 @@ export default function LoginPage() {
         <form className="space-y-6" onSubmit={handleLogin}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className={labelClasses}>
                 Email address
               </label>
               <input
@@ -137,11 +150,11 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className={inputClasses}
               />
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className={labelClasses}>
                 Password
               </label>
               <input
@@ -152,7 +165,7 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className={inputClasses}
               />
             </div>
           </div>
@@ -161,15 +174,15 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading || googleLoading}
-              className="group relative flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50"
+              className="flex w-full justify-center rounded-lg bg-emerald-500 px-3 py-2.5 text-sm font-semibold text-black hover:bg-emerald-400 disabled:opacity-50 transition-colors shadow-lg shadow-emerald-500/20"
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
 
           <div className="text-center text-sm">
-            <span className="text-gray-600">Don&apos;t have an account? </span>
-            <Link href="/auth/signup" className="font-medium text-blue-600 hover:text-blue-500">
+            <span className="text-gray-400">Don&apos;t have an account? </span>
+            <Link href="/auth/signup" className="font-medium text-emerald-400 hover:text-emerald-300">
               Sign up
             </Link>
           </div>

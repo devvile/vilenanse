@@ -13,13 +13,13 @@ export default async function CategoriesPage() {
   const categories = await getCategoriesHierarchical()
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-[#0d0d12] py-8">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Categories</h1>
-            <p className="mt-2 text-gray-600">
+            <h1 className="text-3xl font-bold text-white">Categories</h1>
+            <p className="mt-2 text-gray-400">
               Manage your expense categories and subcategories
             </p>
           </div>

@@ -3,6 +3,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { X, Filter, Search, Calendar } from 'lucide-react'
 
 interface Category {
   id: string
@@ -152,15 +153,22 @@ export function ExpensesFilters({ categories }: ExpensesFiltersProps) {
     }
   }
 
+  const selectClasses = "w-full rounded-xl border border-white/[0.08] bg-[#13131a] px-3 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+  const inputClasses = "w-full rounded-xl border border-white/[0.08] bg-[#13131a] px-3 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+  const labelClasses = "block text-sm font-medium text-gray-400 mb-2"
+
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4 mb-6">
+    <div className="rounded-xl border border-white/[0.08] bg-[#1a1a24] p-5 mb-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4 text-gray-400" />
+          <h3 className="text-lg font-semibold text-white">Filters</h3>
+        </div>
         {hasActiveFilters && (
           <button
             onClick={clearFilters}
             disabled={isPending}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            className="text-sm text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
           >
             Clear all
           </button>
@@ -172,7 +180,7 @@ export function ExpensesFilters({ categories }: ExpensesFiltersProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           {/* Main Category Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className={labelClasses}>
               Main Category
             </label>
             <select
@@ -181,7 +189,7 @@ export function ExpensesFilters({ categories }: ExpensesFiltersProps) {
                 setSelectedMainCategory(e.target.value)
                 setSelectedSubCategory('') // Reset subcategory when main changes
               }}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className={selectClasses}
             >
               <option value="">All categories</option>
               {mainCategories.map((cat) => (
@@ -194,14 +202,14 @@ export function ExpensesFilters({ categories }: ExpensesFiltersProps) {
 
           {/* Subcategory Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className={labelClasses}>
               Subcategory
             </label>
             <select
               value={selectedSubCategory}
               onChange={(e) => setSelectedSubCategory(e.target.value)}
               disabled={!selectedMainCategory || subcategories.length === 0}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className={`${selectClasses} disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               <option value="">All subcategories</option>
               {subcategories.map((cat) => (
@@ -214,13 +222,13 @@ export function ExpensesFilters({ categories }: ExpensesFiltersProps) {
 
           {/* Transaction Type Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className={labelClasses}>
               Transaction Type
             </label>
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className={selectClasses}
             >
               <option value="all">All types</option>
               <option value="positive">Income (Positive)</option>
@@ -230,13 +238,13 @@ export function ExpensesFilters({ categories }: ExpensesFiltersProps) {
 
           {/* Assignment Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className={labelClasses}>
               Category Assignment
             </label>
             <select
               value={selectedAssignment}
               onChange={(e) => setSelectedAssignment(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className={selectClasses}
             >
               <option value="all">All expenses</option>
               <option value="assigned">With category</option>
@@ -246,21 +254,24 @@ export function ExpensesFilters({ categories }: ExpensesFiltersProps) {
 
           {/* Merchant Search Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className={labelClasses}>
               Merchant Search
             </label>
-            <input
-              type="text"
-              value={merchantSearch}
-              onChange={(e) => setMerchantSearch(e.target.value)}
-              placeholder="e.g. Zabka"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  applyFilters()
-                }
-              }}
-            />
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+              <input
+                type="text"
+                value={merchantSearch}
+                onChange={(e) => setMerchantSearch(e.target.value)}
+                placeholder="e.g. Zabka"
+                className={`${inputClasses} pl-9`}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    applyFilters()
+                  }
+                }}
+              />
+            </div>
           </div>
         </div>
 
@@ -268,28 +279,34 @@ export function ExpensesFilters({ categories }: ExpensesFiltersProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 items-end">
           {/* Date From */}
           <div className="lg:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className={labelClasses}>
               Date From
             </label>
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 pointer-events-none" />
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className={`${inputClasses} pl-9`}
+              />
+            </div>
           </div>
 
           {/* Date To */}
           <div className="lg:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className={labelClasses}>
               Date To
             </label>
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 pointer-events-none" />
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className={`${inputClasses} pl-9`}
+              />
+            </div>
           </div>
 
           {/* Quick Date Presets */}
@@ -297,28 +314,28 @@ export function ExpensesFilters({ categories }: ExpensesFiltersProps) {
             <button
               type="button"
               onClick={() => setDateRange('today')}
-              className="flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50"
+              className="flex-1 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-xs font-medium text-gray-300 hover:bg-white/[0.06] hover:text-white transition-colors"
             >
               Today
             </button>
             <button
               type="button"
               onClick={() => setDateRange('week')}
-              className="flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50"
+              className="flex-1 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-xs font-medium text-gray-300 hover:bg-white/[0.06] hover:text-white transition-colors"
             >
               Last 7d
             </button>
             <button
               type="button"
               onClick={() => setDateRange('month')}
-              className="flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50"
+              className="flex-1 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-xs font-medium text-gray-300 hover:bg-white/[0.06] hover:text-white transition-colors"
             >
               This Month
             </button>
             <button
               type="button"
               onClick={() => setDateRange('year')}
-              className="flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50"
+              className="flex-1 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-xs font-medium text-gray-300 hover:bg-white/[0.06] hover:text-white transition-colors"
             >
               This Year
             </button>
@@ -331,7 +348,7 @@ export function ExpensesFilters({ categories }: ExpensesFiltersProps) {
         <button
           onClick={applyFilters}
           disabled={isPending}
-          className="rounded-md bg-blue-600 px-6 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-full bg-emerald-500 px-6 py-2.5 text-sm font-semibold text-black hover:bg-emerald-400 disabled:opacity-50 transition-colors"
         >
           {isPending ? 'Applying...' : 'Apply Filters'}
         </button>
@@ -339,86 +356,86 @@ export function ExpensesFilters({ categories }: ExpensesFiltersProps) {
 
       {/* Active Filters Display */}
       {hasActiveFilters && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <p className="text-sm text-gray-600 mb-2">Active filters:</p>
+        <div className="mt-4 pt-4 border-t border-white/[0.05]">
+          <p className="text-sm text-gray-500 mb-2">Active filters:</p>
           <div className="flex flex-wrap gap-2">
             {selectedMainCategory && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-sm text-emerald-400">
                 {mainCategories.find(c => c.id === selectedMainCategory)?.name}
                 <button
                   onClick={() => {
                     setSelectedMainCategory('')
                     setSelectedSubCategory('')
                   }}
-                  className="hover:text-blue-900"
+                  className="hover:text-emerald-300"
                 >
-                  ×
+                  <X className="h-3.5 w-3.5" />
                 </button>
               </span>
             )}
             {selectedSubCategory && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-sm text-emerald-400">
                 {subcategories.find(c => c.id === selectedSubCategory)?.name}
                 <button
                   onClick={() => setSelectedSubCategory('')}
-                  className="hover:text-blue-900"
+                  className="hover:text-emerald-300"
                 >
-                  ×
+                  <X className="h-3.5 w-3.5" />
                 </button>
               </span>
             )}
             {selectedType !== 'all' && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-sm text-emerald-400">
                 {selectedType === 'positive' ? 'Income' : 'Expenses'}
                 <button
                   onClick={() => setSelectedType('all')}
-                  className="hover:text-blue-900"
+                  className="hover:text-emerald-300"
                 >
-                  ×
+                  <X className="h-3.5 w-3.5" />
                 </button>
               </span>
             )}
             {selectedAssignment !== 'all' && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-sm text-emerald-400">
                 {selectedAssignment === 'assigned' ? 'With category' : 'Without category'}
                 <button
                   onClick={() => setSelectedAssignment('all')}
-                  className="hover:text-blue-900"
+                  className="hover:text-emerald-300"
                 >
-                  ×
+                  <X className="h-3.5 w-3.5" />
                 </button>
               </span>
             )}
             {merchantSearch.trim() && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-sm text-emerald-400">
                 Merchant: "{merchantSearch}"
                 <button
                   onClick={() => setMerchantSearch('')}
-                  className="hover:text-blue-900"
+                  className="hover:text-emerald-300"
                 >
-                  ×
+                  <X className="h-3.5 w-3.5" />
                 </button>
               </span>
             )}
             {dateFrom && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-sm text-emerald-400">
                 From: {dateFrom}
                 <button
                   onClick={() => setDateFrom('')}
-                  className="hover:text-blue-900"
+                  className="hover:text-emerald-300"
                 >
-                  ×
+                  <X className="h-3.5 w-3.5" />
                 </button>
               </span>
             )}
             {dateTo && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-sm text-emerald-400">
                 To: {dateTo}
                 <button
                   onClick={() => setDateTo('')}
-                  className="hover:text-blue-900"
+                  className="hover:text-emerald-300"
                 >
-                  ×
+                  <X className="h-3.5 w-3.5" />
                 </button>
               </span>
             )}

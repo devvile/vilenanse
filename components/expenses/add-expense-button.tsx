@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { AddExpenseModal } from './add-expense-modal'
+import { Plus } from 'lucide-react'
 
 export function AddExpenseButton() {
   const [isOpen, setIsOpen] = useState(false)
@@ -10,11 +11,9 @@ export function AddExpenseButton() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
+        className="flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black hover:bg-emerald-400 transition-colors"
       >
-        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
+        <Plus className="h-4 w-4" />
         Add Expense
       </button>
 

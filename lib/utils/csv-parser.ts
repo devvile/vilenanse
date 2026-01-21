@@ -153,7 +153,7 @@ export async function parseCSV(file: File): Promise<CSVParseResult> {
 
           // Create object from row using headers
           const rowObj: any = {}
-          headers.forEach((header, index) => {
+          headers.forEach((header: string, index: number) => {
             if (header) {
               rowObj[header] = row[index]?.toString().trim().replace(/^"/, '').replace(/"$/, '').replace(/^'/, '').replace(/'$/, '')
             }

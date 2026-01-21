@@ -2,13 +2,14 @@
 
 import { useState } from 'react'
 import { deleteCategory } from '@/lib/actions/categories'
+import { Trash2, AlertTriangle, X, Check } from 'lucide-react'
 
 interface DeleteCategoryButtonProps {
   categoryId: string
   isSubcategory?: boolean
 }
 
-export function DeleteCategoryButton({ categoryId, isSubcategory }: DeleteCategoryButtonProps) {
+export function DeleteCategoryButton({ categoryId, isSubcategory = false }: DeleteCategoryButtonProps) {
   const [loading, setLoading] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
 
@@ -18,7 +19,7 @@ export function DeleteCategoryButton({ categoryId, isSubcategory }: DeleteCatego
       await deleteCategory(categoryId)
     } catch (error) {
       console.error('Failed to delete category:', error)
-      alert(error instanceof Error ? error.message : 'Failed to delete category')
+      alert("Cannot delete category with associated expenses.")
     } finally {
       setLoading(false)
       setShowConfirm(false)
@@ -26,18 +27,40 @@ export function DeleteCategoryButton({ categoryId, isSubcategory }: DeleteCatego
   }
 
   if (showConfirm) {
+    if (isSubcategory) {
+      return (
+        <div className="flex items-center gap-1">
+          <button
+            onClick={handleDelete}
+            disabled={loading}
+            className="rounded p-1.5 text-red-400 hover:bg-red-500/20 disabled:opacity-50"
+            title="Confirm"
+          >
+            <Check className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={() => setShowConfirm(false)}
+            className="rounded p-1.5 text-gray-400 hover:bg-white/[0.1] hover:text-white"
+            title="Cancel"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )
+    }
+
     return (
       <div className="flex items-center gap-2">
         <button
           onClick={handleDelete}
           disabled={loading}
-          className="rounded-md bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50"
+          className="rounded-lg bg-red-500/20 px-3 py-2 text-sm font-medium text-red-400 hover:bg-red-500/30 disabled:opacity-50 transition-colors"
         >
           {loading ? 'Deleting...' : 'Confirm'}
         </button>
         <button
           onClick={() => setShowConfirm(false)}
-          className="rounded-md bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-300"
+          className="rounded-lg bg-white/[0.05] px-3 py-2 text-sm font-medium text-gray-400 hover:bg-white/[0.1] hover:text-white transition-colors"
         >
           Cancel
         </button>
@@ -45,25 +68,25 @@ export function DeleteCategoryButton({ categoryId, isSubcategory }: DeleteCatego
     )
   }
 
+  if (isSubcategory) {
+    return (
+      <button
+        onClick={() => setShowConfirm(true)}
+        className="rounded p-1.5 text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-colors"
+        title="Delete"
+      >
+        <Trash2 className="h-3.5 w-3.5" />
+      </button>
+    )
+  }
+
   return (
     <button
       onClick={() => setShowConfirm(true)}
-      className={`rounded ${isSubcategory ? 'p-1 hover:bg-red-50' : 'px-3 py-2 bg-red-50 hover:bg-red-100'}`}
-      title="Delete"
+      className="rounded-lg bg-white/[0.05] p-2 text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-colors"
+      title="Delete Category"
     >
-      <svg
-        className={`${isSubcategory ? 'h-4 w-4' : 'h-5 w-5'} text-red-600`}
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-        />
-      </svg>
+      <Trash2 className="h-4 w-4" />
     </button>
   )
 }

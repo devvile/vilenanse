@@ -6,6 +6,7 @@ import { ExpenseCard } from './expense-card'
 import { useState, useEffect } from 'react'
 import { bulkDeleteExpenses, bulkUpdateExpenseCategories } from '@/lib/actions/expenses'
 import { useRouter } from 'next/navigation'
+import { FileText, X, Trash2, Tag } from 'lucide-react'
 
 interface Category {
   id: string
@@ -102,23 +103,13 @@ export function ExpensesList({ expenses, categories = [] }: ExpensesListProps) {
     }
   }
 
+  const selectClasses = "w-full rounded-lg border border-white/[0.08] bg-[#13131a] px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+
   if (expenses.length === 0) {
     return (
-      <div className="rounded-lg border-2 border-dashed border-gray-300 bg-white p-12 text-center">
-        <svg
-          className="mx-auto h-12 w-12 text-gray-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-          />
-        </svg>
-        <h3 className="mt-2 text-sm font-semibold text-gray-900">No expenses</h3>
+      <div className="rounded-xl border-2 border-dashed border-white/[0.1] bg-[#1a1a24] p-12 text-center">
+        <FileText className="mx-auto h-12 w-12 text-gray-600" />
+        <h3 className="mt-2 text-sm font-semibold text-white">No expenses</h3>
         <p className="mt-1 text-sm text-gray-500">
           Get started by creating a new expense.
         </p>
@@ -130,18 +121,19 @@ export function ExpensesList({ expenses, categories = [] }: ExpensesListProps) {
     <div className="space-y-4">
       {/* Bulk Actions Bar */}
       {selectedIds.size > 0 && (
-        <div className="sticky top-0 z-10 rounded-lg border border-blue-200 bg-blue-50 p-4 shadow-md">
+        <div className="sticky top-16 z-10 rounded-xl border border-emerald-500/30 bg-emerald-500/10 backdrop-blur-lg p-4 shadow-lg">
           <div className="flex flex-col gap-4">
             {/* Top Row - Selection Info and Clear */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <p className="text-sm font-medium text-blue-900">
+                <p className="text-sm font-medium text-emerald-300">
                   {selectedIds.size} expense{selectedIds.size !== 1 ? 's' : ''} selected
                 </p>
                 <button
                   onClick={() => setSelectedIds(new Set())}
-                  className="text-sm text-blue-600 hover:text-blue-800"
+                  className="flex items-center gap-1 text-sm text-emerald-400 hover:text-emerald-300"
                 >
+                  <X className="h-3.5 w-3.5" />
                   Clear selection
                 </button>
               </div>
@@ -154,7 +146,7 @@ export function ExpensesList({ expenses, categories = [] }: ExpensesListProps) {
                 <select
                   value={selectedMainCategory}
                   onChange={(e) => setSelectedMainCategory(e.target.value)}
-                  className="w-full rounded-md border border-blue-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className={selectClasses}
                   disabled={updating}
                 >
                   <option value="">Select main category...</option>
@@ -172,7 +164,7 @@ export function ExpensesList({ expenses, categories = [] }: ExpensesListProps) {
                   value={selectedCategoryId}
                   onChange={(e) => setSelectedCategoryId(e.target.value)}
                   disabled={!selectedMainCategory || availableSubcategories.length === 0 || updating}
-                  className="w-full rounded-md border border-blue-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className={`${selectClasses} disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   <option value="">Select subcategory...</option>
                   {availableSubcategories.map((cat) => (
@@ -187,28 +179,29 @@ export function ExpensesList({ expenses, categories = [] }: ExpensesListProps) {
               <button
                 onClick={handleBulkCategoryAssignment}
                 disabled={!selectedCategoryId || updating}
-                className="rounded-md bg-blue-600 px-6 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                className="flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-black hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap transition-colors"
               >
+                <Tag className="h-4 w-4" />
                 {updating ? 'Assigning...' : 'Assign Category'}
               </button>
 
               {/* Delete Section */}
-              <div className="flex items-center gap-2 border-l border-blue-300 pl-3">
+              <div className="flex items-center gap-2 border-l border-white/[0.1] pl-3">
                 {showDeleteConfirm ? (
                   <>
-                    <p className="text-sm text-red-900 mr-2 whitespace-nowrap">
+                    <p className="text-sm text-red-400 mr-2 whitespace-nowrap">
                       Delete {selectedIds.size}?
                     </p>
                     <button
                       onClick={handleBulkDelete}
                       disabled={deleting}
-                      className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50 whitespace-nowrap"
+                      className="rounded-full bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-400 disabled:opacity-50 whitespace-nowrap transition-colors"
                     >
                       {deleting ? 'Deleting...' : 'Confirm'}
                     </button>
                     <button
                       onClick={() => setShowDeleteConfirm(false)}
-                      className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+                      className="rounded-full border border-white/[0.1] bg-white/[0.05] px-4 py-2 text-sm font-medium text-gray-300 hover:bg-white/[0.08] whitespace-nowrap transition-colors"
                     >
                       Cancel
                     </button>
@@ -216,8 +209,9 @@ export function ExpensesList({ expenses, categories = [] }: ExpensesListProps) {
                 ) : (
                   <button
                     onClick={() => setShowDeleteConfirm(true)}
-                    className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 whitespace-nowrap"
+                    className="flex items-center gap-2 rounded-full bg-red-500/20 border border-red-500/30 px-4 py-2 text-sm font-semibold text-red-400 hover:bg-red-500/30 whitespace-nowrap transition-colors"
                   >
+                    <Trash2 className="h-4 w-4" />
                     Delete Selected
                   </button>
                 )}
@@ -228,14 +222,14 @@ export function ExpensesList({ expenses, categories = [] }: ExpensesListProps) {
       )}
 
       {/* Select All Checkbox */}
-      <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white p-3">
+      <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-[#1a1a24] p-4">
         <input
           type="checkbox"
           checked={selectedIds.size === expenses.length && expenses.length > 0}
           onChange={toggleSelectAll}
-          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          className="h-4 w-4 rounded border-gray-600 bg-[#13131a] text-emerald-500 focus:ring-emerald-500 focus:ring-offset-0"
         />
-        <label className="text-sm font-medium text-gray-700">
+        <label className="text-sm font-medium text-gray-300">
           Select all ({expenses.length} expenses)
         </label>
       </div>
@@ -248,7 +242,7 @@ export function ExpensesList({ expenses, categories = [] }: ExpensesListProps) {
               type="checkbox"
               checked={selectedIds.has(expense.id)}
               onChange={() => toggleSelection(expense.id)}
-              className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="h-5 w-5 rounded border-gray-600 bg-[#13131a] text-emerald-500 focus:ring-emerald-500 focus:ring-offset-0"
             />
           </div>
           <div className="flex-1">

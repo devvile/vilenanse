@@ -6,6 +6,7 @@ import { AddExpenseButton } from "@/components/expenses/add-expense-button";
 import { ExpensesPagination } from "@/components/expenses/expenses-pagination";
 import { ExpensesFilters } from "@/components/expenses/expenses-filters";
 import { ExpensesSummary } from "@/components/expenses/expenses-summary";
+import { Upload, Plus } from "lucide-react";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -245,22 +246,14 @@ export default async function ExpensesPage({
     console.error("Error fetching categories:", categoriesError);
   }
 
-  // Log once on server side to verify data
-  if (allCategories) {
-    console.log(
-      "Server: Categories fetched:",
-      allCategories.length,
-      "categories"
-    );
-  }
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-[#0d0d12] py-8">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Expenses</h1>
-            <p className="mt-2 text-gray-600">
+            <h1 className="text-3xl font-bold text-white">Expenses</h1>
+            <p className="mt-2 text-gray-400">
               {totalCount} {hasActiveFilters ? "filtered" : "total"} expense
               {totalCount !== 1 ? "s" : ""}
               {totalPages > 0 && ` • Page ${currentPage} of ${totalPages}`}
@@ -269,19 +262,9 @@ export default async function ExpensesPage({
           <div className="flex items-center gap-3">
             <Link
               href="/expenses/import"
-              className="flex items-center gap-2 rounded-lg border-2 border-blue-600 bg-white px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50">
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                />
-              </svg>
+              className="flex items-center gap-2 rounded-full border border-emerald-500 bg-transparent px-4 py-2.5 text-sm font-semibold text-emerald-500 hover:bg-emerald-500/10 transition-colors"
+            >
+              <Upload className="h-4 w-4" />
               Import CSV
             </Link>
             <AddExpenseButton />
@@ -290,8 +273,8 @@ export default async function ExpensesPage({
 
         {/* Success message after import */}
         {resolvedSearchParams.imported === "true" && (
-          <div className="mb-6 rounded-lg bg-green-50 p-4">
-            <p className="text-sm text-green-800">
+          <div className="mb-6 rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-4">
+            <p className="text-sm text-emerald-400">
               ✅ Expenses imported successfully! You can now categorize them
               below.
             </p>
@@ -312,13 +295,13 @@ export default async function ExpensesPage({
 
         {/* Pagination Info */}
         {totalPages > 1 && (
-          <div className="mb-4 flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3">
-            <p className="text-sm text-gray-700">
-              Showing <span className="font-medium">{offset + 1}</span> -{" "}
-              <span className="font-medium">
+          <div className="mb-4 flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#1a1a24] px-4 py-3">
+            <p className="text-sm text-gray-400">
+              Showing <span className="font-medium text-white">{offset + 1}</span> -{" "}
+              <span className="font-medium text-white">
                 {Math.min(offset + ITEMS_PER_PAGE, totalCount)}
               </span>{" "}
-              of <span className="font-medium">{totalCount}</span>
+              of <span className="font-medium text-white">{totalCount}</span>
             </p>
             <ExpensesPagination
               currentPage={currentPage}
