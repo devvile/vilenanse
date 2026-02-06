@@ -55,8 +55,8 @@ export function AddRecurringModal({ categories }: AddRecurringModalProps) {
     setCategoryId('')
   }
 
-  const inputClasses = "w-full rounded-xl border border-white/[0.08] bg-[#1a1a24] px-4 py-3 text-white placeholder:text-gray-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all"
-  const labelClasses = "block text-sm font-medium text-gray-400 mb-1.5"
+  const inputClasses = "w-full rounded-xl border border-card-border bg-background px-4 py-3 text-text-primary placeholder:text-text-muted focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all"
+  const labelClasses = "block text-sm font-medium text-text-muted mb-1.5"
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -66,7 +66,7 @@ export function AddRecurringModal({ categories }: AddRecurringModalProps) {
           Add Recurring
         </button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md bg-[#0d0d12] border-white/[0.08] text-white p-6">
+      <DialogContent className="sm:max-w-md bg-card border-card-border text-text-primary p-6">
         <DialogHeader className="mb-4">
           <DialogTitle className="text-xl font-bold">New Recurring Expense</DialogTitle>
         </DialogHeader>

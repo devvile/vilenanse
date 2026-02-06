@@ -46,22 +46,22 @@ export function AddSubcategoryModal({ parentId, parentColor, onClose }: AddSubca
     }
   }
 
-  const inputClasses = "mt-1 block w-full rounded-lg border border-white/[0.08] bg-white/[0.05] px-3 py-2 text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-  const labelClasses = "block text-sm font-medium text-gray-400 mb-1"
+  const inputClasses = "mt-1 block w-full rounded-lg border border-card-border bg-background-secondary px-3 py-2 text-text-primary placeholder-text-muted focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+  const labelClasses = "block text-sm font-medium text-text-muted mb-1"
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="w-full max-w-lg rounded-2xl border border-white/[0.08] bg-[#1a1a24] p-6 shadow-2xl">
+      <div className="w-full max-w-lg rounded-2xl border border-card-border bg-card p-6 shadow-2xl">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white">Add Subcategory</h2>
-          <button onClick={onClose} className="rounded-lg p-2 text-gray-400 hover:bg-white/[0.05] hover:text-white transition-colors">
+          <h2 className="text-xl font-bold text-text-primary">Add Subcategory</h2>
+          <button onClick={onClose} className="rounded-lg p-2 text-text-muted hover:bg-background-secondary hover:text-text-primary transition-colors">
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {error && (
           <div className="mb-6 rounded-lg bg-red-500/10 border border-red-500/20 p-4">
-            <p className="text-sm text-red-400 font-medium">{error}</p>
+            <p className="text-sm text-red-500 font-medium">{error}</p>
           </div>
         )}
 
@@ -106,10 +106,10 @@ export function AddSubcategoryModal({ parentId, parentColor, onClose }: AddSubca
                   key={icon}
                   type="button"
                   onClick={() => setFormData({ ...formData, icon })}
-                  className={`flex h-10 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-xl transition-all ${
+                  className={`flex h-10 items-center justify-center rounded-lg border border-card-border bg-background-secondary text-xl transition-all ${
                     formData.icon === icon
                       ? 'border-emerald-500 bg-emerald-500/10 scale-110'
-                      : 'hover:bg-white/[0.08]'
+                      : 'hover:bg-card-hover'
                   }`}
                 >
                   {icon}
@@ -127,8 +127,8 @@ export function AddSubcategoryModal({ parentId, parentColor, onClose }: AddSubca
           </div>
 
           {/* Color Preview (inherited from parent) */}
-          <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4">
-            <p className="text-xs text-gray-500 mb-2">
+          <div className="rounded-xl border border-card-border bg-background p-4">
+            <p className="text-xs text-text-muted mb-2">
               Color inherited from parent category:
             </p>
             <div className="flex items-center gap-3">
@@ -136,18 +136,18 @@ export function AddSubcategoryModal({ parentId, parentColor, onClose }: AddSubca
                 className="h-8 w-8 rounded-lg shadow-sm"
                 style={{ backgroundColor: parentColor }}
               />
-              <span className="text-sm font-medium text-gray-300 font-mono bg-white/[0.05] px-2 py-1 rounded">
+              <span className="text-sm font-medium text-text-secondary font-mono bg-background-secondary px-2 py-1 rounded">
                 {parentColor}
               </span>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3 pt-4 border-t border-white/[0.08] mt-6">
+          <div className="flex gap-3 pt-4 border-t border-card-border mt-6">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded-full border border-white/[0.1] bg-white/[0.05] px-4 py-2.5 text-sm font-semibold text-white hover:bg-white/[0.1] transition-colors"
+              className="flex-1 rounded-full border border-card-border bg-background-secondary px-4 py-2.5 text-sm font-semibold text-text-primary hover:bg-card-hover transition-colors"
             >
               Cancel
             </button>

@@ -16,9 +16,9 @@ export function CategoryCard({ category }: CategoryCardProps) {
 
   return (
     <>
-      <div className="rounded-xl border border-white/[0.08] bg-[#1a1a24] shadow-sm">
+      <div className="rounded-xl border border-card-border bg-card shadow-sm">
         {/* Main Category Header */}
-        <div className="border-b border-white/[0.08] p-6">
+        <div className="border-b border-card-border p-6">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
               <div
@@ -28,14 +28,14 @@ export function CategoryCard({ category }: CategoryCardProps) {
                 {category.icon || '📁'}
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">
+                <h3 className="text-lg font-semibold text-text-primary">
                   {category.name}
                 </h3>
                 {category.description && (
-                  <p className="text-sm text-gray-400">{category.description}</p>
+                  <p className="text-sm text-text-muted">{category.description}</p>
                 )}
                 {category.is_system && (
-                  <span className="mt-2 inline-block rounded-full bg-white/[0.05] px-2.5 py-1 text-xs text-gray-400">
+                  <span className="mt-2 inline-block rounded-full bg-background-secondary px-2.5 py-1 text-xs text-text-muted">
                     System
                   </span>
                 )}
@@ -46,7 +46,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsEditOpen(true)}
-                className="rounded-lg bg-white/[0.05] p-2 text-gray-400 hover:bg-white/[0.1] hover:text-white transition-colors"
+                className="rounded-lg bg-background-secondary p-2 text-text-muted hover:bg-card-hover hover:text-text-primary transition-colors"
                 title="Edit Category"
               >
                 <Pencil className="h-4 w-4" />
@@ -61,7 +61,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
         {/* Subcategories */}
         <div className="p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h4 className="text-sm font-semibold text-gray-400">
+            <h4 className="text-sm font-semibold text-text-muted">
               Subcategories ({category.subcategories?.length || 0})
             </h4>
             <AddSubcategoryButton parentId={category.id} parentColor={category.color} />
@@ -74,7 +74,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-500 italic">No subcategories yet</p>
+            <p className="text-sm text-text-muted italic">No subcategories yet</p>
           )}
         </div>
       </div>
@@ -94,21 +94,21 @@ function SubcategoryItem({ subcategory }: { subcategory: Category }) {
 
   return (
     <>
-      <div className="group relative rounded-lg border border-white/[0.08] bg-white/[0.02] p-3 hover:border-white/[0.15] hover:bg-white/[0.05] transition-all">
+      <div className="group relative rounded-lg border border-card-border bg-background p-3 hover:border-card-hover hover:bg-background-secondary transition-all">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <span className="text-lg">{subcategory.icon || '🏷️'}</span>
             <div>
-              <p className="text-sm font-medium text-gray-200">{subcategory.name}</p>
+              <p className="text-sm font-medium text-text-secondary">{subcategory.name}</p>
               {subcategory.description && (
-                <p className="text-xs text-gray-500">{subcategory.description}</p>
+                <p className="text-xs text-text-muted">{subcategory.description}</p>
               )}
             </div>
           </div>
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={() => setIsEditOpen(true)}
-              className="rounded p-1.5 text-gray-400 hover:bg-white/[0.1] hover:text-white"
+              className="rounded p-1.5 text-text-muted hover:bg-card-hover hover:text-text-primary"
               title="Edit"
             >
               <Pencil className="h-3.5 w-3.5" />

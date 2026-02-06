@@ -40,7 +40,7 @@ export function DeleteCategoryButton({ categoryId, isSubcategory = false }: Dele
           </button>
           <button
             onClick={() => setShowConfirm(false)}
-            className="rounded p-1.5 text-gray-400 hover:bg-white/[0.1] hover:text-white"
+            className="rounded p-1.5 text-text-muted hover:bg-card-hover hover:text-text-primary"
             title="Cancel"
           >
             <X className="h-3.5 w-3.5" />
@@ -54,13 +54,13 @@ export function DeleteCategoryButton({ categoryId, isSubcategory = false }: Dele
         <button
           onClick={handleDelete}
           disabled={loading}
-          className="rounded-lg bg-red-500/20 px-3 py-2 text-sm font-medium text-red-400 hover:bg-red-500/30 disabled:opacity-50 transition-colors"
+          className="rounded-lg bg-red-500/20 px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-500/30 disabled:opacity-50 transition-colors"
         >
           {loading ? 'Deleting...' : 'Confirm'}
         </button>
         <button
           onClick={() => setShowConfirm(false)}
-          className="rounded-lg bg-white/[0.05] px-3 py-2 text-sm font-medium text-gray-400 hover:bg-white/[0.1] hover:text-white transition-colors"
+          className="rounded-lg bg-background-secondary px-3 py-2 text-sm font-medium text-text-muted hover:bg-card-hover hover:text-text-primary transition-colors"
         >
           Cancel
         </button>
@@ -72,7 +72,7 @@ export function DeleteCategoryButton({ categoryId, isSubcategory = false }: Dele
     return (
       <button
         onClick={() => setShowConfirm(true)}
-        className="rounded p-1.5 text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-colors"
+        className="rounded p-1.5 text-text-muted hover:bg-red-500/20 hover:text-red-500 transition-colors"
         title="Delete"
       >
         <Trash2 className="h-3.5 w-3.5" />
@@ -83,7 +83,7 @@ export function DeleteCategoryButton({ categoryId, isSubcategory = false }: Dele
   return (
     <button
       onClick={() => setShowConfirm(true)}
-      className="rounded-lg bg-white/[0.05] p-2 text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-colors"
+      className="rounded-lg bg-background-secondary p-2 text-text-muted hover:bg-red-500/20 hover:text-red-500 transition-colors"
       title="Delete Category"
     >
       <Trash2 className="h-4 w-4" />

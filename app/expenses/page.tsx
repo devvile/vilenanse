@@ -89,8 +89,8 @@ export default async function ExpensesPage({
   }
 
   // Assignment Filter Logic
-  // Default to 'unassigned' if no parameter is provided
-  const assignmentFilter = resolvedSearchParams.assignment || 'unassigned';
+  // Default to 'assigned' if no parameter is provided
+  const assignmentFilter = resolvedSearchParams.assignment || 'assigned';
 
   if (assignmentFilter === "assigned") {
     summaryQuery = summaryQuery.not("category_id", "is", null);
@@ -107,19 +107,23 @@ export default async function ExpensesPage({
     );
   }
 
-  // Add date filters
-  if (resolvedSearchParams.date_from) {
-    summaryQuery = summaryQuery.gte(
-      "transaction_date",
-      resolvedSearchParams.date_from
-    );
+  // Add date filters (default to this month if not provided)
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const defaultDateFrom = `${year}-${month}-01`;
+  const defaultDateTo = `${year}-${month}-${day}`;
+
+  const dateFromFilter = resolvedSearchParams.date_from || defaultDateFrom;
+  const dateToFilter = resolvedSearchParams.date_to || defaultDateTo;
+
+  if (dateFromFilter) {
+    summaryQuery = summaryQuery.gte("transaction_date", dateFromFilter);
   }
 
-  if (resolvedSearchParams.date_to) {
-    summaryQuery = summaryQuery.lte(
-      "transaction_date",
-      resolvedSearchParams.date_to
-    );
+  if (dateToFilter) {
+    summaryQuery = summaryQuery.lte("transaction_date", dateToFilter);
   }
 
   const { data: allFilteredExpenses, count: filteredCount } =
@@ -191,19 +195,13 @@ export default async function ExpensesPage({
     );
   }
 
-  // Add date filters
-  if (resolvedSearchParams.date_from) {
-    expensesQuery = expensesQuery.gte(
-      "transaction_date",
-      resolvedSearchParams.date_from
-    );
+  // Add date filters (using same default logic)
+  if (dateFromFilter) {
+    expensesQuery = expensesQuery.gte("transaction_date", dateFromFilter);
   }
 
-  if (resolvedSearchParams.date_to) {
-    expensesQuery = expensesQuery.lte(
-      "transaction_date",
-      resolvedSearchParams.date_to
-    );
+  if (dateToFilter) {
+    expensesQuery = expensesQuery.lte("transaction_date", dateToFilter);
   }
 
   const { data: expenses, error } = await expensesQuery
@@ -253,13 +251,13 @@ export default async function ExpensesPage({
   }
 
   return (
-    <div className="min-h-screen bg-[#0d0d12] py-8">
+    <div className="min-h-screen bg-background pb-12 pt-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-white">Expenses</h1>
-            <p className="mt-2 text-gray-400">
+            <h1 className="text-3xl font-bold text-text-primary">Expenses</h1>
+            <p className="mt-2 text-text-secondary">
               {totalCount} {hasActiveFilters ? "filtered" : "total"} expense
               {totalCount !== 1 ? "s" : ""}
               {totalPages > 0 && ` • Page ${currentPage} of ${totalPages}`}
@@ -299,33 +297,24 @@ export default async function ExpensesPage({
           hasActiveFilters={hasActiveFilters}
         />
 
-        {/* Pagination Info */}
-        {totalPages > 1 && (
-          <div className="mb-4 flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#1a1a24] px-4 py-3">
-            <p className="text-sm text-gray-400">
-              Showing <span className="font-medium text-white">{offset + 1}</span> -{" "}
-              <span className="font-medium text-white">
-                {Math.min(offset + ITEMS_PER_PAGE, totalCount)}
-              </span>{" "}
-              of <span className="font-medium text-white">{totalCount}</span>
-            </p>
-            <ExpensesPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-            />
-          </div>
-        )}
-
         {/* Expenses List */}
         <ExpensesList
           key={`page-${currentPage}-${JSON.stringify(resolvedSearchParams)}`}
           expenses={expensesWithParents}
           categories={allCategories || []}
+          totalCount={totalCount}
         />
 
         {/* Bottom Pagination */}
         {totalPages > 1 && (
-          <div className="mt-6 flex justify-center">
+          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-between border-t border-card-border pt-6">
+            <p className="text-sm text-text-secondary">
+              Showing <span className="font-medium text-text-primary">{offset + 1}</span> -{" "}
+              <span className="font-medium text-text-primary">
+                {Math.min(offset + ITEMS_PER_PAGE, totalCount)}
+              </span>{" "}
+              of <span className="font-medium text-text-primary">{totalCount}</span> expenses
+            </p>
             <ExpensesPagination
               currentPage={currentPage}
               totalPages={totalPages}

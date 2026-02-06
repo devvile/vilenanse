@@ -30,12 +30,12 @@ export function RecurringList({ expenses, categories }: RecurringListProps) {
 
   if (expenses.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-white/[0.1] bg-[#1a1a24]/50 p-12 text-center">
+      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-card-border bg-card/50 p-12 text-center">
         <div className="mb-4 rounded-full bg-emerald-500/10 p-4">
           <Plus className="h-8 w-8 text-emerald-500" />
         </div>
-        <h3 className="text-lg font-semibold text-white mb-2">No recurrent expenses</h3>
-        <p className="text-sm text-gray-400 max-w-sm mb-6">
+        <h3 className="text-lg font-semibold text-text-primary mb-2">No recurrent expenses</h3>
+        <p className="text-sm text-text-muted max-w-sm mb-6">
           Add your monthly subscriptions, rent, or other fixed costs to track them automatically.
         </p>
         <AddRecurringModal categories={categories} />

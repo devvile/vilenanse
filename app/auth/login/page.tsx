@@ -68,30 +68,30 @@ export default function LoginPage() {
     }
   }
 
-  const inputClasses = "mt-1 block w-full rounded-lg border border-white/[0.08] bg-white/[0.05] px-3 py-2 text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-  const labelClasses = "block text-sm font-medium text-gray-400"
+  const inputClasses = "mt-1 block w-full rounded-lg border border-card-border bg-background-secondary px-3 py-2 text-text-primary placeholder:text-text-muted focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+  const labelClasses = "block text-sm font-medium text-text-muted"
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0d0d12] relative overflow-hidden">
+    <div className="flex min-h-screen items-center justify-center bg-background relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
       
-      <div className="w-full max-w-md space-y-8 rounded-2xl border border-white/[0.08] bg-[#1a1a24] p-8 shadow-2xl relative z-10">
+      <div className="w-full max-w-md space-y-8 rounded-2xl border border-card-border bg-card p-8 shadow-2xl relative z-10">
         <div className="text-center">
            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 mb-4">
-             <Sparkles className="h-6 w-6 text-emerald-400" />
+             <Sparkles className="h-6 w-6 text-emerald-500" />
            </div>
-          <h2 className="text-3xl font-bold tracking-tight text-white">
+          <h2 className="text-3xl font-bold tracking-tight text-text-primary">
             Welcome back
           </h2>
-          <p className="mt-2 text-sm text-gray-400">
+          <p className="mt-2 text-sm text-text-muted">
             Sign in to access your dashboard
           </p>
         </div>
 
         {error && (
           <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4">
-            <p className="text-sm text-red-400 font-medium">{error}</p>
+            <p className="text-sm text-red-500 font-medium">{error}</p>
           </div>
         )}
 
@@ -101,7 +101,7 @@ export default function LoginPage() {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={googleLoading || loading}
-            className="flex w-full items-center justify-center gap-3 rounded-lg border border-white/[0.1] bg-white/[0.05] px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-white/[0.1] disabled:opacity-50 transition-colors"
+            className="flex w-full items-center justify-center gap-3 rounded-lg border border-card-border bg-background-secondary px-3 py-2.5 text-sm font-semibold text-text-primary shadow-sm hover:bg-card-hover disabled:opacity-50 transition-colors"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path
@@ -128,10 +128,10 @@ export default function LoginPage() {
         {/* Divider */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-white/[0.1]" />
+            <div className="w-full border-t border-card-border" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="bg-[#1a1a24] px-2 text-gray-500">Or continue with email</span>
+            <span className="bg-card px-2 text-text-muted">Or continue with email</span>
           </div>
         </div>
 
@@ -181,8 +181,8 @@ export default function LoginPage() {
           </div>
 
           <div className="text-center text-sm">
-            <span className="text-gray-400">Don&apos;t have an account? </span>
-            <Link href="/auth/signup" className="font-medium text-emerald-400 hover:text-emerald-300">
+            <span className="text-text-muted">Don&apos;t have an account? </span>
+            <Link href="/auth/signup" className="font-medium text-emerald-500 hover:text-emerald-400">
               Sign up
             </Link>
           </div>

@@ -16,6 +16,7 @@ import {
 import { getSpendingOverTime, DateRange } from '@/lib/actions/dashboard'
 import { cn } from '@/lib/utils'
 import { BarChart3, TrendingUp, Loader2 } from 'lucide-react'
+import { useTheme } from '../theme-provider'
 
 interface SpendingLineChartProps {
   initialData: { date: string; amount: number }[]
@@ -24,10 +25,17 @@ interface SpendingLineChartProps {
 }
 
 export function SpendingLineChart({ initialData, categoryId, categoryName }: SpendingLineChartProps) {
+  const { theme } = useTheme()
+  const isLight = theme === 'light'
   const [data, setData] = useState(initialData)
   const [dateRange, setDateRange] = useState<DateRange>('this_year')
   const [loading, setLoading] = useState(false)
   const [chartType, setChartType] = useState<'line' | 'bar'>('line')
+
+  // Sync data whenever initialData changes from parent (global range change)
+  useEffect(() => {
+    setData(initialData)
+  }, [initialData])
 
   const handleRangeChange = async (range: DateRange, catId: string | undefined = categoryId) => {
     setDateRange(range)
@@ -44,34 +52,36 @@ export function SpendingLineChart({ initialData, categoryId, categoryName }: Spe
 
   useEffect(() => {
     // When category changes, keep current range but fetch for new category
-    handleRangeChange(dateRange, categoryId)
+    if (categoryId) {
+      handleRangeChange(dateRange, categoryId)
+    }
   }, [categoryId])
 
   return (
-    <Card className="p-6 bg-[#1a1a24] border-white/[0.08] h-full flex flex-col relative">
+    <Card className="p-6 bg-card border-card-border h-full flex flex-col relative">
       {loading && (
-        <div className="absolute inset-0 z-10 bg-[#1a1a24]/50 flex items-center justify-center backdrop-blur-sm rounded-2xl">
+        <div className="absolute inset-0 z-10 bg-card/50 flex items-center justify-center backdrop-blur-sm rounded-2xl">
           <Loader2 className="h-6 w-6 animate-spin text-emerald-500" />
         </div>
       )}
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h3 className="font-semibold text-white">
+          <h3 className="font-semibold text-text-primary">
              {categoryName ? `Spending on ${categoryName}` : 'Spending Over Time'}
           </h3>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-text-muted">
              {categoryName ? 'History for this category' : 'Visualizing your expense trends'}
           </p>
         </div>
         
         <div className="flex items-center gap-2">
-           <div className="flex bg-[#0d0d12] rounded-lg p-1 mr-2">
+           <div className="flex bg-background rounded-lg p-1 mr-2">
              <button
                onClick={() => setChartType('line')}
                className={cn(
                  "p-1.5 rounded-md transition-all",
-                 chartType === 'line' ? "bg-emerald-500/20 text-emerald-500" : "text-gray-400 hover:text-white"
+                 chartType === 'line' ? "bg-emerald-500/20 text-emerald-500" : "text-text-muted hover:text-text-primary"
                )}
              >
                <TrendingUp className="h-4 w-4" />
@@ -80,14 +90,14 @@ export function SpendingLineChart({ initialData, categoryId, categoryName }: Spe
                onClick={() => setChartType('bar')}
                className={cn(
                  "p-1.5 rounded-md transition-all",
-                 chartType === 'bar' ? "bg-emerald-500/20 text-emerald-500" : "text-gray-400 hover:text-white"
+                 chartType === 'bar' ? "bg-emerald-500/20 text-emerald-500" : "text-text-muted hover:text-text-primary"
                )}
              >
                <BarChart3 className="h-4 w-4" />
              </button>
            </div>
           
-           <div className="flex bg-[#0d0d12] rounded-lg p-1 overflow-x-auto max-w-[200px] sm:max-w-none scrollbar-hide">
+           <div className="flex bg-background rounded-lg p-1 overflow-x-auto max-w-[200px] sm:max-w-none scrollbar-hide">
             {[
               { label: 'Year', value: 'this_year' },
               { label: 'Last Year', value: 'last_year' },
@@ -100,8 +110,8 @@ export function SpendingLineChart({ initialData, categoryId, categoryName }: Spe
                 className={cn(
                   "px-3 py-1 text-xs font-medium rounded-md transition-all whitespace-nowrap",
                   dateRange === range.value 
-                    ? "bg-[#272732] text-white shadow-sm" 
-                    : "text-gray-400 hover:text-gray-300"
+                    ? "bg-background-secondary text-text-primary shadow-sm" 
+                    : "text-text-muted hover:text-text-secondary"
                 )}
               >
                 {range.label}
@@ -113,7 +123,7 @@ export function SpendingLineChart({ initialData, categoryId, categoryName }: Spe
 
       <div className="flex-1 min-h-[300px]">
         {data.length === 0 ? (
-           <div className="h-full flex items-center justify-center text-gray-500 text-sm">
+           <div className="h-full flex items-center justify-center text-text-muted text-sm">
              No spending data for this period
            </div>
         ) : (
@@ -126,22 +136,20 @@ export function SpendingLineChart({ initialData, categoryId, categoryName }: Spe
                     <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke={isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)"} vertical={false} />
                 <XAxis 
                   dataKey="date" 
-                  stroke="#6b7280" 
+                  stroke={isLight ? "#64748b" : "#6b7280"} 
                   fontSize={12} 
                   tickLine={false} 
                   axisLine={false}
                   tickFormatter={(value) => {
-                     // If monthly, format as MMM
                      if (value.length === 7) return value
-                     // If daily, format as DD
                      return value.split('-')[2]
                   }}
                 />
                 <YAxis 
-                  stroke="#6b7280" 
+                  stroke={isLight ? "#64748b" : "#6b7280"} 
                   fontSize={12} 
                   tickLine={false} 
                   axisLine={false}
@@ -149,29 +157,29 @@ export function SpendingLineChart({ initialData, categoryId, categoryName }: Spe
                 />
                 <Tooltip
                   contentStyle={{ 
-                    backgroundColor: '#1a1a24', 
-                    border: '1px solid rgba(255,255,255,0.1)',
+                    backgroundColor: isLight ? '#ffffff' : '#1a1a24', 
+                    border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.1)',
                     borderRadius: '8px'
                   }}
                   itemStyle={{ color: '#22c55e' }}
                   formatter={(value: any) => [`${Number(value).toFixed(2)} PLN`, 'Spent']}
-                  labelStyle={{ color: '#9ca3af', marginBottom: '0.25rem' }}
+                  labelStyle={{ color: isLight ? '#1e293b' : '#9ca3af', marginBottom: '0.25rem' }}
                 />
                 <Line
                   type="monotone"
                   dataKey="amount"
                   stroke="#22c55e"
                   strokeWidth={3}
-                  dot={{ r: 4, fill: '#1a1a24', strokeWidth: 2 }}
+                  dot={{ r: 4, fill: isLight ? '#fff' : '#1a1a24', strokeWidth: 2 }}
                   activeDot={{ r: 6, fill: '#22c55e' }}
                 />
               </LineChart>
             ) : (
               <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke={isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)"} vertical={false} />
                 <XAxis 
                   dataKey="date" 
-                  stroke="#6b7280" 
+                  stroke={isLight ? "#64748b" : "#6b7280"} 
                   fontSize={12}
                   tickLine={false} 
                   axisLine={false}
@@ -181,27 +189,28 @@ export function SpendingLineChart({ initialData, categoryId, categoryName }: Spe
                   }}
                 />
                 <YAxis 
-                  stroke="#6b7280" 
+                  stroke={isLight ? "#64748b" : "#6b7280"} 
                   fontSize={12} 
                   tickLine={false} 
                   axisLine={false}
                   tickFormatter={(value) => `${value} PLN`}
                 />
                 <Tooltip
-                  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                  cursor={{ fill: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)' }}
                   contentStyle={{ 
-                    backgroundColor: '#1a1a24', 
-                    border: '1px solid rgba(255,255,255,0.1)',
+                    backgroundColor: isLight ? '#ffffff' : '#1a1a24', 
+                    border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.1)',
                     borderRadius: '8px'
                   }}
                   formatter={(value: any) => [`${Number(value).toFixed(2)} PLN`, 'Spent']}
-                  labelStyle={{ color: '#9ca3af', marginBottom: '0.25rem' }}
+                  labelStyle={{ color: isLight ? '#1e293b' : '#9ca3af', marginBottom: '0.25rem' }}
                 />
                 <Bar 
                   dataKey="amount" 
                   fill="#22c55e" 
                   radius={[4, 4, 0, 0]}
                   maxBarSize={50}
+                  className="focus:outline-none"
                 />
               </BarChart>
             )}

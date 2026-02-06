@@ -187,7 +187,8 @@ export async function getExpensesByCategory(range: DateRange = 'last_month') {
       return
     }
 
-    const category = e.category
+    // @ts-ignore
+    const category = Array.isArray(e.category) ? e.category[0] : e.category
     
     if (!category) {
       console.warn(`Expense ${index} has category_id but no category data:`, e.category_id)
@@ -195,9 +196,7 @@ export async function getExpensesByCategory(range: DateRange = 'last_month') {
     }
 
     // If this is a subcategory (has parent_id), group under parent
-    // @ts-ignore
     if (category.parent_id && parentCategoriesMap.has(category.parent_id)) {
-      // @ts-ignore
       const parent = parentCategoriesMap.get(category.parent_id)!
       
       if (categoryMap.has(parent.id)) {
@@ -256,9 +255,6 @@ export async function getSpendingOverTime(range: DateRange = 'this_year', catego
       query = query.is('category_id', null)
     } else {
       // Fetch expenses for this category or its subcategories
-      // Simplest approach: fetch all expense for time range, then filter in memory if needed,
-      // but let's try to filter in DB if possible.
-      // Getting IDs first is robust.
       const { data: subcategories } = await supabase
         .from('categories')
         .select('id')
@@ -284,10 +280,6 @@ export async function getSpendingOverTime(range: DateRange = 'this_year', catego
     
     timeMap.set(key, (timeMap.get(key) || 0) + amount)
   })
-
-  // Fill gaps for better chart visualization? 
-  // For monthly, we should probably ensure all months in range are present with 0
-  // But let's stick to sparse for now to avoid complexity, unless requested.
 
   return Array.from(timeMap.entries())
     .map(([date, amount]) => ({ date, amount }))
@@ -415,11 +407,6 @@ export async function getExpensesBySubcategory(categoryId: string, range: DateRa
   if (isUncategorized) {
     query = query.is('category_id', null)
   } else {
-    // We need to fetch expenses where the category is EITHER the categoryId itself OR a child of it
-    // But since Supabase filter on related tables is tricky for "OR", we might strictly check permissions
-    // Simplest way: Fetch all expenses for this user in time range, filter in memory if the relation logic is complex
-    // OR: Get all category IDs that are children of this category first.
-    
     // Step 1: Get all child category IDs (and the category itself)
     const { data: subcategories } = await supabase
       .from('categories')
@@ -433,7 +420,7 @@ export async function getExpensesBySubcategory(categoryId: string, range: DateRa
   const { data: expenses, error } = await query
   if (error) throw error
 
-  const subcategoryMap = new Map<string, { name: string, value: number, color: string }>()
+  const subcategoryMap = new Map<string, { id: string, name: string, value: number, color: string }>()
 
   expenses?.forEach(e => {
     const amount = Math.abs(e.amount)
@@ -453,6 +440,7 @@ export async function getExpensesBySubcategory(categoryId: string, range: DateRa
       subcategoryMap.get(catId)!.value += amount
     } else {
       subcategoryMap.set(catId, {
+        id: catId,
         name: catName,
         value: amount,
         color: catColor
@@ -461,4 +449,68 @@ export async function getExpensesBySubcategory(categoryId: string, range: DateRa
   })
 
   return Array.from(subcategoryMap.values()).sort((a, b) => b.value - a.value)
+}
+
+export async function getBalanceAtEndOfRange(range: DateRange) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  const { end } = getDateRangeInterval(range)
+
+  // Fetch all income - all expenses from the start of time until 'end'
+  const { data, error } = await supabase
+    .from('expenses')
+    .select('amount')
+    .eq('user_id', user.id)
+    .lte('transaction_date', end.toISOString())
+
+  if (error) throw error
+
+  const balance = data?.reduce((sum, e) => sum + e.amount, 0) || 0
+  
+  return {
+    balance,
+    asOf: end.toLocaleDateString()
+  }
+}
+
+export async function getCategoryTransactions(categoryId: string, range: DateRange) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  const { start, end } = getDateRangeInterval(range)
+  const isUncategorized = categoryId === 'uncategorized'
+
+  let query = supabase
+    .from('expenses')
+    .select(`
+      id,
+      amount,
+      merchant,
+      transaction_date
+    `)
+    .eq('user_id', user.id)
+    .gte('transaction_date', start.toISOString())
+    .lte('transaction_date', end.toISOString())
+    .lt('amount', 0)
+    .order('transaction_date', { ascending: false })
+
+  if (isUncategorized) {
+    query = query.is('category_id', null)
+  } else {
+    const { data: subcategories } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('parent_id', categoryId)
+    
+    const ids = [categoryId, ...(subcategories?.map(c => c.id) || [])]
+    query = query.in('category_id', ids)
+  }
+
+  const { data: expenses, error } = await query
+  if (error) throw error
+
+  return expenses
 }

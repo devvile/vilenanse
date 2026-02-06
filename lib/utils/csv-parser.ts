@@ -95,8 +95,9 @@ export async function parseCSV(file: File): Promise<CSVParseResult> {
     Papa.parse(file, {
       header: false,
       delimiter: ';', // ✅ ING uses semicolons!
+      encoding: 'Windows-1250', // ✅ Set encoding for Polish characters
       skipEmptyLines: true,
-      complete: (firstPass) => {
+      complete: (firstPass: any) => {
         const allRows = firstPass.data as any[]
         
         // Find header row (should be around line 22)
@@ -181,7 +182,7 @@ export async function parseCSV(file: File): Promise<CSVParseResult> {
           bankType: 'ING',
         })
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('PapaParse error:', error)
         resolve({
           success: false,

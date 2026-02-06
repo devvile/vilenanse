@@ -20,9 +20,10 @@ interface Category {
 interface ExpensesListProps {
   expenses: ExpenseWithCategory[]
   categories?: Category[]
+  totalCount?: number
 }
 
-export function ExpensesList({ expenses, categories = [] }: ExpensesListProps) {
+export function ExpensesList({ expenses, categories = [], totalCount }: ExpensesListProps) {
   const router = useRouter()
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [deleting, setDeleting] = useState(false)
@@ -103,14 +104,14 @@ export function ExpensesList({ expenses, categories = [] }: ExpensesListProps) {
     }
   }
 
-  const selectClasses = "w-full rounded-lg border border-white/[0.08] bg-[#13131a] px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+  const selectClasses = "w-full rounded-lg border border-card-border bg-background-secondary px-3 py-2 text-sm text-text-primary focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
 
   if (expenses.length === 0) {
     return (
-      <div className="rounded-xl border-2 border-dashed border-white/[0.1] bg-[#1a1a24] p-12 text-center">
-        <FileText className="mx-auto h-12 w-12 text-gray-600" />
-        <h3 className="mt-2 text-sm font-semibold text-white">No expenses</h3>
-        <p className="mt-1 text-sm text-gray-500">
+      <div className="rounded-xl border-2 border-dashed border-card-border bg-card p-12 text-center">
+        <FileText className="mx-auto h-12 w-12 text-text-muted" />
+        <h3 className="mt-2 text-sm font-semibold text-text-primary">No expenses</h3>
+        <p className="mt-1 text-sm text-text-secondary">
           Get started by creating a new expense.
         </p>
       </div>
@@ -186,7 +187,7 @@ export function ExpensesList({ expenses, categories = [] }: ExpensesListProps) {
               </button>
 
               {/* Delete Section */}
-              <div className="flex items-center gap-2 border-l border-white/[0.1] pl-3">
+              <div className="flex items-center gap-2 border-l border-card-border pl-3">
                 {showDeleteConfirm ? (
                   <>
                     <p className="text-sm text-red-400 mr-2 whitespace-nowrap">
@@ -201,7 +202,7 @@ export function ExpensesList({ expenses, categories = [] }: ExpensesListProps) {
                     </button>
                     <button
                       onClick={() => setShowDeleteConfirm(false)}
-                      className="rounded-full border border-white/[0.1] bg-white/[0.05] px-4 py-2 text-sm font-medium text-gray-300 hover:bg-white/[0.08] whitespace-nowrap transition-colors"
+                      className="rounded-full border border-card-border bg-background-secondary px-4 py-2 text-sm font-medium text-text-secondary hover:bg-card-hover whitespace-nowrap transition-colors"
                     >
                       Cancel
                     </button>
@@ -222,16 +223,24 @@ export function ExpensesList({ expenses, categories = [] }: ExpensesListProps) {
       )}
 
       {/* Select All Checkbox */}
-      <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-[#1a1a24] p-4">
-        <input
-          type="checkbox"
-          checked={selectedIds.size === expenses.length && expenses.length > 0}
-          onChange={toggleSelectAll}
-          className="h-4 w-4 rounded border-gray-600 bg-[#13131a] text-emerald-500 focus:ring-emerald-500 focus:ring-offset-0"
-        />
-        <label className="text-sm font-medium text-gray-300">
-          Select all ({expenses.length} expenses)
-        </label>
+      <div className="flex items-center justify-between rounded-xl border border-card-border bg-card p-4 text-sm">
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="select-all-checkbox"
+            checked={selectedIds.size === expenses.length && expenses.length > 0}
+            onChange={toggleSelectAll}
+            className="h-4 w-4 rounded border-gray-600 bg-background-secondary text-emerald-500 focus:ring-emerald-500 focus:ring-offset-0 cursor-pointer"
+          />
+          <label htmlFor="select-all-checkbox" className="font-medium text-text-secondary cursor-pointer">
+            Select all <span className="text-text-muted ml-1 font-normal">({expenses.length} on page)</span>
+          </label>
+        </div>
+        {totalCount !== undefined && (
+          <p className="text-text-secondary">
+            Total match: <span className="font-bold text-text-primary">{totalCount}</span> expenses
+          </p>
+        )}
       </div>
 
       {/* Expenses List */}
@@ -242,7 +251,7 @@ export function ExpensesList({ expenses, categories = [] }: ExpensesListProps) {
               type="checkbox"
               checked={selectedIds.has(expense.id)}
               onChange={() => toggleSelection(expense.id)}
-              className="h-5 w-5 rounded border-gray-600 bg-[#13131a] text-emerald-500 focus:ring-emerald-500 focus:ring-offset-0"
+              className="h-5 w-5 rounded border-gray-600 bg-background-secondary text-emerald-500 focus:ring-emerald-500 focus:ring-offset-0"
             />
           </div>
           <div className="flex-1">

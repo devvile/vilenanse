@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ExpensesDonutChart } from './expenses-donut'
 import { SubcategoryChart } from './subcategory-chart'
 import { SpendingLineChart } from './spending-line-chart'
-import { DateRange, getExpensesBySubcategory } from '@/lib/actions/dashboard'
+import { MinimalTransactionList } from './minimal-transaction-list'
+import { DateRange, getExpensesBySubcategory, getCategoryTransactions } from '@/lib/actions/dashboard'
 
 interface ExpensesAnalysisProps {
   initialDonutData: {
@@ -15,72 +16,115 @@ interface ExpensesAnalysisProps {
     parent_id: string | null
   }[]
   initialSpendingData: { date: string; amount: number }[]
+  dateRange: DateRange
 }
 
-export function ExpensesAnalysis({ initialDonutData, initialSpendingData }: ExpensesAnalysisProps) {
+export function ExpensesAnalysis({ initialDonutData, initialSpendingData, dateRange }: ExpensesAnalysisProps) {
   const [selectedCategory, setSelectedCategory] = useState<{ id: string; name: string } | null>(null)
-  const [subcategoryData, setSubcategoryData] = useState<{ name: string; value: number; color: string }[]>([])
+  const [selectedSubcategory, setSelectedSubcategory] = useState<{ id: string; name: string } | null>(null)
+  const [subcategoryData, setSubcategoryData] = useState<{ id: string; name: string; value: number; color: string }[]>([])
+  const [transactions, setTransactions] = useState<any[]>([])
   const [loadingSubcategories, setLoadingSubcategories] = useState(false)
-  const [currentDateRange, setCurrentDateRange] = useState<DateRange>('last_month')
+  const [loadingTransactions, setLoadingTransactions] = useState(false)
 
-  const handleCategorySelect = async (category: { id: string; name: string }) => {
-    if (selectedCategory?.id === category.id) {
-       // Deselect if clicking same
-       setSelectedCategory(null)
-       setSubcategoryData([])
-       return
+  // Sync subcategories and transactions if range/selection changes
+  useEffect(() => {
+    const fetchSelectedData = async () => {
+      const activeId = selectedSubcategory?.id || selectedCategory?.id
+      if (!activeId) {
+        setTransactions([])
+        return
+      }
+
+      setLoadingTransactions(true)
+      try {
+        const txs = await getCategoryTransactions(activeId, dateRange)
+        setTransactions(txs)
+      } catch (error) {
+        console.error('Failed to fetch category transactions', error)
+      } finally {
+        setLoadingTransactions(false)
+      }
     }
 
-    setSelectedCategory(category)
-    setLoadingSubcategories(true)
-    try {
-      const data = await getExpensesBySubcategory(category.id, currentDateRange)
-      setSubcategoryData(data)
-    } catch (error) {
-      console.error('Failed to fetch subcategories', error)
-    } finally {
-      setLoadingSubcategories(false)
-    }
-  }
+    fetchSelectedData()
+  }, [dateRange, selectedCategory?.id, selectedSubcategory?.id])
 
-  const handleDateRangeChange = (range: DateRange) => {
-    setCurrentDateRange(range)
-    // If a category is selected, we should re-fetch its subcategories for the new range
-    // NOTE: In a real app we might want to trigger this update. 
-    // For simplicity, let's just clear selection or re-fetch if selected.
+  // Separate effect for subcategories (only depends on category)
+  useEffect(() => {
     if (selectedCategory) {
-       // Re-fetch
        setLoadingSubcategories(true)
-       getExpensesBySubcategory(selectedCategory.id, range)
+       getExpensesBySubcategory(selectedCategory.id, dateRange)
          .then(setSubcategoryData)
          .catch(console.error)
          .finally(() => setLoadingSubcategories(false))
+    } else {
+      setSubcategoryData([])
     }
+  }, [dateRange, selectedCategory?.id])
+
+  const handleCategorySelect = async (category: { id: string; name: string }) => {
+    if (selectedCategory?.id === category.id) {
+        handleReset()
+        return
+    }
+
+    setSelectedCategory(category)
+    setSelectedSubcategory(null)
+  }
+
+  const handleSubcategorySelect = (subcategory: { id: string; name: string }) => {
+    if (selectedSubcategory?.id === subcategory.id) {
+      setSelectedSubcategory(null)
+      return
+    }
+    setSelectedSubcategory(subcategory)
+  }
+
+  const handleReset = () => {
+    setSelectedCategory(null)
+    setSelectedSubcategory(null)
+    setSubcategoryData([])
+    setTransactions([])
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      <div className="h-[550px]">
-        <ExpensesDonutChart 
-          initialData={initialDonutData} 
-          onCategorySelect={handleCategorySelect}
-          selectedCategoryId={selectedCategory?.id}
-          onDateRangeChangeProp={handleDateRangeChange}
-        />
+    <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+        <div className="h-[500px]">
+          <ExpensesDonutChart 
+            initialData={initialDonutData} 
+            onCategorySelect={handleCategorySelect}
+            onReset={handleReset}
+            selectedCategoryId={selectedCategory?.id}
+          />
+        </div>
+        <div className="h-[500px]">
+          <SubcategoryChart 
+            data={subcategoryData} 
+            loading={loadingSubcategories}
+            categoryName={selectedCategory?.name || ''}
+            onSubcategorySelect={handleSubcategorySelect}
+            selectedSubcategoryId={selectedSubcategory?.id}
+          />
+        </div>
       </div>
-      <div className="h-[550px]">
-        <SubcategoryChart 
-          data={subcategoryData} 
-          loading={loadingSubcategories}
-          categoryName={selectedCategory?.name || ''}
-        />
-      </div>
-      <div className="lg:col-span-2 h-[400px]">
-         <SpendingLineChart 
-            initialData={initialSpendingData} 
-            categoryId={selectedCategory?.id}
-            categoryName={selectedCategory?.name}
-         />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+        <div className="lg:col-span-2 h-[500px]">
+           <SpendingLineChart 
+              initialData={initialSpendingData} 
+              categoryId={selectedSubcategory?.id || selectedCategory?.id}
+              categoryName={selectedSubcategory?.name || selectedCategory?.name}
+           />
+        </div>
+        <div className="lg:col-span-1 h-[500px]">
+           <MinimalTransactionList 
+              transactions={transactions}
+              loading={loadingTransactions}
+              categoryName={selectedSubcategory?.name || selectedCategory?.name || ''}
+           />
+        </div>
       </div>
     </div>
   )

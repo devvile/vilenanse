@@ -149,8 +149,6 @@ export async function getRecurringStats(expenses: RecurringExpense[]): Promise<R
     if (diff < 0) {
       // Payment is next month
       // Estimate days until next month's payment day
-      // Simple approximation: (days in month - current day) + payment day
-      // Better: accurate date calculation
       const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, expense.payment_day)
       const diffTime = Math.abs(nextMonth.getTime() - today.getTime())
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) 
@@ -185,4 +183,32 @@ export async function getRecurringStats(expenses: RecurringExpense[]): Promise<R
     nextPaymentAmount: nextPayment ? (nextPayment as RecurringExpense).amount : 0,
     daysUntilNext: minDaysDiff === Infinity ? 0 : minDaysDiff
   }
+}
+
+export async function getIncomingRemainingThisMonth() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  const { data: expenses, error } = await supabase
+    .from('recurring_expenses')
+    .select('amount, payment_day')
+    .eq('user_id', user.id)
+
+  if (error) throw error
+
+  const today = new Date()
+  const currentDay = today.getDate()
+  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()
+
+  let totalRemaining = 0
+  
+  expenses?.forEach(expense => {
+    // Only count expenses that are due from today + 1 until the end of the month
+    if (expense.payment_day > currentDay && expense.payment_day <= lastDayOfMonth) {
+      totalRemaining += Number(expense.amount)
+    }
+  })
+
+  return totalRemaining
 }
