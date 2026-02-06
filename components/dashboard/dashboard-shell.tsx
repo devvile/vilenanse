@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 
 import { Card } from '@/components/ui/card'
+import { ArrowDownRight, ArrowUpRight, DollarSign, TrendingUp, CreditCard } from "lucide-react"
 
 interface DashboardShellProps {
   initialStats: {
@@ -137,68 +138,104 @@ export function DashboardShell({
     dateRange === 'last_12_months'
 
   return (
-    <div className="relative">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6 items-stretch">
-        {/* Left Column: Balance */}
+    <div className="relative space-y-4">
+      
+      {/* Row 1: Timeframe Selector (Full Width) */}
+      <Card className="relative p-1.5 bg-card border-card-border flex items-center justify-between overflow-hidden">
+        <span className="text-xs font-semibold text-text-muted ml-4 uppercase tracking-wider">Timeframe</span>
+        <div className="flex bg-background rounded-full p-1 gap-1">
+          {ranges.map((range) => (
+            <button
+              key={range.value}
+              onClick={() => handleDateRangeChange(range.value)}
+              className={cn(
+                "px-4 py-1.5 text-[10px] font-bold rounded-full transition-all duration-300 whitespace-nowrap uppercase tracking-tight",
+                dateRange === range.value 
+                  ? "bg-emerald-500 text-black shadow-[0_0_15px_rgba(34,197,94,0.3)]" 
+                  : "text-text-secondary hover:text-text-primary hover:bg-white/5"
+              )}
+            >
+              {range.label}
+            </button>
+          ))}
+        </div>
+        {/* Loading Bar */}
+        {loading && (
+          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-background-secondary w-full">
+            <div className="h-full bg-emerald-500 animate-[loading-bar_1.5s_infinite_ease-in-out] w-1/3" />
+          </div>
+        )}
+      </Card>
+
+      {/* Row 2: Unified Stats Grid (Balance + QuickStats in one row on large screens) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        {/* Balance Card (1st column) */}
         <div className="lg:col-span-1">
-          <BalanceCard
-            totalBalance={currentBalance}
-          />
+          <BalanceCard totalBalance={currentBalance} />
         </div>
 
-        {/* Right Column: Timeframe, Stats & Budget */}
-        <div className="lg:col-span-2 flex flex-col gap-4 relative justify-between">
-          {loading && (
-             <div className="absolute inset-x-0 -top-2 h-1 overflow-hidden rounded-full bg-emerald-500/20 z-20">
-                <div className="h-full bg-emerald-500 animate-[loading-bar_1.5s_infinite_linear]" style={{ width: '30%' }} />
-             </div>
-          )}
+        {/* Quick Stats (Next 4 columns) */}
+        <Card className="p-4 flex items-center gap-4 bg-card border-card-border lg:col-span-1">
+          <div className="h-10 w-10 min-w-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
+            <ArrowUpRight className="h-5 w-5 text-emerald-500" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs text-text-muted truncate">Total Income</p>
+            <p className="text-lg font-bold text-text-primary truncate">{Math.round(stats.totalIncome).toLocaleString()} PLN</p>
+          </div>
+        </Card>
+        
+        <Card className="p-4 flex items-center gap-4 bg-card border-card-border lg:col-span-1">
+          <div className="h-10 w-10 min-w-10 rounded-full bg-red-500/10 flex items-center justify-center">
+            <ArrowDownRight className="h-5 w-5 text-red-500" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs text-text-muted truncate">Total Expenses</p>
+            <p className="text-lg font-bold text-text-primary truncate">{Math.round(stats.totalExpenses).toLocaleString()} PLN</p>
+          </div>
+        </Card>
 
-          {/* Timeframe Selector Card */}
-          <Card className="p-1.5 bg-card border-card-border flex items-center justify-between">
-            <span className="text-xs font-semibold text-text-muted ml-4 uppercase tracking-wider">Timeframe</span>
-            <div className="flex bg-background rounded-full p-1 gap-1">
-              {ranges.map((range) => (
-                <button
-                  key={range.value}
-                  onClick={() => handleDateRangeChange(range.value)}
-                  className={cn(
-                    "px-4 py-1.5 text-[10px] font-bold rounded-full transition-all duration-300 whitespace-nowrap uppercase tracking-tight",
-                    dateRange === range.value 
-                      ? "bg-emerald-500 text-black shadow-[0_0_15px_rgba(34,197,94,0.3)]" 
-                      : "text-text-secondary hover:text-text-primary hover:bg-white/5"
-                  )}
-                >
-                  {range.label}
-                </button>
-              ))}
-            </div>
-          </Card>
+        <Card className="p-4 flex items-center gap-4 bg-card border-card-border lg:col-span-1">
+          <div className="h-10 w-10 min-w-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+            <TrendingUp className="h-5 w-5 text-blue-500" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs text-text-muted truncate">Avg. Daily Spend</p>
+            <p className="text-lg font-bold text-text-primary truncate">{Math.round(stats.avgDaily).toLocaleString()} PLN</p>
+          </div>
+        </Card>
 
-          <QuickStats
-            income={stats.totalIncome}
-            expenses={stats.totalExpenses}
-            avgDaily={stats.avgDaily}
-            largestTransaction={stats.largestTransaction}
-          />
-          
-          <BudgetProgress 
-            spent={stats.totalExpenses} 
-            incoming={incomingRemaining} 
-            limit={totalLimit} 
-            onLimitChange={handleBudgetLimitChange}
-            showIncoming={includesRunningMonth}
-            loading={loading}
-          />
-        </div>
+        <Card className="p-4 flex items-center gap-4 bg-card border-card-border lg:col-span-1">
+          <div className="h-10 w-10 min-w-10 rounded-full bg-purple-500/10 flex items-center justify-center">
+            <CreditCard className="h-5 w-5 text-purple-500" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs text-text-muted truncate">Largest Transaction</p>
+            <p className="text-lg font-bold text-text-primary truncate">{Math.round(stats.largestTransaction).toLocaleString()} PLN</p>
+          </div>
+        </Card>
       </div>
 
+      {/* Row 3: Budget Progress */}
+      <div className="w-full">
+        <BudgetProgress 
+          spent={stats.totalExpenses} 
+          incoming={incomingRemaining} 
+          limit={totalLimit} 
+          onLimitChange={handleBudgetLimitChange}
+          showIncoming={includesRunningMonth}
+          loading={loading}
+        />
+      </div>
+
+      {/* Row 4: Expenses Analysis (Charts) */}
       <ExpensesAnalysis 
         initialDonutData={donutData} 
         initialSpendingData={spendingData} 
         dateRange={dateRange}
       />
 
+      {/* Row 5: Detailed Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
         <div className="lg:col-span-2">
           <IncomeVsExpensesChart data={incomeVsExpensesData} />

@@ -18,7 +18,7 @@ export function BalanceCard({
 
   return (
     <>
-      <Card className="relative overflow-hidden p-6 h-full flex flex-col justify-between bg-card border-card-border">
+      <Card className="relative overflow-hidden p-6 flex flex-col justify-between bg-card border-card-border h-full lg:h-auto">
         {/* Background decoration */}
         <div className="absolute top-0 right-0 -mt-4 -mr-4 h-32 w-32 rounded-full bg-emerald-500/10 blur-2xl" />
         
@@ -42,8 +42,9 @@ export function BalanceCard({
           </div>
         </div>
 
-        {/* Action buttons */}
-        <div>
+
+        {/* Action buttons - Hidden per user request */}
+        {/* <div>
           <button 
             onClick={() => setIsModalOpen(true)}
             className="w-full flex items-center justify-center gap-2 rounded-lg bg-background-secondary border border-card-border py-3 text-sm font-semibold text-text-primary hover:bg-card-hover transition-colors"
@@ -51,7 +52,7 @@ export function BalanceCard({
             <RefreshCw className="h-4 w-4" />
             Update Balance
           </button>
-        </div>
+        </div> */}
       </Card>
       
       <UpdateBalanceModal 

@@ -78,7 +78,7 @@ export function SubcategoryChart({
                 axisLine={false}
               />
               <Tooltip
-                cursor={{ fill: isLight ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.08)' }}
+                cursor={{ fill: isLight ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.08)', stroke: 'none', strokeWidth: 0 }}
                 contentStyle={{ 
                   backgroundColor: isLight ? '#ffffff' : '#1a1a24', 
                   border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.1)',
@@ -88,26 +88,34 @@ export function SubcategoryChart({
                 labelStyle={{ color: isLight ? '#1e293b' : '#fff' }}
                 formatter={(value: any) => [`${Number(value).toFixed(2)} PLN`, 'Spent']}
               />
-              <Bar 
-                dataKey="value" 
-                radius={[0, 4, 4, 0]} 
-                barSize={32}
-                className="cursor-pointer focus:outline-none"
-                onClick={(data) => {
-                  if (data && data.id && data.name) {
-                    onSubcategorySelect?.({ id: data.id, name: data.name })
-                  }
-                }}
-              >
-                {data.map((entry, index) => (
-                  <Cell 
-                    key={`cell-${index}`} 
-                    fill={entry.color} 
-                    fillOpacity={selectedSubcategoryId && selectedSubcategoryId !== entry.id ? 0.3 : 1}
-                    className="transition-all duration-300"
-                  />
-                ))}
-              </Bar>
+<Bar 
+  dataKey="value" 
+  radius={[0, 4, 4, 0]} 
+  barSize={32}
+  className="cursor-pointer focus:outline-none"
+  isAnimationActive={true}
+  activeBar={false}
+  onClick={(data, index, e) => {
+    // Prevent focus
+    const target = e?.target as HTMLElement
+    if (target) {
+      target.blur()
+      target.style.outline = 'none'
+    }
+    if (data && data.id && data.name) {
+      onSubcategorySelect?.({ id: data.id, name: data.name })
+    }
+  }}
+>
+  {data.map((entry, index) => (
+    <Cell 
+      key={`cell-${index}`} 
+      fill={entry.color} 
+      fillOpacity={selectedSubcategoryId && selectedSubcategoryId !== entry.id ? 0.3 : 1}
+      className="transition-all duration-300"
+    />
+  ))}
+</Bar>
             </BarChart>
           </ResponsiveContainer>
         )}

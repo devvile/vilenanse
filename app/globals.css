@@ -86,15 +86,107 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Remove focus outlines from charts and SVGs */
+/* Remove focus outlines from charts and SVGs - Aggressive Reset */
+.recharts-wrapper {
+  outline: none !important;
+}
+
+.recharts-wrapper:focus,
+.recharts-wrapper:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 svg:focus,
 .recharts-surface:focus,
 .recharts-pie-sector:focus,
 .recharts-bar-rectangle:focus,
 .recharts-sector:focus,
 .recharts-curve:focus,
-.recharts-dot:focus {
-  outline: none;
+.recharts-dot:focus,
+.recharts-rectangle:focus,
+.recharts-layer:focus {
+  outline: none !important;
+}
+
+/* Remove all strokes from bar rectangles */
+.recharts-bar-rectangle,
+.recharts-bar-rectangle path,
+.recharts-bar-rectangle rect {
+  stroke: none !important;
+  stroke-width: 0 !important;
+  outline: none !important;
+}
+
+/* Remove focus states */
+.recharts-bar-rectangle:focus,
+.recharts-bar-rectangle:focus-visible,
+.recharts-bar-rectangle path:focus,
+.recharts-bar-rectangle rect:focus {
+  outline: none !important;
+  stroke: none !important;
+  stroke-width: 0 !important;
+}
+
+/* Remove any hover or active strokes */
+.recharts-bar-rectangle:hover path,
+.recharts-bar-rectangle:active path,
+.recharts-bar-rectangle path:hover,
+.recharts-bar-rectangle path:active {
+  stroke: none !important;
+  stroke-width: 0 !important;
+}
+
+/* Make sure cells don't get strokes */
+.recharts-bar .recharts-rectangle {
+  stroke: none !important;
+  stroke-width: 0 !important;
+}
+
+/* Remove focus from the SVG container */
+.recharts-surface {
+  outline: none !important;
+}
+
+.recharts-surface:focus,
+.recharts-surface:focus-visible {
+  outline: none !important;
+}
+
+/* Also remove tabindex focus styles globally for recharts */
+svg[class*="recharts"]:focus,
+svg[class*="recharts"]:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Completely disable focus for ALL recharts elements */
+.recharts-wrapper,
+.recharts-wrapper *,
+.recharts-surface,
+.recharts-surface *,
+svg.recharts-surface,
+svg.recharts-surface * {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.recharts-wrapper:focus,
+.recharts-wrapper *:focus,
+.recharts-surface:focus,
+.recharts-surface *:focus,
+svg.recharts-surface:focus,
+svg.recharts-surface *:focus,
+.recharts-wrapper:focus-visible,
+.recharts-wrapper *:focus-visible,
+.recharts-surface:focus-visible,
+.recharts-surface *:focus-visible,
+svg.recharts-surface:focus-visible,
+svg.recharts-surface *:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  stroke: none !important;
 }
 
 /* Scrollbar styling */
@@ -322,6 +414,20 @@ svg:focus,
 
 .animate-pulse-green {
   animation: pulse-green 2s infinite;
+}
+
+@keyframes loading-bar {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  50% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* Make native date calendar icon visible on dark backgrounds and move to left */
