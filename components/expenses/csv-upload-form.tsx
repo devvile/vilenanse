@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card'
 export function CSVUploadForm() {
   const router = useRouter()
   const [file, setFile] = useState<File | null>(null)
+  const [bankType, setBankType] = useState<'Auto' | 'ING' | 'Revolut'>('Auto')
   const [parsing, setParsing] = useState(false)
   const [importing, setImporting] = useState(false)
   const [parseResult, setParseResult] = useState<CSVParseResult | null>(null)
@@ -34,7 +35,7 @@ export function CSVUploadForm() {
 
     setParsing(true)
     try {
-      const result = await parseCSV(file)
+      const result = await parseCSV(file, bankType)
       setParseResult(result)
       
       if (result.success && result.data.length > 0) {
@@ -103,10 +104,32 @@ export function CSVUploadForm() {
             <h2 className="text-xl font-bold text-white">Step 1: Upload CSV File</h2>
           </div>
           
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">
+                Select Your Bank
+              </label>
+              <div className="flex gap-2">
+                {(['Auto', 'ING', 'Revolut'] as const).map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => setBankType(type)}
+                    className={cn(
+                      "px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all border",
+                      bankType === type 
+                        ? "bg-emerald-500 border-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.2)]" 
+                        : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
+                    )}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="max-w-xl">
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">
-                Select CSV file from your bank
+                Select CSV file
               </label>
               
               <div className="relative group/input">
@@ -133,7 +156,7 @@ export function CSVUploadForm() {
                       "text-sm font-bold truncate",
                       file ? "text-white" : "text-gray-500"
                     )}>
-                      {file ? file.name : "Wybierz plik..."}
+                      {file ? file.name : "Choose file..."}
                     </p>
                     {file && (
                       <p className="text-[10px] text-emerald-400/70 font-bold uppercase tracking-tight">
@@ -146,7 +169,7 @@ export function CSVUploadForm() {
               
               <div className="mt-4 flex items-center gap-2 text-xs text-gray-500 font-medium">
                 <Info className="h-3 w-3 text-emerald-500" />
-                <span>Currently supported: <span className="text-gray-300 font-bold">ING Bank Poland</span></span>
+                <span>Supported: <span className="text-gray-300 font-bold">ING Bank, Revolut</span></span>
               </div>
             </div>
 
@@ -366,30 +389,41 @@ export function CSVUploadForm() {
           Import Guide
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-           <div>
-             <h4 className="text-sm font-bold text-white mb-4">How to export from ING Bank:</h4>
-             <ol className="space-y-3">
-               {[
-                 "Log in to your ING online banking",
-                 "Go to Lista transakcji (Transaction list)",
-                 "Select your desired date range",
-                 "Click Export and choose CSV format",
-                 "Upload the downloaded file in Step 1 above"
-               ].map((step, i) => (
-                 <li key={i} className="flex gap-3 items-start group">
-                   <span className="flex items-center justify-center h-5 w-5 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black shrink-0 border border-emerald-500/20 group-hover:bg-emerald-500 group-hover:text-black transition-colors">{i + 1}</span>
-                   <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">{step}</span>
-                 </li>
-               ))}
-             </ol>
-           </div>
-           
-           <div className="bg-white/[0.02] rounded-2xl p-6 border border-white/[0.05]">
-              <h4 className="text-sm font-bold text-white mb-2 italic">Pro Tip</h4>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                Our parser automatically detects the bank format and identifies duplicates. If you import the same file twice, we'll smartly skip already existing transactions.
-              </p>
-           </div>
+            <div>
+              <h4 className="text-sm font-bold text-white mb-4">Export Instructions:</h4>
+              <div className="space-y-6">
+                <div>
+                  <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-3">ING Bank</p>
+                  <ol className="space-y-2">
+                    {["Lista transakcji", "Select date range", "Click Export (CSV)"].map((step, i) => (
+                      <li key={i} className="flex gap-2 items-start text-xs text-gray-400">
+                        <span className="text-emerald-500 font-bold">{i + 1}.</span> {step}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-3">Revolut</p>
+                  <ol className="space-y-2">
+                    {["Go to Accounts", "Details (...) -> Statement", "Select Excel/CSV", "Choose date range"].map((step, i) => (
+                      <li key={i} className="flex gap-2 items-start text-xs text-gray-400">
+                        <span className="text-emerald-500 font-bold">{i + 1}.</span> {step}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white/[0.02] rounded-2xl p-6 border border-white/[0.05]">
+               <h4 className="text-sm font-bold text-white mb-2 italic">Smart Detection</h4>
+               <p className="text-sm text-gray-500 leading-relaxed">
+                 Our parser automatically detects whether you've uploaded an ING or Revolut file. If detection fails, you can manually select the bank above.
+               </p>
+               <p className="text-sm text-gray-500 leading-relaxed mt-4">
+                 Duplicates are identified by comparing date, amount, and merchant name.
+               </p>
+            </div>
         </div>
       </Card>
     </div>
