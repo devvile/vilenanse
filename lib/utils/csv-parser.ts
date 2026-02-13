@@ -20,18 +20,42 @@ export interface CSVParseResult {
   bankType: string
 }
 
+function detectEncoding(content: string): string {
+  // Simple heuristic: ING files usually have "Data transakcji" and are Windows-1250
+  // Revolut files are usually UTF-8
+  if (content.includes('Data transakcji') || content.includes('Kwota transakcji')) {
+    return 'Windows-1250'
+  }
+  return 'UTF-8'
+}
+
+function getColumnValue(rowObj: any, possibleNames: string[]): string | undefined {
+  const keys = Object.keys(rowObj)
+  for (const name of possibleNames) {
+    // Try exact match
+    if (rowObj[name] !== undefined) return rowObj[name]
+    
+    // Try case-insensitive and trimmed match
+    const foundKey = keys.find(k => 
+      k.toLowerCase().trim() === name.toLowerCase().trim() ||
+      k.toLowerCase().includes(name.toLowerCase().trim())
+    )
+    if (foundKey) return rowObj[foundKey]
+  }
+  return undefined
+}
+
 function parseINGRow(row: any): ParsedExpense | null {
   try {
-    const transactionDate = row['Data transakcji']
-    const bookingDate = row['Data księgowania']
-    const merchant = row['Dane kontrahenta']?.trim()
-    const description = row['Tytuł']?.trim()
-    const amountStr = row['Kwota transakcji (waluta rachunku)']
-    const currency = row['Waluta']
-    const transactionType = row['Szczegóły']?.trim()
-    const originalAmountStr = row['Kwota płatności w walucie']
+    const transactionDate = getColumnValue(row, ['Data transakcji', 'Transaction date'])
+    const bookingDate = getColumnValue(row, ['Data księgowania', 'Booking date'])
+    const merchant = getColumnValue(row, ['Dane kontrahenta', 'Contractor details'])?.trim()
+    const description = getColumnValue(row, ['Tytuł', 'Title'])?.trim()
+    const amountStr = getColumnValue(row, ['Kwota transakcji', 'Transaction amount'])
+    const currency = getColumnValue(row, ['Waluta', 'Currency'])
+    const transactionType = getColumnValue(row, ['Szczegóły', 'Details'])?.trim()
+    const originalAmountStr = getColumnValue(row, ['Kwota płatności w walucie', 'Payment amount in currency'])
 
-    // Skip if no transaction date or amount
     if (!transactionDate || !amountStr) {
       return null
     }
@@ -42,19 +66,17 @@ function parseINGRow(row: any): ParsedExpense | null {
       return null
     }
 
-    // Parse original amount if exists (for foreign currency transactions)
+    // Parse original amount if exists
     let originalAmount: number | null = null
     let originalCurrency: string | null = null
     if (originalAmountStr && originalAmountStr.toString().trim()) {
       const parsed = parseFloat(originalAmountStr.toString().replace(',', '.').replace(/\s/g, ''))
       if (!isNaN(parsed) && parsed !== 0) {
         originalAmount = parsed
-        // Original currency is in the column after "Kwota płatności w walucie"
-        originalCurrency = 'EUR' // Most common, could be refined
+        originalCurrency = 'EUR' 
       }
     }
 
-    // Convert date format (already in YYYY-MM-DD from ING)
     const parsedDate = parseINGDate(transactionDate)
     const parsedBookingDate = bookingDate ? parseINGDate(bookingDate) : null
 
@@ -91,20 +113,20 @@ function parseINGDate(dateStr: string): string {
 
 function parseRevolutRow(row: any): ParsedExpense | null {
   try {
-    const transactionDate = row['Data rozpoczęcia'] || row['Started Date']
-    const bookingDate = row['Data zrealizowania'] || row['Completed Date']
-    const description = row['Opis'] || row['Description']
-    const amountStr = row['Kwota'] || row['Amount']
-    const currency = row['Waluta'] || row['Currency']
-    const transactionType = row['Rodzaj'] || row['Type']
+    const transactionDate = getColumnValue(row, ['Data rozpoczęcia', 'Started Date', 'Started_Date', 'Date'])
+    const bookingDate = getColumnValue(row, ['Data zrealizowania', 'Completed Date', 'Completed_Date'])
+    const description = getColumnValue(row, ['Opis', 'Description'])
+    const amountStr = getColumnValue(row, ['Kwota', 'Amount'])
+    const currency = getColumnValue(row, ['Waluta', 'Currency'])
+    const transactionType = getColumnValue(row, ['Rodzaj', 'Type'])
 
     if (!transactionDate || !amountStr) return null
 
-    // Parse amount (Revolut uses dot as decimal separator)
+    // Parse amount
     const amount = parseFloat(amountStr.toString().replace(',', '.').replace(/\s/g, ''))
     if (isNaN(amount)) return null
 
-    // Date in Revolut is YYYY-MM-DD HH:mm:ss
+    // Date in Revolut is often YYYY-MM-DD HH:mm:ss
     const parsedDate = transactionDate.split(' ')[0]
     const parsedBookingDate = bookingDate ? bookingDate.split(' ')[0] : null
 
@@ -113,7 +135,7 @@ function parseRevolutRow(row: any): ParsedExpense | null {
       booking_date: parsedBookingDate,
       amount: amount,
       currency: currency?.trim() || 'PLN',
-      merchant: description || null, // Revolut usually puts merchant in description
+      merchant: description || null,
       description: description || null,
       transaction_type: transactionType || null,
       original_amount: null,
@@ -127,50 +149,49 @@ function parseRevolutRow(row: any): ParsedExpense | null {
 
 export async function parseCSV(file: File, requestedBankType: 'Auto' | 'ING' | 'Revolut' = 'Auto'): Promise<CSVParseResult> {
   return new Promise((resolve) => {
-    // Determine possible delimiters to try
-    const delimiters = requestedBankType === 'ING' ? [';'] : (requestedBankType === 'Revolut' ? [','] : [';', ','])
-    
-    // For auto-detection, we'll read the first few lines to guess the delimiter and format
     const reader = new FileReader()
     reader.onload = (e) => {
       const content = e.target?.result as string
-      const firstLine = content.split('\n')[0]
       
-      // Default to semicolon if it looks like ING, otherwise comma
-      let delimiter = ','
-      if (content.includes('Data transakcji') || content.includes('Kwota transakcji')) {
-        delimiter = ';'
-      } else if (firstLine.includes(';')) {
-        delimiter = ';'
+      // 1. Detect encoding
+      const encoding = detectEncoding(content)
+      
+      // If we need to re-read with correct encoding
+      if (encoding === 'Windows-1250' && !content.includes('Data transakcji') && content.includes('Data transakcji'.substring(0, 4))) {
+        // Redo with Windows-1250 if we suspect it's wrong (already handled by reader.readAsText below, but being safe)
       }
+
+      // 2. Guess Delimiter
+      let delimiter = content.includes(';') ? ';' : ','
+      const firstLine = content.split('\n')[0]
+      if (firstLine.includes(';')) delimiter = ';'
+      else if (firstLine.includes(',')) delimiter = ','
 
       Papa.parse(file, {
         header: false,
         delimiter: delimiter,
-        encoding: 'Windows-1250',
-        skipEmptyLines: true,
+        encoding: encoding,
+        skipEmptyLines: 'greedy',
         complete: (firstPass: any) => {
           const allRows = firstPass.data as any[]
           let bankType: 'ING' | 'Revolut' | 'Unknown' = 'Unknown'
           let headerRowIndex = -1
-          let headers: string[] = []
 
-          // 1. Detect Bank and Header Row
-          for (let i = 0; i < Math.min(allRows.length, 35); i++) {
+          // 3. Detect Bank Type and Header Row
+          for (let i = 0; i < Math.min(allRows.length, 50); i++) {
             const row = allRows[i]
-            if (!Array.isArray(row)) continue
+            if (!Array.isArray(row) || row.length < 3) continue
             
             const rowStr = row.join('|').toLowerCase()
             
-            // Check for ING
-            if (rowStr.includes('data transakcji') && rowStr.includes('kwota transakcji')) {
+            // ING Detection
+            if (rowStr.includes('data transakcji') || (rowStr.includes('transaction') && rowStr.includes('amount') && rowStr.includes('account'))) {
               bankType = 'ING'
               headerRowIndex = i
               break
             }
-            // Check for Revolut
-            if ((rowStr.includes('rodzaj') && rowStr.includes('kwota')) || 
-                (rowStr.includes('type') && rowStr.includes('amount') && rowStr.includes('product'))) {
+            // Revolut Detection
+            if (rowStr.includes('rodzaj') || rowStr.includes('product') || (rowStr.includes('started') && rowStr.includes('completed') && rowStr.includes('amount'))) {
               bankType = 'Revolut'
               headerRowIndex = i
               break
@@ -181,29 +202,25 @@ export async function parseCSV(file: File, requestedBankType: 'Auto' | 'ING' | '
             resolve({
               success: false,
               data: [],
-              errors: [
-                'Unable to detect bank format automatically.',
-                'Supported banks: ING Bank Poland, Revolut.',
-                'Please ensure you are uploading the original CSV file export.'
-              ],
+              errors: ['Unsupported format. Please use original CSV from ING or Revolut.'],
               skipped: 0,
               bankType: 'Unknown',
             })
             return
           }
 
-          // 2. Prepare Headers
-          headers = allRows[headerRowIndex].map((h: any) => 
+          // 4. Extract Headers
+          const headers = allRows[headerRowIndex].map((h: any) => 
             h?.toString().trim().replace(/^"/, '').replace(/"$/, '')
           )
 
-          // 3. Parse Data Rows
+          // 5. Parse Rows
           const dataRows = allRows.slice(headerRowIndex + 1)
           const parsedData: ParsedExpense[] = []
           let skipped = 0
 
           dataRows.forEach((row: any[]) => {
-            if (!Array.isArray(row) || row.length < 5) {
+            if (!Array.isArray(row) || row.length < 3) {
               skipped++
               return
             }
@@ -211,7 +228,7 @@ export async function parseCSV(file: File, requestedBankType: 'Auto' | 'ING' | '
             const rowObj: any = {}
             headers.forEach((header: string, index: number) => {
               if (header) {
-                rowObj[header] = row[index]?.toString().trim().replace(/^"/, '').replace(/"$/, '').replace(/^'/, '').replace(/'$/, '')
+                rowObj[header] = row[index]?.toString().trim().replace(/^"/, '').replace(/"$/, '')
               }
             })
 
@@ -226,34 +243,19 @@ export async function parseCSV(file: File, requestedBankType: 'Auto' | 'ING' | '
           resolve({
             success: parsedData.length > 0,
             data: parsedData,
-            errors: parsedData.length === 0 ? ['No valid transactions found'] : [],
+            errors: parsedData.length === 0 ? ['No transactions found in file. Check headers.'] : [],
             skipped,
-            bankType: bankType,
+            bankType,
           })
         },
-        error: (error: any) => {
-          resolve({
-            success: false,
-            data: [],
-            errors: [`Failed to parse CSV: ${error.message}`],
-            skipped: 0,
-            bankType: 'Unknown',
-          })
+        error: (error) => {
+          resolve({ success: false, data: [], errors: [error.message], skipped: 0, bankType: 'Unknown' })
         }
       })
     }
     
-    reader.onerror = () => {
-      resolve({
-        success: false,
-        data: [],
-        errors: ['Failed to read file content'],
-        skipped: 0,
-        bankType: 'Unknown',
-      })
-    }
-    
-    reader.readAsText(file, 'Windows-1250')
+    // We start by reading as UTF-8 to detect type, then PapaParse handles the rest
+    reader.readAsText(file, 'UTF-8')
   })
 }
 
@@ -267,8 +269,10 @@ export function findDuplicates(
   newExpenses.forEach((newExp, index) => {
     const isDuplicate = existingExpenses.some(existing => 
       existing.transaction_date === newExp.transaction_date &&
-      Math.abs(existing.amount - newExp.amount) < 0.01 && // Float comparison
-      (existing.merchant === newExp.merchant || existing.merchant?.includes(newExp.merchant || '___') || newExp.merchant?.includes(existing.merchant || '___'))
+      Math.abs(existing.amount - newExp.amount) < 0.01 && 
+      (existing.merchant === newExp.merchant || 
+       existing.merchant?.toLowerCase().includes(newExp.merchant?.toLowerCase() || '___') || 
+       newExp.merchant?.toLowerCase().includes(existing.merchant?.toLowerCase() || '___'))
     )
     
     if (isDuplicate) {
@@ -278,3 +282,4 @@ export function findDuplicates(
   
   return duplicateIndices
 }
+
