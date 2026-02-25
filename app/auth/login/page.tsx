@@ -28,7 +28,7 @@ export default function LoginPage() {
 
       if (error) throw error
 
-      router.push('/dashboard')
+      router.push('/finance/dashboard')
       router.refresh()
     } catch (err) {
       if (err instanceof Error) {

@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { UserMenu } from './user-menu'
 import { ThemeToggle } from './theme-toggle'
+import { NavLinks } from './nav-links'
 import { LayoutDashboard, BarChart3, FileText, Settings, Bell, Menu, Clock } from 'lucide-react'
 
 export async function Navbar() {
@@ -29,38 +30,7 @@ export async function Navbar() {
           </div>
 
           {/* Center: Navigation Pills */}
-          {user && (
-            <div className="hidden md:flex items-center gap-1 rounded-full bg-card p-1">
-              <Link
-                href="/dashboard"
-                className="nav-pill flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-background-secondary transition-all"
-              >
-                <LayoutDashboard className="h-4 w-4" />
-                Dashboard
-              </Link>
-              <Link
-                href="/expenses"
-                className="nav-pill flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-background-secondary transition-all"
-              >
-                <FileText className="h-4 w-4" />
-                Expenses
-              </Link>
-              <Link
-                href="/incoming"
-                className="nav-pill flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-background-secondary transition-all"
-              >
-                <Clock className="h-4 w-4" />
-                Incoming
-              </Link>
-              <Link
-                href="/categories"
-                className="nav-pill flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-background-secondary transition-all"
-              >
-                <BarChart3 className="h-4 w-4" />
-                Categories
-              </Link>
-            </div>
-          )}
+          {user && <NavLinks />}
 
           {/* Right side: Actions */}
           <div className="flex items-center gap-3">

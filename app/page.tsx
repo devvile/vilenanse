@@ -38,7 +38,7 @@ export default async function Home() {
           <div className="mt-10 flex gap-4 justify-center">
             {user ? (
               <Link
-                href="/dashboard"
+                href="/finance/dashboard"
                 className="group flex items-center gap-2 rounded-full bg-emerald-500 px-8 py-4 text-lg font-semibold text-black shadow-lg shadow-emerald-500/25 hover:bg-emerald-400 transition-all"
               >
                 Go to Dashboard
@@ -164,7 +164,7 @@ export default async function Home() {
             <div className="mt-8">
               {user ? (
                 <Link
-                  href="/dashboard"
+                  href="/finance/dashboard"
                   className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-4 text-lg font-semibold text-emerald-600 shadow-lg hover:bg-gray-50 transition-colors"
                 >
                   Go to Dashboard

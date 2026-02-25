@@ -39,7 +39,7 @@ export default function Error({
           </button>
           
           <a
-            href="/dashboard"
+            href="/finance/dashboard"
             className="block w-full py-3 text-sm font-medium text-gray-400 hover:text-white transition-colors"
           >
             Back to Dashboard

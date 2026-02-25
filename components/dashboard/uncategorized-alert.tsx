@@ -27,7 +27,7 @@ export function UncategorizedAlert({ count, totalAmount }: UncategorizedAlertPro
             </div>
          </div>
          <Link 
-            href="/expenses?category=uncategorized"
+            href="/finance/expenses?category=uncategorized"
             className="whitespace-nowrap flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-lg transition-colors"
          >
             Categorize Now
