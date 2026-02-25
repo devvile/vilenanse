@@ -75,9 +75,9 @@ function MobileNavDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
         <div className="flex h-20 items-center justify-between px-6 border-b border-white/[0.08] shrink-0">
           <Link href="/" onClick={onClose} className="flex items-center gap-2">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
-              <span className="text-sm font-bold text-black uppercase">V</span>
+              <span className="text-sm font-bold text-black uppercase">H</span>
             </div>
-            <span className="text-xl font-bold text-white tracking-tight">Vilenance</span>
+            <span className="text-xl font-bold text-white tracking-tight">Holi</span>
           </Link>
           <button
             onClick={onClose}
@@ -134,7 +134,7 @@ function MobileNavDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
         {/* Footer */}
         <div className="p-8 border-t border-white/[0.08] bg-black/20 shrink-0">
           <div className="flex flex-col items-center gap-2">
-            <p className="text-xs font-medium text-white/50">Vilenance v1.0</p>
+            <p className="text-xs font-medium text-white/50">Holi v1.0</p>
             <div className="h-1 w-12 bg-white/10 rounded-full" />
           </div>
         </div>

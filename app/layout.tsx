@@ -8,8 +8,8 @@ import { ThemeProvider } from '@/components/theme-provider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Expense Tracker',
-  description: 'Track your expenses with AI-powered categorization',
+  title: 'Holi App - Aim for Excellence',
+  description: 'Your personal life optimization platform — track finances, health, and habits to aim for excellence every day.',
 }
 
 export default function RootLayout({
