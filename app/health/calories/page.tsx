@@ -595,10 +595,25 @@ export default function CaloriesPage() {
       <Card className="bg-card border-white/[0.08]">
         <div className="p-6 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <h2 className="text-xl font-bold flex items-center gap-2">
-              <ChevronRight className="h-5 w-5 text-emerald-500" />
-              Week View
-            </h2>
+            <div className="space-y-1">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <ChevronRight className="h-5 w-5 text-emerald-500" />
+                Week View
+              </h2>
+              {weekMeals.length > 0 && (
+                <div className="flex items-center gap-3 text-xs text-text-secondary ml-7">
+                  <span>
+                    Total: <span className="text-white font-bold">{weekMeals.reduce((sum, m) => sum + m.calories, 0)}</span> kcal
+                  </span>
+                  <div className="w-1 h-1 rounded-full bg-white/20" />
+                  <span>
+                    Avg: <span className="text-emerald-400 font-bold">
+                      {Math.round(weekMeals.reduce((sum, m) => sum + m.calories, 0) / (new Set(weekMeals.map(m => m.eaten_at)).size || 1))}
+                    </span> kcal/day
+                  </span>
+                </div>
+              )}
+            </div>
             
             <div className="flex bg-background rounded-full p-1 border border-white/[0.05]">
               {(['this', 'last', 'picker'] as const).map((type) => (
