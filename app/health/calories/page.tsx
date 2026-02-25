@@ -532,22 +532,16 @@ export default function CaloriesPage() {
               meals.map((meal) => (
                 <div 
                   key={meal.id}
-                  className="group p-4 bg-white/[0.02] hover:bg-white/[0.04] rounded-2xl border border-white/[0.05] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4"
+                  className="group p-2.5 sm:p-4 bg-white/[0.02] hover:bg-white/[0.04] rounded-xl sm:rounded-2xl border border-white/[0.05] transition-all flex items-center justify-between gap-2 sm:gap-4"
                 >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-white truncate text-sm sm:text-base">{meal.name}</span>
-                    </div>
-                    {(meal.caused_hurt || meal.is_munchies) && (
-                      <div className="flex gap-2 mt-1">
-                        {meal.caused_hurt && <Activity className="h-3.5 w-3.5 text-red-500" />}
-                        {meal.is_munchies && <Zap className="h-3.5 w-3.5 text-amber-500" />}
-                      </div>
-                    )}
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <span className="font-bold text-white truncate text-xs sm:text-base">{meal.name}</span>
+                    {meal.caused_hurt && <Activity className="h-3 w-3 text-red-500 shrink-0" />}
+                    {meal.is_munchies && <Zap className="h-3 w-3 text-amber-500 shrink-0" />}
                   </div>
                   
-                  <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0">
-                    <span className="text-emerald-400 font-bold whitespace-nowrap text-sm sm:text-base">
+                  <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+                    <span className="text-emerald-400 font-bold whitespace-nowrap text-xs sm:text-base">
                       {meal.calories} <span className="text-[10px] opacity-70">kcal</span>
                     </span>
                     
