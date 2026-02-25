@@ -77,7 +77,7 @@ export function MobileNav() {
       {/* Backdrop */}
       {isOpen && (
         <div 
-          className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm lg:hidden transition-opacity"
+          className="fixed inset-0 z-[9998] bg-[#0d0d12]/95 backdrop-blur-xl lg:hidden animate-in fade-in duration-300"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -85,87 +85,97 @@ export function MobileNav() {
       {/* Drawer */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-[101] w-[280px] bg-[#0d0d12] border-r border-white/[0.08] lg:hidden transform transition-transform duration-300 ease-in-out",
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed inset-0 z-[9999] w-full h-full bg-[#0d0d12] lg:hidden transform transition-all duration-500 ease-[cubic-bezier(0.32,0,0.67,0)]",
+          isOpen ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
         )}
       >
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full safe-top">
           {/* Header */}
-          <div className="flex h-16 items-center justify-between px-6 border-b border-white/[0.08]">
+          <div className="flex h-20 items-center justify-between px-6 border-b border-white/[0.08]">
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500">
-                <span className="text-sm font-bold text-black">V</span>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+                <span className="text-sm font-bold text-black uppercase">V</span>
               </div>
-              <span className="text-lg font-semibold text-white">Vilenance</span>
+              <span className="text-xl font-bold text-white tracking-tight">Holi</span>
             </Link>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-2 text-gray-400 hover:text-white"
+              className="p-3 bg-white/[0.05] rounded-full text-white hover:bg-white/[0.1] transition-all"
             >
-              <X className="h-5 w-5" />
+              <X className="h-6 w-6" />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto py-6 px-4 space-y-8">
+          <div className="flex-1 overflow-y-auto py-10 px-6 space-y-12">
             {/* Areas */}
-            <div className="space-y-2">
-              <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest px-2 mb-4">Areas</p>
-              {areas.map((area) => {
-                const isActive = area.activePattern.test(pathname || '')
-                return (
-                  <Link
-                    key={area.name}
-                    href={area.href}
-                    className={cn(
-                      "flex items-center justify-between px-4 py-3 rounded-xl transition-all",
-                      isActive 
-                        ? "bg-emerald-500/10 text-emerald-400" 
-                        : "text-gray-400 hover:text-white hover:bg-white/[0.05]"
-                    )}
-                  >
-                    <div className="flex items-center gap-3">
-                      <area.icon className="h-5 w-5" />
-                      <span className="font-medium">{area.name}</span>
-                    </div>
-                    {isActive && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />}
-                  </Link>
-                )
-              })}
+            <div className="space-y-4">
+              <p className="text-[10px] font-bold text-emerald-500/50 uppercase tracking-[0.2em] px-2">Main Sections</p>
+              <div className="grid grid-cols-1 gap-3">
+                {areas.map((area) => {
+                  const isActive = area.activePattern.test(pathname || '')
+                  return (
+                    <Link
+                      key={area.name}
+                      href={area.href}
+                      className={cn(
+                        "flex items-center justify-between px-5 py-5 rounded-2xl transition-all border",
+                        isActive 
+                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.05)]" 
+                          : "bg-white/[0.02] border-white/[0.05] text-gray-400 hover:text-white"
+                      )}
+                    >
+                      <div className="flex items-center gap-4">
+                        <area.icon className={cn("h-6 w-6", isActive ? "text-emerald-400" : "text-gray-500")} />
+                        <span className="text-lg font-semibold">{area.name}</span>
+                      </div>
+                      <ChevronRight className={cn("h-5 w-5 opacity-30", isActive && "opacity-100")} />
+                    </Link>
+                  )
+                })}
+              </div>
             </div>
 
             {/* Sub Links for current area */}
             {activeArea && (
-              <div className="space-y-2">
-                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest px-2 mb-4">
-                  {activeArea.name} Navigation
+              <div className="space-y-4">
+                <p className="text-[10px] font-bold text-emerald-500/50 uppercase tracking-[0.2em] px-2">
+                  Explore {activeArea.name}
                 </p>
-                {activeArea.links.map((link) => {
-                  const isActive = pathname === link.href
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className={cn(
-                        "flex items-center gap-3 px-4 py-3 rounded-xl transition-all",
-                        isActive 
-                          ? "text-emerald-400 font-bold" 
-                          : "text-gray-400 hover:text-white"
-                      )}
-                    >
-                      <link.icon className={cn("h-4 w-4", isActive ? "text-emerald-400" : "text-gray-500")} />
-                      <span className="text-sm">{link.label}</span>
-                    </Link>
-                  )
-                })}
+                <div className="grid grid-cols-1 gap-2">
+                  {activeArea.links.map((link) => {
+                    const isActive = pathname === link.href
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        className={cn(
+                          "flex items-center gap-4 px-5 py-4 rounded-2xl transition-all",
+                          isActive 
+                            ? "bg-white/[0.05] text-white font-bold" 
+                            : "text-gray-400 hover:text-white"
+                        )}
+                      >
+                        <div className={cn(
+                          "h-8 w-8 rounded-lg flex items-center justify-center transition-all",
+                          isActive ? "bg-emerald-500/20 text-emerald-400" : "bg-white/[0.03] text-gray-600"
+                        )}>
+                          <link.icon className="h-4 w-4" />
+                        </div>
+                        <span className="text-base">{link.label}</span>
+                      </Link>
+                    )
+                  })}
+                </div>
               </div>
             )}
           </div>
 
           {/* Footer */}
-          <div className="p-4 border-t border-white/[0.08]">
-            <p className="text-[10px] text-center text-text-muted">
-              Vinance v1.0 • Built for Excellence
-            </p>
+          <div className="p-8 border-t border-white/[0.08] bg-black/20">
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-xs font-medium text-white/50">Holi v1.0 • Built for Excellence</p>
+              <div className="h-1 w-12 bg-white/10 rounded-full" />
+            </div>
           </div>
         </div>
       </div>
