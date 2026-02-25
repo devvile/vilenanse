@@ -251,13 +251,13 @@ export default async function ExpensesPage({
   }
 
   return (
-    <div className="min-h-screen bg-background pb-12 pt-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background pb-12 pt-6 sm:pt-20">
+      <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-text-primary">Expenses</h1>
-            <p className="mt-2 text-text-secondary">
+            <h1 className="text-2xl sm:text-3xl font-bold text-text-primary">Expenses</h1>
+            <p className="mt-2 text-sm sm:text-base text-text-secondary">
               {totalCount} {hasActiveFilters ? "filtered" : "total"} expense
               {totalCount !== 1 ? "s" : ""}
               {totalPages > 0 && ` • Page ${currentPage} of ${totalPages}`}
@@ -269,7 +269,7 @@ export default async function ExpensesPage({
               className="flex items-center gap-2 rounded-full border border-emerald-500 bg-transparent px-4 py-2.5 text-sm font-semibold text-emerald-500 hover:bg-emerald-500/10 transition-colors"
             >
               <Upload className="h-4 w-4" />
-              Import CSV
+              <span className="hidden sm:inline">Import</span> CSV
             </Link>
             <AddExpenseButton />
           </div>

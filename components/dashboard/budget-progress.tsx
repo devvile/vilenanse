@@ -50,7 +50,7 @@ export function BudgetProgress({ spent, incoming, limit, onLimitChange, showInco
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex flex-col">
           <h3 className="text-sm font-bold text-text-muted uppercase tracking-wider">
             {showIncoming ? 'Projected Budget' : 'Period Budget'}
@@ -59,7 +59,7 @@ export function BudgetProgress({ spent, incoming, limit, onLimitChange, showInco
              {loading ? (
                 <div className="h-8 w-24 bg-background-secondary animate-pulse rounded-md" />
              ) : (
-                <span className={cn("text-2xl font-black transition-colors", isOverBudget ? "text-red-500 shadow-[0_0_20px_rgba(239,68,68,0.2)]" : "text-text-primary")}>
+                <span className={cn("text-xl sm:text-2xl font-black transition-colors", isOverBudget ? "text-red-500 shadow-[0_0_20px_rgba(239,68,68,0.2)]" : "text-text-primary")}>
                   {isOverBudget ? '-' : ''}{Math.abs(budgetDifference).toLocaleString()}
                   <span className="text-xs font-bold ml-1 uppercase opacity-70">
                     {isOverBudget ? 'PLN Over Limit' : 'PLN Left'}
@@ -69,7 +69,7 @@ export function BudgetProgress({ spent, incoming, limit, onLimitChange, showInco
           </div>
         </div>
 
-        <div className="flex flex-col items-end">
+        <div className="flex flex-col sm:items-end">
            {isEditing ? (
              <div className="flex items-center gap-1 bg-background rounded-lg p-1 border border-card-border">
                 <input 

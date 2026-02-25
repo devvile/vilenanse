@@ -110,7 +110,7 @@ export function ExpensesDonutChart({
   }
 
   return (
-    <Card className="p-6 bg-card border-card-border h-full flex flex-col relative overflow-hidden group">
+    <Card className="p-4 sm:p-6 bg-card border-card-border h-full flex flex-col relative overflow-hidden group">
        {/* Ambient background glow */}
        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-emerald-500/10 transition-colors" />
 
@@ -120,29 +120,31 @@ export function ExpensesDonutChart({
         </div>
       )}
       
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6 relative z-10">
-        <div>
-          <h3 className="font-semibold text-text-primary">Expenses by Category</h3>
-          <p className="text-sm text-text-muted">Analysis of your spending patterns</p>
-        </div>
-        
-        <div className="flex items-center gap-4">
-          <div className="text-right">
-            <p className="text-xs text-text-muted uppercase tracking-wider font-medium">Total Expenses</p>
-            <p className="text-xl font-bold text-emerald-500">
-              {totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-sm font-medium opacity-70">PLN</span>
-            </p>
+      <div className="flex flex-col gap-3 mb-4 sm:mb-6 relative z-10">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+          <div>
+            <h3 className="font-semibold text-text-primary text-sm sm:text-base">Expenses by Category</h3>
+            <p className="text-xs sm:text-sm text-text-muted">Analysis of your spending patterns</p>
           </div>
+        
+          <div className="flex items-center gap-3">
+            <div className="text-left sm:text-right">
+              <p className="text-xs text-text-muted uppercase tracking-wider font-medium">Total Expenses</p>
+              <p className="text-lg sm:text-xl font-bold text-emerald-500">
+                {totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs sm:text-sm font-medium opacity-70">PLN</span>
+              </p>
+            </div>
 
-          {selectedCategoryId && (
-            <button 
-              onClick={handleReset}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 hover:bg-emerald-500 hover:text-black transition-all duration-300 active:scale-95 group/reset"
-            >
-              <RotateCcw className="h-3 w-3 group-hover/reset:rotate-[-45deg] transition-transform" />
-              <span className="text-[10px] font-black uppercase tracking-widest">Reset Value</span>
-            </button>
-          )}
+            {selectedCategoryId && (
+              <button 
+                onClick={handleReset}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 hover:bg-emerald-500 hover:text-black transition-all duration-300 active:scale-95 group/reset"
+              >
+                <RotateCcw className="h-3 w-3 group-hover/reset:rotate-[-45deg] transition-transform" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Reset</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

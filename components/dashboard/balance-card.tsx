@@ -34,10 +34,10 @@ export function BalanceCard({
           <div className="mb-6">
             <p className="text-sm text-text-muted mb-1 font-medium uppercase tracking-wider">Timeframe Net</p>
             <div className="flex items-baseline gap-1">
-              <span className="text-4xl font-bold text-text-primary">
+              <span className="text-2xl sm:text-4xl font-bold text-text-primary">
                 {totalBalance < 0 ? '-' : ''}{Math.abs(balance).toLocaleString()}
               </span>
-              <span className="text-sm font-medium text-text-muted">PLN</span>
+              <span className="text-xs sm:text-sm font-medium text-text-muted">PLN</span>
             </div>
           </div>
         </div>

@@ -90,8 +90,8 @@ export function ExpensesAnalysis({ initialDonutData, initialSpendingData, dateRa
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-        <div className="h-[500px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-stretch">
+        <div className="h-[400px] sm:h-[500px]">
           <ExpensesDonutChart 
             initialData={initialDonutData} 
             onCategorySelect={handleCategorySelect}
@@ -99,7 +99,7 @@ export function ExpensesAnalysis({ initialDonutData, initialSpendingData, dateRa
             selectedCategoryId={selectedCategory?.id}
           />
         </div>
-        <div className="h-[500px]">
+        <div className="h-[400px] sm:h-[500px]">
           <SubcategoryChart 
             data={subcategoryData} 
             loading={loadingSubcategories}
@@ -110,15 +110,15 @@ export function ExpensesAnalysis({ initialDonutData, initialSpendingData, dateRa
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-        <div className="lg:col-span-2 h-[500px]">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 items-stretch">
+        <div className="lg:col-span-2 h-[350px] sm:h-[500px]">
            <SpendingLineChart 
               initialData={initialSpendingData} 
               categoryId={selectedSubcategory?.id || selectedCategory?.id}
               categoryName={selectedSubcategory?.name || selectedCategory?.name}
            />
         </div>
-        <div className="lg:col-span-1 h-[500px]">
+        <div className="lg:col-span-1 h-[350px] sm:h-[500px]">
            <MinimalTransactionList 
               transactions={transactions}
               loading={loadingTransactions}

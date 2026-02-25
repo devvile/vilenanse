@@ -44,8 +44,8 @@ export default async function DashboardPage() {
   const totalBalance = stats.totalIncome - stats.totalExpenses;
 
   return (
-    <div className="min-h-screen bg-background pb-6 pt-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background pb-6 pt-6 sm:pt-20">
+      <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
         {/* Uncategorized Alert */}
         {uncategorized.count > 0 && (
           <UncategorizedAlert

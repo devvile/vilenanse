@@ -141,15 +141,15 @@ export function DashboardShell({
     <div className="relative space-y-4">
       
       {/* Row 1: Timeframe Selector (Full Width) */}
-      <Card className="relative p-1.5 bg-card border-card-border flex items-center justify-between overflow-hidden">
-        <span className="text-xs font-semibold text-text-muted ml-4 uppercase tracking-wider">Timeframe</span>
-        <div className="flex bg-background rounded-full p-1 gap-1">
+      <Card className="relative p-1.5 bg-card border-card-border flex items-center justify-between overflow-hidden w-full">
+        <span className="text-xs font-semibold text-text-muted ml-4 uppercase tracking-wider hidden sm:inline-block shrink-0">Timeframe</span>
+        <div className="flex bg-background rounded-full p-1 gap-1 overflow-x-auto no-scrollbar w-full sm:w-auto">
           {ranges.map((range) => (
             <button
               key={range.value}
               onClick={() => handleDateRangeChange(range.value)}
               className={cn(
-                "px-4 py-1.5 text-[10px] font-bold rounded-full transition-all duration-300 whitespace-nowrap uppercase tracking-tight",
+                "px-3 sm:px-4 py-1.5 text-[10px] font-bold rounded-full transition-all duration-300 whitespace-nowrap uppercase tracking-tight shrink-0",
                 dateRange === range.value 
                   ? "bg-emerald-500 text-black shadow-[0_0_15px_rgba(34,197,94,0.3)]" 
                   : "text-text-secondary hover:text-text-primary hover:bg-white/5"
@@ -168,50 +168,50 @@ export function DashboardShell({
       </Card>
 
       {/* Row 2: Unified Stats Grid (Balance + QuickStats in one row on large screens) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
         {/* Balance Card (1st column) */}
-        <div className="lg:col-span-1">
+        <div className="col-span-2 lg:col-span-1">
           <BalanceCard totalBalance={currentBalance} />
         </div>
 
         {/* Quick Stats (Next 4 columns) */}
-        <Card className="p-4 flex items-center gap-4 bg-card border-card-border lg:col-span-1">
-          <div className="h-10 w-10 min-w-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
-            <ArrowUpRight className="h-5 w-5 text-emerald-500" />
+        <Card className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4 bg-card border-card-border lg:col-span-1">
+          <div className="h-8 w-8 sm:h-10 sm:w-10 min-w-8 sm:min-w-10 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
+            <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-500" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs text-text-muted truncate">Total Income</p>
-            <p className="text-lg font-bold text-text-primary truncate">{Math.round(stats.totalIncome).toLocaleString()} PLN</p>
+            <p className="text-[10px] sm:text-xs text-text-muted truncate">Total Income</p>
+            <p className="text-sm sm:text-lg font-bold text-text-primary truncate">{Math.round(stats.totalIncome).toLocaleString()} PLN</p>
           </div>
         </Card>
         
-        <Card className="p-4 flex items-center gap-4 bg-card border-card-border lg:col-span-1">
-          <div className="h-10 w-10 min-w-10 rounded-full bg-red-500/10 flex items-center justify-center">
-            <ArrowDownRight className="h-5 w-5 text-red-500" />
+        <Card className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4 bg-card border-card-border lg:col-span-1">
+          <div className="h-8 w-8 sm:h-10 sm:w-10 min-w-8 sm:min-w-10 rounded-full bg-red-500/10 flex items-center justify-center shrink-0">
+            <ArrowDownRight className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs text-text-muted truncate">Total Expenses</p>
-            <p className="text-lg font-bold text-text-primary truncate">{Math.round(stats.totalExpenses).toLocaleString()} PLN</p>
+            <p className="text-[10px] sm:text-xs text-text-muted truncate">Total Expenses</p>
+            <p className="text-sm sm:text-lg font-bold text-text-primary truncate">{Math.round(stats.totalExpenses).toLocaleString()} PLN</p>
           </div>
         </Card>
 
-        <Card className="p-4 flex items-center gap-4 bg-card border-card-border lg:col-span-1">
-          <div className="h-10 w-10 min-w-10 rounded-full bg-blue-500/10 flex items-center justify-center">
-            <TrendingUp className="h-5 w-5 text-blue-500" />
+        <Card className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4 bg-card border-card-border lg:col-span-1">
+          <div className="h-8 w-8 sm:h-10 sm:w-10 min-w-8 sm:min-w-10 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0">
+            <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs text-text-muted truncate">Avg. Daily Spend</p>
-            <p className="text-lg font-bold text-text-primary truncate">{Math.round(stats.avgDaily).toLocaleString()} PLN</p>
+            <p className="text-[10px] sm:text-xs text-text-muted truncate">Avg. Daily Spend</p>
+            <p className="text-sm sm:text-lg font-bold text-text-primary truncate">{Math.round(stats.avgDaily).toLocaleString()} PLN</p>
           </div>
         </Card>
 
-        <Card className="p-4 flex items-center gap-4 bg-card border-card-border lg:col-span-1">
-          <div className="h-10 w-10 min-w-10 rounded-full bg-purple-500/10 flex items-center justify-center">
-            <CreditCard className="h-5 w-5 text-purple-500" />
+        <Card className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4 bg-card border-card-border lg:col-span-1">
+          <div className="h-8 w-8 sm:h-10 sm:w-10 min-w-8 sm:min-w-10 rounded-full bg-purple-500/10 flex items-center justify-center shrink-0">
+            <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-purple-500" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs text-text-muted truncate">Largest Transaction</p>
-            <p className="text-lg font-bold text-text-primary truncate">{Math.round(stats.largestTransaction).toLocaleString()} PLN</p>
+            <p className="text-[10px] sm:text-xs text-text-muted truncate">Largest Transaction</p>
+            <p className="text-sm sm:text-lg font-bold text-text-primary truncate">{Math.round(stats.largestTransaction).toLocaleString()} PLN</p>
           </div>
         </Card>
       </div>
@@ -236,7 +236,7 @@ export function DashboardShell({
       />
 
       {/* Row 5: Detailed Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mt-4 sm:mt-8">
         <div className="lg:col-span-2">
           <IncomeVsExpensesChart data={incomeVsExpensesData} />
         </div>

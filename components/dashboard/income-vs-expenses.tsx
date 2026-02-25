@@ -27,13 +27,13 @@ export function IncomeVsExpensesChart({ data = defaultData }: IncomeVsExpensesCh
   const isLight = theme === 'light'
 
   return (
-    <Card className="p-6 bg-card border-card-border h-full flex flex-col">
-      <div className="mb-6">
-        <h3 className="font-semibold text-text-primary">Income vs Expenses</h3>
-        <p className="text-sm text-text-muted">Monthly comparison</p>
+    <Card className="p-4 sm:p-6 bg-card border-card-border h-full flex flex-col">
+      <div className="mb-4 sm:mb-6">
+        <h3 className="font-semibold text-text-primary text-sm sm:text-base">Income vs Expenses</h3>
+        <p className="text-xs sm:text-sm text-text-muted">Monthly comparison</p>
       </div>
 
-      <div className="flex-1 min-h-[300px]">
+      <div className="flex-1 min-h-[250px] sm:min-h-[300px]">
          {data.length === 0 ? (
             <div className="h-full flex items-center justify-center text-text-muted text-sm">
                No data available
