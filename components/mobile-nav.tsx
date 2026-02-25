@@ -86,7 +86,9 @@ export function MobileNav() {
       <div
         className={cn(
           "fixed inset-0 z-[9999] w-full h-full bg-[#0d0d12] lg:hidden transform transition-all duration-500 ease-[cubic-bezier(0.32,0,0.67,0)]",
-          isOpen ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
+          isOpen 
+            ? "translate-y-0 opacity-100 pointer-events-auto visible" 
+            : "-translate-y-full opacity-0 pointer-events-none invisible"
         )}
       >
         <div className="flex flex-col h-full safe-top">
