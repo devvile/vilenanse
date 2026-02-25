@@ -41,7 +41,7 @@ export default async function Home() {
                 href="/finance/dashboard"
                 className="group flex items-center gap-2 rounded-full bg-emerald-500 px-8 py-4 text-lg font-semibold text-black shadow-lg shadow-emerald-500/25 hover:bg-emerald-400 transition-all"
               >
-                Go to Dashboard
+                Aim for Excellence
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             ) : (
@@ -167,7 +167,7 @@ export default async function Home() {
                   href="/finance/dashboard"
                   className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-4 text-lg font-semibold text-emerald-600 shadow-lg hover:bg-gray-50 transition-colors"
                 >
-                  Go to Dashboard
+                  Aim for Excellence
                   <ArrowRight className="h-5 w-5" />
                 </Link>
               ) : (

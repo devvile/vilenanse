@@ -16,7 +16,7 @@ import {
   Activity, 
   Moon, 
   Dumbbell,
-  ChevronRight
+  ChevronRight,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -48,7 +48,6 @@ const areas = [
 
 function MobileNavDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const pathname = usePathname()
-  const activeArea = areas.find(area => area.activePattern.test(pathname || ''))
 
   return (
     <>
@@ -89,70 +88,47 @@ function MobileNavDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto py-10 px-6 space-y-12">
-          {/* Areas */}
-          <div className="space-y-4">
-            <p className="text-[10px] font-bold text-emerald-500/50 uppercase tracking-[0.2em] px-2">Main Sections</p>
-            <div className="grid grid-cols-1 gap-3">
-              {areas.map((area) => {
-                const isActive = area.activePattern.test(pathname || '')
-                return (
-                  <Link
-                    key={area.name}
-                    href={area.href}
-                    onClick={onClose}
-                    className={cn(
-                      "flex items-center justify-between px-5 py-5 rounded-2xl transition-all border",
-                      isActive 
-                        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.05)]" 
-                        : "bg-white/[0.02] border-white/[0.05] text-gray-400 hover:text-white"
-                    )}
-                  >
-                    <div className="flex items-center gap-4">
-                      <area.icon className={cn("h-6 w-6", isActive ? "text-emerald-400" : "text-gray-500")} />
-                      <span className="text-lg font-semibold">{area.name}</span>
-                    </div>
-                    <ChevronRight className={cn("h-5 w-5 opacity-30", isActive && "opacity-100")} />
-                  </Link>
-                )
-              })}
-            </div>
-          </div>
+        <div className="flex-1 overflow-y-auto py-8 px-6 space-y-8">
+          {areas.map((area) => {
+            const isAreaActive = area.activePattern.test(pathname || '')
+            return (
+              <div key={area.name} className="space-y-3">
+                {/* Section Header */}
+                <div className="flex items-center gap-3 px-2">
+                  <area.icon className={cn("h-5 w-5", isAreaActive ? "text-emerald-400" : "text-gray-500")} />
+                  <span className={cn("text-xs font-bold uppercase tracking-[0.15em]", isAreaActive ? "text-emerald-400" : "text-gray-500")}>{area.name}</span>
+                </div>
 
-          {/* Sub Links for current area */}
-          {activeArea && (
-            <div className="space-y-4">
-              <p className="text-[10px] font-bold text-emerald-500/50 uppercase tracking-[0.2em] px-2">
-                Explore {activeArea.name}
-              </p>
-              <div className="grid grid-cols-1 gap-2">
-                {activeArea.links.map((link) => {
-                  const isActive = pathname === link.href
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={onClose}
-                      className={cn(
-                        "flex items-center gap-4 px-5 py-4 rounded-2xl transition-all",
-                        isActive 
-                          ? "bg-white/[0.05] text-white font-bold" 
-                          : "text-gray-400 hover:text-white"
-                      )}
-                    >
-                      <div className={cn(
-                        "h-8 w-8 rounded-lg flex items-center justify-center transition-all",
-                        isActive ? "bg-emerald-500/20 text-emerald-400" : "bg-white/[0.03] text-gray-600"
-                      )}>
-                        <link.icon className="h-4 w-4" />
-                      </div>
-                      <span className="text-base">{link.label}</span>
-                    </Link>
-                  )
-                })}
+                {/* Sub Links */}
+                <div className="grid grid-cols-1 gap-1">
+                  {area.links.map((link) => {
+                    const isLinkActive = pathname === link.href
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={onClose}
+                        className={cn(
+                          "flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all",
+                          isLinkActive 
+                            ? "bg-emerald-500/10 text-white font-bold border border-emerald-500/20" 
+                            : "text-gray-400 hover:text-white hover:bg-white/[0.03]"
+                        )}
+                      >
+                        <div className={cn(
+                          "h-8 w-8 rounded-lg flex items-center justify-center transition-all shrink-0",
+                          isLinkActive ? "bg-emerald-500/20 text-emerald-400" : "bg-white/[0.03] text-gray-600"
+                        )}>
+                          <link.icon className="h-4 w-4" />
+                        </div>
+                        <span className="text-base">{link.label}</span>
+                      </Link>
+                    )
+                  })}
+                </div>
               </div>
-            </div>
-          )}
+            )
+          })}
         </div>
 
         {/* Footer */}
