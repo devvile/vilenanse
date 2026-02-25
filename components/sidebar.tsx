@@ -44,7 +44,7 @@ export function Sidebar() {
             <span className="text-sm font-bold text-black">V</span>
           </div>
           {!isCollapsed && (
-            <span className="text-lg font-semibold text-white">Vilenance</span>
+            <span className="text-lg font-semibold text-white">Holi</span>
           )}
         </Link>
       </div>

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { UserMenu } from './user-menu'
 import { ThemeToggle } from './theme-toggle'
 import { NavLinks } from './nav-links'
+import { MobileNav } from './mobile-nav'
 import { LayoutDashboard, BarChart3, FileText, Settings, Bell, Menu, Clock } from 'lucide-react'
 
 export async function Navbar() {
@@ -17,15 +18,13 @@ export async function Navbar() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Left side: Menu + Logo */}
-          <div className="flex items-center gap-4">
-            <button className="rounded-lg p-2 text-text-secondary hover:bg-card-hover hover:text-text-primary transition-colors lg:hidden">
-              <Menu className="h-5 w-5" />
-            </button>
+          <div className="flex items-center gap-2">
+            <MobileNav />
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 shrink-0">
                 <span className="text-sm font-bold text-black">V</span>
               </div>
-              <span className="text-lg font-semibold text-text-primary">Vilenance</span>
+              <span className="text-lg font-semibold text-text-primary hidden sm:inline-block">Vilenance</span>
             </Link>
           </div>
 

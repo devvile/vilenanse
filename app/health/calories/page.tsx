@@ -376,13 +376,13 @@ export default function CaloriesPage() {
               Day View
             </h2>
             
-            <div className="flex bg-background rounded-full p-1 border border-white/[0.05]">
+            <div className="flex flex-wrap bg-background rounded-2xl sm:rounded-full p-1 border border-white/[0.05]">
               {(['today', 'yesterday', 'picker'] as const).map((type) => (
                 <button
                   key={type}
                   onClick={() => handleDayTypeChange(type)}
                   className={cn(
-                    "px-4 py-1.5 text-[10px] font-bold rounded-full transition-all uppercase tracking-tight",
+                    "flex-1 sm:flex-none px-3 sm:px-4 py-1.5 text-[10px] font-bold rounded-xl sm:rounded-full transition-all uppercase tracking-tight",
                     dayType === type 
                       ? "bg-emerald-500 text-black" 
                       : "text-text-secondary hover:text-text-primary"
@@ -395,31 +395,33 @@ export default function CaloriesPage() {
           </div>
 
           {showDatePicker && (
-            <div className="p-4 bg-background/50 rounded-2xl border border-white/[0.05] flex items-center justify-between">
-              <button 
-                onClick={() => {
-                  const d = subDays(selectedDate, 1)
-                  setSelectedDate(d)
-                  fetchDayData(d)
-                }}
-                className="p-2 hover:bg-white/5 rounded-full transition-colors"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <div className="flex items-center gap-2 font-medium">
-                <CalendarIcon className="h-4 w-4 text-emerald-500" />
-                {format(selectedDate, 'PPPP')}
+            <div className="p-4 bg-background/50 rounded-2xl border border-white/[0.05] flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => {
+                    const d = subDays(selectedDate, 1)
+                    setSelectedDate(d)
+                    fetchDayData(d)
+                  }}
+                  className="p-2 hover:bg-white/5 rounded-full transition-colors"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <div className="flex items-center gap-2 font-medium">
+                  <CalendarIcon className="h-4 w-4 text-emerald-500" />
+                  <span className="text-sm sm:text-base">{format(selectedDate, 'PPPP')}</span>
+                </div>
+                <button 
+                  onClick={() => {
+                    const d = addDays(selectedDate, 1)
+                    setSelectedDate(d)
+                    fetchDayData(d)
+                  }}
+                  className="p-2 hover:bg-white/5 rounded-full transition-colors"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
               </div>
-              <button 
-                onClick={() => {
-                  const d = addDays(selectedDate, 1)
-                  setSelectedDate(d)
-                  fetchDayData(d)
-                }}
-                className="p-2 hover:bg-white/5 rounded-full transition-colors"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
             </div>
           )}
 
@@ -530,11 +532,11 @@ export default function CaloriesPage() {
               meals.map((meal) => (
                 <div 
                   key={meal.id}
-                  className="group p-4 bg-white/[0.02] hover:bg-white/[0.04] rounded-2xl border border-white/[0.05] transition-all flex items-center justify-between gap-4"
+                  className="group p-4 bg-white/[0.02] hover:bg-white/[0.04] rounded-2xl border border-white/[0.05] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-white truncate">{meal.name}</span>
+                      <span className="font-bold text-white truncate text-sm sm:text-base">{meal.name}</span>
                     </div>
                     {(meal.caused_hurt || meal.is_munchies) && (
                       <div className="flex gap-2 mt-1">
@@ -544,8 +546,10 @@ export default function CaloriesPage() {
                     )}
                   </div>
                   
-                  <div className="flex items-center gap-4 shrink-0">
-                    <span className="text-emerald-400 font-bold">{meal.calories} <span className="text-[10px] opacity-70">kcal</span></span>
+                  <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0">
+                    <span className="text-emerald-400 font-bold whitespace-nowrap text-sm sm:text-base">
+                      {meal.calories} <span className="text-[10px] opacity-70">kcal</span>
+                    </span>
                     
                     <div className="flex items-center gap-1">
                       {deletingId === meal.id ? (
