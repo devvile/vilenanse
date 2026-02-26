@@ -64,7 +64,7 @@ export async function bulkDeleteExpenses(ids: string[]) {
 
   if (error) throw error
   
-  revalidatePath('/expenses')
+  revalidatePath('/finance/expenses')
   return { success: true, deleted: ids.length }
 }
 
@@ -141,7 +141,7 @@ export async function bulkUpdateExpenseCategories(ids: string[], categoryId: str
 
   if (error) throw error
   
-  revalidatePath('/expenses')
+  revalidatePath('/finance/expenses')
   return { success: true, updated: ids.length }
 }
 
@@ -210,7 +210,7 @@ export async function createExpense(input: CreateExpenseInput) {
 
   if (error) throw error
   
-  revalidatePath('/expenses')
+  revalidatePath('/finance/expenses')
   return data
 }
 
@@ -232,7 +232,7 @@ export async function updateExpense(input: UpdateExpenseInput) {
 
   if (error) throw error
   
-  revalidatePath('/expenses')
+  revalidatePath('/finance/expenses')
   return data
 }
 
@@ -250,7 +250,7 @@ export async function deleteExpense(id: string) {
 
   if (error) throw error
   
-  revalidatePath('/expenses')
+  revalidatePath('/finance/expenses')
   return { success: true }
 }
 
@@ -283,7 +283,7 @@ export async function bulkCreateExpenses(expenses: ParsedExpense[]) {
 
   if (error) throw error
   
-  revalidatePath('/expenses')
+  revalidatePath('/finance/expenses')
   return data
 }
 

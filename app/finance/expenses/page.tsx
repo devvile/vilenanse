@@ -265,7 +265,7 @@ export default async function ExpensesPage({
           </div>
           <div className="flex items-center gap-3">
             <Link
-              href="/expenses/import"
+              href="/finance/expenses/import"
               className="flex items-center gap-2 rounded-full border border-emerald-500 bg-transparent px-4 py-2.5 text-sm font-semibold text-emerald-500 hover:bg-emerald-500/10 transition-colors"
             >
               <Upload className="h-4 w-4" />

@@ -18,7 +18,7 @@ export function ExpensesPagination({ currentPage, totalPages }: ExpensesPaginati
     // Preserve all existing search params
     const params = new URLSearchParams(searchParams.toString())
     params.set('page', page.toString())
-    router.push(`/expenses?${params.toString()}`)
+    router.push(`/finance/expenses?${params.toString()}`)
   }
 
   const pages = []

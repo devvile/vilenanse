@@ -103,7 +103,7 @@ export function ExpensesFilters({ categories }: ExpensesFiltersProps) {
     }
 
     startTransition(() => {
-      router.push(`/expenses?${params.toString()}`)
+      router.push(`/finance/expenses?${params.toString()}`)
     })
   }
 
@@ -128,7 +128,7 @@ export function ExpensesFilters({ categories }: ExpensesFiltersProps) {
     params.set('page', '1')
     
     startTransition(() => {
-      router.push(`/expenses?${params.toString()}`)
+      router.push(`/finance/expenses?${params.toString()}`)
     })
   }
 
