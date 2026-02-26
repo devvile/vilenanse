@@ -513,7 +513,8 @@ export default function SleepPage() {
                   stroke="#60a5fa" 
                   strokeWidth={3}
                   dot={(props: any) => {
-                    const { cx, cy } = props
+                    const { cx, cy, value } = props
+                    if (value === null || value === undefined) return null
                     return (
                       <circle key={`dot-woke-${cx}-${cy}`} cx={cx} cy={cy} r={4} fill="#60a5fa" stroke="#0d0d12" strokeWidth={2} />
                     )
@@ -528,7 +529,8 @@ export default function SleepPage() {
                   stroke="#34d399" 
                   strokeWidth={3}
                   dot={(props: any) => {
-                    const { cx, cy } = props
+                    const { cx, cy, value } = props
+                    if (value === null || value === undefined) return null
                     return (
                       <circle key={`dot-start-${cx}-${cy}`} cx={cx} cy={cy} r={4} fill="#34d399" stroke="#0d0d12" strokeWidth={2} />
                     )
@@ -543,7 +545,8 @@ export default function SleepPage() {
                   stroke="#a855f7" 
                   strokeWidth={3}
                   dot={(props: any) => {
-                    const { cx, cy } = props
+                    const { cx, cy, value } = props
+                    if (value === null || value === undefined) return null
                     return (
                       <circle key={`dot-bed-${cx}-${cy}`} cx={cx} cy={cy} r={4} fill="#a855f7" stroke="#0d0d12" strokeWidth={2} />
                     )
