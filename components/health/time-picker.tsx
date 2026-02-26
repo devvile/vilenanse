@@ -21,19 +21,7 @@ export function TimePicker({ value, onChange, onCancel, allowNextDay = false, ba
   for (let h = 0; h < 24; h++) {
     for (let m = 0; m < 60; m += 15) {
       const time = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`
-      options.push({ value: time, label: time, isNextDay: false })
-    }
-  }
-
-  // Add next day options if allowed (up to 05:00)
-  if (allowNextDay) {
-    for (let h = 0; h < 6; h++) {
-      for (let m = 0; m < 60; m += 15) {
-        if (h === 5 && m > 0) break
-        const displayH = 24 + h
-        const time = `${displayH.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`
-        options.push({ value: time, label: time, isNextDay: true })
-      }
+      options.push({ value: time, label: time })
     }
   }
 
@@ -41,19 +29,14 @@ export function TimePicker({ value, onChange, onCancel, allowNextDay = false, ba
     if (value) {
       const date = new Date(value)
       if (!isNaN(date.getTime())) {
-        let h = date.getHours()
+        const h = date.getHours()
         const m = date.getMinutes()
-        
-        // Check if it's the "next day" relative to baseDate
-        const isNextDay = date.getDate() !== new Date(baseDate).getDate()
-        if (isNextDay) h += 24
-        
         setSelectedTime(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`)
       } else if (typeof value === 'string' && value.includes(':')) {
-        setSelectedTime(value)
+        setSelectedTime(value.slice(0, 5))
       }
     }
-  }, [value, baseDate])
+  }, [value])
 
   const handleConfirm = () => {
     if (!selectedTime) return
@@ -61,13 +44,13 @@ export function TimePicker({ value, onChange, onCancel, allowNextDay = false, ba
     const [h, m] = selectedTime.split(':').map(Number)
     const resultDate = new Date(baseDate)
     
-    if (h >= 24) {
+    // Logic: If this is a bedtime slot (allowNextDay) and the hour is early (e.g. 0-11 AM),
+    // it's likely the "night of" the logical date, which falls on the next calendar day.
+    if (allowNextDay && h < 12) {
       resultDate.setDate(resultDate.getDate() + 1)
-      resultDate.setHours(h - 24, m, 0, 0)
-    } else {
-      resultDate.setHours(h, m, 0, 0)
     }
     
+    resultDate.setHours(h, m, 0, 0)
     onChange(resultDate.toISOString())
   }
 

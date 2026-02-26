@@ -81,7 +81,7 @@ const useSleepData = (selectedDate: Date) => {
             // If it's went_to_bed_at and past midnight, keep it as > 24h for circularity?
             // Simplified circular: convert to minutes since midnight
             let mins = d.getHours() * 60 + d.getMinutes()
-            // If we're looking at bed time and it's early morning (e.g. 0-5), add 24h
+            // If we're looking at bed time and it's early morning (e.g. 0-11 AM), add 24h
             if (field === 'went_to_bed_at' && d.getHours() < 12) {
               mins += 24 * 60
             }
@@ -208,14 +208,16 @@ export default function SleepPage() {
         return mins
       }
 
-      const prefToMinutes = (timeStr: string) => {
+      const prefToMinutes = (timeStr: string, isBed = false) => {
         const [h, m] = timeStr.split(':').map(Number)
-        return h * 60 + m
+        let mins = h * 60 + m
+        if (isBed && h < 12) mins += 24 * 60
+        return mins
       }
 
-      const checkDeviation = (mins: number | null, prefTime: string) => {
+      const checkDeviation = (mins: number | null, prefTime: string, isBed = false) => {
         if (mins === null) return false
-        const prefMins = prefToMinutes(prefTime)
+        const prefMins = prefToMinutes(prefTime, isBed)
         return Math.abs(mins - prefMins) > 60
       }
 
@@ -231,7 +233,7 @@ export default function SleepPage() {
         
         bed: toMinutes(rec?.went_to_bed_at, true),
         bedLabel: rec?.went_to_bed_at ? format(new Date(rec.went_to_bed_at), 'HH:mm') : null,
-        bedDeviates: checkDeviation(toMinutes(rec?.went_to_bed_at, true), preferences.desired_went_to_bed_at)
+        bedDeviates: checkDeviation(toMinutes(rec?.went_to_bed_at, true), preferences.desired_went_to_bed_at, true)
       }
     })
     
