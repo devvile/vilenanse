@@ -100,7 +100,7 @@ export async function createMainCategory(input: {
   if (error) throw error
   
   revalidatePath('/categories')
-  revalidatePath('/expenses')
+  revalidatePath('/finance/expenses')
   return data
 }
 
@@ -155,7 +155,7 @@ export async function createSubcategory(input: {
   if (error) throw error
   
   revalidatePath('/categories')
-  revalidatePath('/expenses')
+  revalidatePath('/finance/expenses')
   return data
 }
 
@@ -185,7 +185,7 @@ export async function updateCategory(input: {
   if (error) throw error
   
   revalidatePath('/categories')
-  revalidatePath('/expenses')
+  revalidatePath('/finance/expenses')
   return data
 }
 
@@ -217,6 +217,6 @@ export async function deleteCategory(id: string) {
   if (error) throw error
   
   revalidatePath('/categories')
-  revalidatePath('/expenses')
+  revalidatePath('/finance/expenses')
   return { success: true }
 }

@@ -76,7 +76,7 @@ export function CSVUploadForm() {
       await bulkCreateExpenses(expensesToImport)
       
       // Success! Redirect to expenses page
-      router.push('/expenses?imported=true')
+      router.push('/finance/expenses?imported=true')
     } catch (error) {
       console.error('Import error:', error)
       alert('Failed to import expenses. Please try again.')
