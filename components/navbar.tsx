@@ -22,9 +22,9 @@ export async function Navbar() {
             <MobileNav />
             <Link href="/" className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 shrink-0">
-                <span className="text-sm font-bold text-black">V</span>
+                <span className="text-sm font-bold text-black">H</span>
               </div>
-              <span className="text-lg font-semibold text-text-primary hidden sm:inline-block">Vilenance</span>
+              <span className="text-lg font-semibold text-text-primary hidden sm:inline-block">Holi</span>
             </Link>
           </div>
 

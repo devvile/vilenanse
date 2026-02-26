@@ -271,7 +271,7 @@ export default function SleepPage() {
         <div className="p-6 space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <h2 className="text-xl font-bold flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-accent-green" />
+              <TrendingUp className="h-5 w-5 text-emerald-500" />
               Sleep Tracker
             </h2>
             
@@ -283,7 +283,7 @@ export default function SleepPage() {
                   className={cn(
                     "px-4 py-1.5 text-[10px] font-bold rounded-full transition-all uppercase tracking-tight",
                     dayType === type 
-                      ? "bg-accent-green text-black" 
+                      ? "bg-emerald-500 text-black shadow-[0_0_15px_rgba(34,197,94,0.3)]" 
                       : "text-text-secondary hover:text-text-primary"
                   )}
                 >
@@ -297,7 +297,7 @@ export default function SleepPage() {
             <div className="p-4 bg-background/50 rounded-2xl border border-white/[0.05] flex items-center justify-between gap-4">
               <button onClick={() => setSelectedDate(subDays(selectedDate, 1))} className="p-2 hover:bg-white/5 rounded-full transition-colors"><ChevronLeft className="h-5 w-5"/></button>
               <div className="flex items-center gap-2 font-medium">
-                <CalendarIcon className="h-4 w-4 text-accent-green" />
+                <CalendarIcon className="h-4 w-4 text-emerald-500" />
                 <span>{format(selectedDate, 'PPPP')}</span>
               </div>
               <button 
@@ -356,7 +356,7 @@ export default function SleepPage() {
                         ) : (
                           <button 
                             onClick={() => setEditingField(slot.id)}
-                            className="p-2 bg-white/[0.03] hover:bg-white/[0.06] rounded-xl text-accent-green transition-all"
+                            className="p-2 bg-white/[0.03] hover:bg-white/[0.06] rounded-xl text-emerald-500 transition-all"
                           >
                             <Plus className="h-5 w-5" />
                           </button>
@@ -389,7 +389,7 @@ export default function SleepPage() {
                     <span>🌙 {prefs?.desired_went_to_bed_at.slice(0, 5)}</span>
                   </div>
                 </div>
-                <button onClick={() => setIsEditingPrefs(!isEditingPrefs)} className="p-2 text-text-muted hover:text-accent-green transition-colors">
+                <button onClick={() => setIsEditingPrefs(!isEditingPrefs)} className="p-2 text-text-muted hover:text-emerald-500 transition-colors">
                   <Settings className="h-4 w-4" />
                 </button>
               </div>
@@ -402,7 +402,7 @@ export default function SleepPage() {
                       <div key={slot.id} className="space-y-2">
                         <label className="text-xs font-semibold text-text-muted ml-1">{slot.label}</label>
                         <select
-                          className="w-full bg-background border border-white/[0.1] rounded-xl px-3 py-2 text-white outline-none focus:border-accent-green/50 appearance-none"
+                          className="w-full bg-background border border-white/[0.1] rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500/50 appearance-none"
                           value={(prefs?.[`desired_${slot.id}` as keyof SleepPreferences] || '08:00:00').slice(0, 5)}
                           onChange={(e) => handlePrefUpdate({ [`desired_${slot.id}`]: e.target.value + ':00' })}
                         >
@@ -417,7 +417,7 @@ export default function SleepPage() {
                     ))}
                   </div>
                   <div className="mt-6 flex justify-end">
-                    <button onClick={() => setIsEditingPrefs(false)} className="px-4 py-2 bg-accent-green text-black font-bold rounded-xl hover:bg-accent-green-light transition-all">Done</button>
+                    <button onClick={() => setIsEditingPrefs(false)} className="px-4 py-2 bg-emerald-500 text-black font-bold rounded-xl hover:bg-emerald-400 transition-all">Done</button>
                   </div>
                 </div>
               )}
@@ -432,7 +432,7 @@ export default function SleepPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
               <h2 className="text-xl font-bold flex items-center gap-2">
-                <CalendarIcon className="h-5 w-5 text-accent-green" />
+                <CalendarIcon className="h-5 w-5 text-emerald-500" />
                 Weekly Analysis
               </h2>
             </div>
@@ -445,7 +445,7 @@ export default function SleepPage() {
                   className={cn(
                     "px-4 py-1.5 text-[10px] font-bold rounded-full transition-all uppercase tracking-tight",
                     weekType === type 
-                      ? "bg-accent-green text-black" 
+                      ? "bg-emerald-500 text-black shadow-[0_0_15px_rgba(34,197,94,0.3)]" 
                       : "text-text-secondary hover:text-text-primary"
                   )}
                 >
@@ -499,10 +499,10 @@ export default function SleepPage() {
                   }}
                 />
                 <Legend 
-                  verticalAlign="top" 
-                  align="right" 
+                  verticalAlign="bottom" 
+                  align="center" 
                   iconType="circle"
-                  wrapperStyle={{ paddingBottom: '30px', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}
+                  wrapperStyle={{ paddingTop: '30px', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}
                 />
                 
                 <Line 
@@ -513,19 +513,12 @@ export default function SleepPage() {
                   stroke="#60a5fa" 
                   strokeWidth={3}
                   dot={(props: any) => {
-                    const { cx, cy, payload } = props
+                    const { cx, cy } = props
                     return (
-                      <g key={`dot-woke-${cx}-${cy}`}>
-                        <circle cx={cx} cy={cy} r={4} fill={payload.wokeDeviates ? '#ef4444' : '#60a5fa'} stroke="#0d0d12" strokeWidth={2} />
-                        {payload.wokeLabel && (
-                          <text x={cx} y={cy} dy={-10} textAnchor="middle" fill="#9ca3af" fontSize={10} fontWeight="bold">
-                            {payload.wokeLabel}
-                          </text>
-                        )}
-                      </g>
+                      <circle key={`dot-woke-${cx}-${cy}`} cx={cx} cy={cy} r={4} fill="#60a5fa" stroke="#0d0d12" strokeWidth={2} />
                     )
                   }}
-                  activeDot={{ r: 6, strokeWidth: 0 }}
+                  activeDot={{ r: 8, strokeWidth: 0 }}
                 />
                 <Line 
                   connectNulls
@@ -535,19 +528,12 @@ export default function SleepPage() {
                   stroke="#34d399" 
                   strokeWidth={3}
                   dot={(props: any) => {
-                    const { cx, cy, payload } = props
+                    const { cx, cy } = props
                     return (
-                      <g key={`dot-start-${cx}-${cy}`}>
-                        <circle cx={cx} cy={cy} r={4} fill={payload.startDeviates ? '#ef4444' : '#34d399'} stroke="#0d0d12" strokeWidth={2} />
-                        {payload.startLabel && (
-                          <text x={cx} y={cy} dy={15} textAnchor="middle" fill="#9ca3af" fontSize={10} fontWeight="bold">
-                            {payload.startLabel}
-                          </text>
-                        )}
-                      </g>
+                      <circle key={`dot-start-${cx}-${cy}`} cx={cx} cy={cy} r={4} fill="#34d399" stroke="#0d0d12" strokeWidth={2} />
                     )
                   }}
-                  activeDot={{ r: 6, strokeWidth: 0 }}
+                  activeDot={{ r: 8, strokeWidth: 0 }}
                 />
                 <Line 
                   connectNulls
@@ -557,19 +543,12 @@ export default function SleepPage() {
                   stroke="#a855f7" 
                   strokeWidth={3}
                   dot={(props: any) => {
-                    const { cx, cy, payload } = props
+                    const { cx, cy } = props
                     return (
-                      <g key={`dot-bed-${cx}-${cy}`}>
-                        <circle cx={cx} cy={cy} r={4} fill={payload.bedDeviates ? '#ef4444' : '#a855f7'} stroke="#0d0d12" strokeWidth={2} />
-                        {payload.bedLabel && (
-                          <text x={cx} y={cy} dy={-10} textAnchor="middle" fill="#9ca3af" fontSize={10} fontWeight="bold">
-                            {payload.bedLabel}
-                          </text>
-                        )}
-                      </g>
+                      <circle key={`dot-bed-${cx}-${cy}`} cx={cx} cy={cy} r={4} fill="#a855f7" stroke="#0d0d12" strokeWidth={2} />
                     )
                   }}
-                  activeDot={{ r: 6, strokeWidth: 0 }}
+                  activeDot={{ r: 8, strokeWidth: 0 }}
                 />
               </LineChart>
             </ResponsiveContainer>

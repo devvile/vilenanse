@@ -95,7 +95,7 @@ export function TimePicker({ value, onChange, onCancel, allowNextDay = false, ba
       
       <button
         onClick={handleConfirm}
-        className="p-1.5 bg-accent-green text-black rounded-lg hover:bg-accent-green-light transition-colors"
+        className="p-1.5 bg-accent-green text-white rounded-lg hover:bg-accent-green-light transition-colors"
       >
         <Check className="h-4 w-4" />
       </button>
