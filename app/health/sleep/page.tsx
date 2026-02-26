@@ -492,10 +492,10 @@ export default function SleepPage() {
                   contentStyle={{ backgroundColor: '#1a1a24', border: '1px solid #ffffff10', borderRadius: '16px', padding: '12px' }}
                   itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
                   labelStyle={{ marginBottom: '8px', color: '#9ca3af', fontWeight: 'bold' }}
-                  formatter={(val: any, name: string) => {
+                  formatter={(val: any, name: string | undefined) => {
                     const h = Math.floor(val / 60) % 24
                     const m = val % 60
-                    return [`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`, name]
+                    return [`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`, name || '']
                   }}
                 />
                 <Legend 
