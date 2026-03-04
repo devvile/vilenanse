@@ -12,21 +12,37 @@ export default function manifest(): MetadataRoute.Manifest {
     icons: [
       {
         src: '/icons/icon-192x192.png',
-        sizes: '192x192',
+        sizes: '640x640',
         type: 'image/png',
-        purpose: 'maskable',
+        purpose: 'any maskable',
       },
       {
         src: '/icons/icon-512x512.png',
-        sizes: '512x512',
+        sizes: '640x640',
         type: 'image/png',
-        purpose: 'maskable',
+        purpose: 'any maskable',
       },
       {
         src: '/icons/apple-touch-icon.png',
-        sizes: '512x512',
+        sizes: '640x640',
         type: 'image/png',
-        purpose: 'maskable',
+        purpose: 'any maskable',
+      },
+    ],
+    screenshots: [
+      {
+        src: '/screenshots/mobile.png',
+        sizes: '1024x1792',
+        type: 'image/png',
+        form_factor: 'narrow',
+        label: 'Holi App Mobile Dashboard',
+      },
+      {
+        src: '/screenshots/desktop.png',
+        sizes: '1792x1024',
+        type: 'image/png',
+        form_factor: 'wide',
+        label: 'Holi App Desktop Dashboard',
       },
     ],
   }
