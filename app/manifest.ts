@@ -5,6 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'Holi App',
     short_name: 'Holi',
     description: 'Aim for Excellence - track finances, health, and habits.',
+    id: '/',
     start_url: '/',
     display: 'standalone',
     background_color: '#0d0d12',
@@ -12,21 +13,21 @@ export default function manifest(): MetadataRoute.Manifest {
     icons: [
       {
         src: '/icons/icon-192x192.png',
-        sizes: '640x640',
+        sizes: '192x192',
         type: 'image/png',
-        purpose: 'any maskable',
+        purpose: 'any',
       },
       {
         src: '/icons/icon-512x512.png',
-        sizes: '640x640',
+        sizes: '512x512',
         type: 'image/png',
-        purpose: 'any maskable',
+        purpose: 'any',
       },
       {
         src: '/icons/apple-touch-icon.png',
-        sizes: '640x640',
+        sizes: '180x180',
         type: 'image/png',
-        purpose: 'any maskable',
+        purpose: 'any',
       },
     ],
     screenshots: [
