@@ -1,31 +1,33 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { 
-  Plus, 
-  ChevronLeft, 
-  ChevronRight, 
-  Calendar as CalendarIcon, 
-  Edit2, 
-  Trash2, 
-  AlertCircle, 
-  Check, 
+import {
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+  Calendar as CalendarIcon,
+  Edit2,
+  Trash2,
+  AlertCircle,
+  Check,
   X,
   Activity,
   Zap,
   Frown,
   Utensils,
-  Save
+  Save,
+  FileUp
 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { 
-  format, 
-  startOfWeek, 
-  endOfWeek, 
-  eachDayOfInterval, 
-  isSameDay, 
-  addDays, 
+import Link from 'next/link'
+import {
+  format,
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval,
+  isSameDay,
+  addDays,
   subDays,
   startOfMonth,
   endOfMonth,
@@ -33,15 +35,15 @@ import {
   getWeek,
   isWithinInterval
 } from 'date-fns'
-import { 
-  getMealsForDay, 
-  getMealsForWeek, 
-  getMealsForMonth, 
-  addMeal, 
-  updateMeal, 
-  deleteMeal, 
-  getCalorieLimit, 
-  updateCalorieLimit 
+import {
+  getMealsForDay,
+  getMealsForWeek,
+  getMealsForMonth,
+  addMeal,
+  updateMeal,
+  deleteMeal,
+  getCalorieLimit,
+  updateCalorieLimit
 } from '@/lib/calories'
 import {
   LineChart,
@@ -87,7 +89,7 @@ export default function CaloriesPage() {
   const [dayType, setDayType] = useState<'today' | 'yesterday' | 'picker'>('today')
   const [meals, setMeals] = useState<Meal[]>([])
   const [showDatePicker, setShowDatePicker] = useState(false)
-  
+
   // Form State
   const [mealName, setMealName] = useState('')
   const [mealCalories, setMealCalories] = useState('')
@@ -205,7 +207,7 @@ export default function CaloriesPage() {
   const handleLimitUpdate = async () => {
     const newLimit = parseInt(limitInput)
     if (isNaN(newLimit) || newLimit <= 0) return
-    
+
     // Optimistic update
     const oldLimit = calorieLimit
     setCalorieLimit(newLimit)
@@ -226,7 +228,7 @@ export default function CaloriesPage() {
 
     setIsSubmitting(true)
     const calories = parseInt(mealCalories)
-    
+
     const newMeal = {
       name: mealName,
       calories,
@@ -300,7 +302,7 @@ export default function CaloriesPage() {
   const consumedToday = meals.reduce((sum, m) => sum + m.calories, 0)
   const remainingToday = calorieLimit - consumedToday
   const progressPercent = Math.min((consumedToday / calorieLimit) * 100, 100)
-  
+
   const getProgressColor = (percent: number) => {
     if (consumedToday > calorieLimit) return 'bg-red-500'
     if (percent >= 85) return 'bg-amber-500'
@@ -326,19 +328,19 @@ export default function CaloriesPage() {
   // Month View Data Preparation
   const monthStart = startOfMonth(new Date())
   const monthEnd = endOfMonth(new Date())
-  
+
   // Group meals into weeks
   const weekRows = []
   let current = monthStart
   while (current <= monthEnd) {
     const ws = startOfWeek(current, { weekStartsOn: 1 })
     const we = endOfWeek(current, { weekStartsOn: 1 })
-    
+
     const wMeals = monthMeals.filter(m => {
       const d = new Date(m.eaten_at)
       return d >= ws && d <= we
     })
-    
+
     // Days with entries
     const daysWithEntries = new Set(wMeals.map(m => m.eaten_at)).size
     const total = wMeals.reduce((sum, m) => sum + m.calories, 0)
@@ -366,7 +368,7 @@ export default function CaloriesPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto pt-24 pb-20 space-y-8 min-h-screen">
-      
+
       {/* SECTION 1: DAY VIEW */}
       <Card className="bg-card border-white/[0.08] overflow-hidden">
         <div className="p-6 space-y-6">
@@ -375,7 +377,7 @@ export default function CaloriesPage() {
               <Utensils className="h-5 w-5 text-emerald-500" />
               Day View
             </h2>
-            
+
             <div className="flex flex-wrap bg-background rounded-2xl sm:rounded-full p-1 border border-white/[0.05]">
               {(['today', 'yesterday', 'picker'] as const).map((type) => (
                 <button
@@ -383,8 +385,8 @@ export default function CaloriesPage() {
                   onClick={() => handleDayTypeChange(type)}
                   className={cn(
                     "flex-1 sm:flex-none px-3 sm:px-4 py-1.5 text-[10px] font-bold rounded-xl sm:rounded-full transition-all uppercase tracking-tight",
-                    dayType === type 
-                      ? "bg-emerald-500 text-black" 
+                    dayType === type
+                      ? "bg-emerald-500 text-black"
                       : "text-text-secondary hover:text-text-primary"
                   )}
                 >
@@ -397,7 +399,7 @@ export default function CaloriesPage() {
           {showDatePicker && (
             <div className="p-4 bg-background/50 rounded-2xl border border-white/[0.05] flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <button 
+                <button
                   onClick={() => {
                     const d = subDays(selectedDate, 1)
                     setSelectedDate(d)
@@ -411,7 +413,7 @@ export default function CaloriesPage() {
                   <CalendarIcon className="h-4 w-4 text-emerald-500" />
                   <span className="text-sm sm:text-base">{format(selectedDate, 'PPPP')}</span>
                 </div>
-                <button 
+                <button
                   onClick={() => {
                     const d = addDays(selectedDate, 1)
                     setSelectedDate(d)
@@ -426,34 +428,34 @@ export default function CaloriesPage() {
           )}
 
           <div className="flex items-center gap-2 text-sm text-text-secondary">
-             <span>Daily limit:</span>
-             {isEditingLimit ? (
-               <div className="flex items-center gap-2">
-                 <input
-                   autoFocus
-                   type="number"
-                   value={limitInput}
-                   onChange={e => setLimitInput(e.target.value)}
-                   onBlur={handleLimitUpdate}
-                   onKeyDown={e => e.key === 'Enter' && handleLimitUpdate()}
-                   className="w-20 bg-background border border-white/[0.1] rounded px-2 py-0.5 text-white outline-none focus:border-emerald-500"
-                 />
-                 <span className="text-xs">kcal</span>
-               </div>
-             ) : (
-               <button 
+            <span>Daily limit:</span>
+            {isEditingLimit ? (
+              <div className="flex items-center gap-2">
+                <input
+                  autoFocus
+                  type="number"
+                  value={limitInput}
+                  onChange={e => setLimitInput(e.target.value)}
+                  onBlur={handleLimitUpdate}
+                  onKeyDown={e => e.key === 'Enter' && handleLimitUpdate()}
+                  className="w-20 bg-background border border-white/[0.1] rounded px-2 py-0.5 text-white outline-none focus:border-emerald-500"
+                />
+                <span className="text-xs">kcal</span>
+              </div>
+            ) : (
+              <button
                 onClick={() => setIsEditingLimit(true)}
                 className="flex items-center gap-1.5 text-white font-medium hover:text-emerald-400 transition-colors"
-               >
-                 {calorieLimit} kcal
-                 <Edit2 className="h-3 w-3 opacity-50" />
-               </button>
-             )}
+              >
+                {calorieLimit} kcal
+                <Edit2 className="h-3 w-3 opacity-50" />
+              </button>
+            )}
           </div>
 
           <div className="space-y-2">
             <div className="w-full h-3 bg-white/[0.05] rounded-full overflow-hidden">
-              <div 
+              <div
                 className={cn("h-full transition-all duration-500", getProgressColor(progressPercent))}
                 style={{ width: `${progressPercent}%` }}
               />
@@ -512,13 +514,22 @@ export default function CaloriesPage() {
                   Munchies
                 </button>
               </div>
-              <button
-                type="submit"
-                disabled={isSubmitting || !mealName || !mealCalories}
-                className="w-full sm:w-auto px-6 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20"
-              >
-                {isSubmitting ? 'Adding...' : 'Add meal'}
-              </button>
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <Link
+                  href="/health/calories/import"
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-white/[0.05] hover:bg-white/[0.08] text-text-secondary hover:text-white font-bold rounded-xl transition-all border border-transparent hover:border-white/[0.1]"
+                >
+                  <FileUp className="h-3.5 w-3.5" />
+                  Import CSV
+                </Link>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !mealName || !mealCalories}
+                  className="px-6 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex-1 sm:flex-none"
+                >
+                  {isSubmitting ? 'Adding...' : 'Add meal'}
+                </button>
+              </div>
             </div>
           </form>
 
@@ -530,7 +541,7 @@ export default function CaloriesPage() {
               </div>
             ) : (
               meals.map((meal) => (
-                <div 
+                <div
                   key={meal.id}
                   className="group p-2.5 sm:p-4 bg-white/[0.02] hover:bg-white/[0.04] rounded-xl sm:rounded-2xl border border-white/[0.05] transition-all flex items-center justify-between gap-2 sm:gap-4"
                 >
@@ -539,22 +550,22 @@ export default function CaloriesPage() {
                     {meal.caused_hurt && <Activity className="h-3 w-3 text-red-500 shrink-0" />}
                     {meal.is_munchies && <Zap className="h-3 w-3 text-amber-500 shrink-0" />}
                   </div>
-                  
+
                   <div className="flex items-center gap-2 sm:gap-4 shrink-0">
                     <span className="text-emerald-400 font-bold whitespace-nowrap text-xs sm:text-base">
                       {meal.calories} <span className="text-[10px] opacity-70">kcal</span>
                     </span>
-                    
+
                     <div className="flex items-center gap-1">
                       {deletingId === meal.id ? (
                         <div className="flex items-center gap-1 bg-red-500/10 rounded-lg p-1 animate-in slide-in-from-right-2">
-                          <button 
+                          <button
                             onClick={() => handleDelete(meal.id)}
                             className="bg-red-500 hover:bg-red-600 text-white p-1 rounded-md transition-colors"
                           >
                             <Check className="h-3.5 w-3.5" />
                           </button>
-                          <button 
+                          <button
                             onClick={() => setDeletingId(null)}
                             className="bg-white/10 hover:bg-white/20 text-white p-1 rounded-md transition-colors"
                           >
@@ -563,16 +574,16 @@ export default function CaloriesPage() {
                         </div>
                       ) : (
                         <>
-                          <button 
+                          <button
                             onClick={() => {
-                              setEditingMeal({...meal})
+                              setEditingMeal({ ...meal })
                               setIsDrawerOpen(true)
                             }}
                             className="p-2 text-text-secondary hover:text-white hover:bg-white/5 rounded-lg transition-all"
                           >
                             <Edit2 className="h-3.5 w-3.5" />
                           </button>
-                          <button 
+                          <button
                             onClick={() => setDeletingId(meal.id)}
                             className="p-2 text-text-secondary hover:text-red-400 hover:bg-red-500/5 rounded-lg transition-all"
                           >
@@ -612,7 +623,7 @@ export default function CaloriesPage() {
                 </div>
               )}
             </div>
-            
+
             <div className="flex bg-background rounded-full p-1 border border-white/[0.05]">
               {(['this', 'last', 'picker'] as const).map((type) => (
                 <button
@@ -620,8 +631,8 @@ export default function CaloriesPage() {
                   onClick={() => handleWeekTypeChange(type)}
                   className={cn(
                     "px-4 py-1.5 text-[10px] font-bold rounded-full transition-all uppercase tracking-tight",
-                    weekType === type 
-                      ? "bg-emerald-500 text-black" 
+                    weekType === type
+                      ? "bg-emerald-500 text-black"
                       : "text-text-secondary hover:text-text-primary"
                   )}
                 >
@@ -633,7 +644,7 @@ export default function CaloriesPage() {
 
           {showWeekPicker && (
             <div className="p-4 bg-background/50 rounded-2xl border border-white/[0.05] flex items-center justify-between">
-              <button 
+              <button
                 onClick={() => {
                   const d = subDays(weekStart, 7)
                   setWeekStart(d)
@@ -649,7 +660,7 @@ export default function CaloriesPage() {
                   {format(weekStart, 'MMM d')} – {format(endOfWeek(weekStart, { weekStartsOn: 1 }), 'MMM d, yyyy')}
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => {
                   const d = addDays(weekStart, 7)
                   setWeekStart(d)
@@ -666,37 +677,37 @@ export default function CaloriesPage() {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={weekChartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff10" />
-                <XAxis 
-                  dataKey="name" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: '#9ca3af', fontSize: 12 }} 
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#9ca3af', fontSize: 12 }}
                   dy={10}
                 />
-                <YAxis 
-                  hide={true} 
+                <YAxis
+                  hide={true}
                   domain={[0, 'dataMax + 500']}
                 />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#1a1a24', 
-                    border: '1px solid #ffffff10', 
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1a1a24',
+                    border: '1px solid #ffffff10',
                     borderRadius: '12px',
                     fontSize: '12px'
                   }}
                   itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
                 />
-                <Legend 
-                  verticalAlign="top" 
-                  align="right" 
+                <Legend
+                  verticalAlign="top"
+                  align="right"
                   iconType="circle"
                   wrapperStyle={{ paddingBottom: '20px', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="total" 
+                <Line
+                  type="monotone"
+                  dataKey="total"
                   name="Total"
-                  stroke="#10b981" 
+                  stroke="#10b981"
                   strokeWidth={3}
                   dot={{ r: 4, fill: '#10b981', strokeWidth: 2, stroke: '#0d0d12' }}
                   activeDot={{ r: 6, strokeWidth: 0 }}
@@ -704,11 +715,11 @@ export default function CaloriesPage() {
                 >
                   <LabelList dataKey="total" position="top" offset={10} style={{ fill: '#10b981', fontSize: 10, fontWeight: 'bold' }} />
                 </Line>
-                <Line 
-                  type="monotone" 
-                  dataKey="munchies" 
+                <Line
+                  type="monotone"
+                  dataKey="munchies"
                   name="Munchies"
-                  stroke="#f59e0b" 
+                  stroke="#f59e0b"
                   strokeWidth={2}
                   strokeOpacity={0.6}
                   dot={{ r: 3, fill: '#f59e0b', strokeWidth: 1, stroke: '#0d0d12', opacity: 0.6 }}
@@ -745,7 +756,7 @@ export default function CaloriesPage() {
                     </div>
                   </div>
                   <div className="w-full h-2 bg-white/[0.05] rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-emerald-500 transition-all duration-1000 ease-out"
                       style={{ width: `${rowProgress}%` }}
                     />
@@ -770,14 +781,14 @@ export default function CaloriesPage() {
                     <X className="h-5 w-5" />
                   </button>
                 </div>
-                
+
                 <form onSubmit={handleUpdate} className="flex-1 p-6 space-y-6">
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-text-secondary ml-1">Meal name</label>
                       <input
                         value={editingMeal?.name || ''}
-                        onChange={e => setEditingMeal(prev => prev ? {...prev, name: e.target.value} : null)}
+                        onChange={e => setEditingMeal(prev => prev ? { ...prev, name: e.target.value } : null)}
                         className="w-full bg-white/[0.02] border border-white/[0.08] rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50"
                       />
                     </div>
@@ -786,38 +797,38 @@ export default function CaloriesPage() {
                       <input
                         type="number"
                         value={editingMeal?.calories || ''}
-                        onChange={e => setEditingMeal(prev => prev ? {...prev, calories: parseInt(e.target.value) || 0} : null)}
+                        onChange={e => setEditingMeal(prev => prev ? { ...prev, calories: parseInt(e.target.value) || 0 } : null)}
                         className="w-full bg-white/[0.02] border border-white/[0.08] rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50"
                       />
                     </div>
-                    
+
                     <div className="pt-4 space-y-4">
-                       <button
+                      <button
                         type="button"
-                        onClick={() => setEditingMeal(prev => prev ? {...prev, caused_hurt: !prev.caused_hurt} : null)}
+                        onClick={() => setEditingMeal(prev => prev ? { ...prev, caused_hurt: !prev.caused_hurt } : null)}
                         className={cn(
                           "w-full flex items-center justify-between px-4 py-4 rounded-2xl border transition-all",
                           editingMeal?.caused_hurt ? "bg-red-500/10 border-red-500/30 text-red-400" : "bg-white/[0.02] border-white/[0.08] text-text-secondary hover:bg-white/[0.04]"
                         )}
                       >
                         <div className="flex items-center gap-3">
-                           <Activity className="h-5 w-5" />
-                           <span className="font-semibold">Caused hurt</span>
+                          <Activity className="h-5 w-5" />
+                          <span className="font-semibold">Caused hurt</span>
                         </div>
                         {editingMeal?.caused_hurt && <Check className="h-5 w-5" />}
                       </button>
 
                       <button
                         type="button"
-                        onClick={() => setEditingMeal(prev => prev ? {...prev, is_munchies: !prev.is_munchies} : null)}
+                        onClick={() => setEditingMeal(prev => prev ? { ...prev, is_munchies: !prev.is_munchies } : null)}
                         className={cn(
                           "w-full flex items-center justify-between px-4 py-4 rounded-2xl border transition-all",
                           editingMeal?.is_munchies ? "bg-amber-500/10 border-amber-500/30 text-amber-400" : "bg-white/[0.02] border-white/[0.08] text-text-secondary hover:bg-white/[0.04]"
                         )}
                       >
                         <div className="flex items-center gap-3">
-                           <Zap className="h-5 w-5" />
-                           <span className="font-semibold">Munchies</span>
+                          <Zap className="h-5 w-5" />
+                          <span className="font-semibold">Munchies</span>
                         </div>
                         {editingMeal?.is_munchies && <Check className="h-5 w-5" />}
                       </button>

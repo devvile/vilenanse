@@ -88,6 +88,32 @@ export async function addMeal(meal: {
   return data
 }
 
+export async function bulkAddMeals(meals: {
+  name: string
+  calories: number
+  eaten_at: string
+  caused_hurt: boolean
+  is_munchies: boolean
+}[]) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const mealsToInsert = meals.map(meal => ({
+    ...meal,
+    user_id: user.id
+  }))
+
+  const { data, error } = await supabase
+    .from('meals')
+    .insert(mealsToInsert)
+    .select()
+
+  if (error) throw error
+  revalidatePath('/health/calories')
+  return data
+}
+
 export async function updateMeal(mealId: string, updates: {
   name?: string
   calories?: number
@@ -146,7 +172,7 @@ export async function getCalorieLimit() {
         .insert([{ id: user.id, daily_calorie_limit: 2000 }])
         .select('daily_calorie_limit')
         .single()
-      
+
       if (createError) {
         console.error('Error creating profile:', createError)
         return 2000
