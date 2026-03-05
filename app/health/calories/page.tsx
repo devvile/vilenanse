@@ -54,7 +54,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  LabelList
+  LabelList,
+  ReferenceLine
 } from 'recharts'
 
 // --- Types ---
@@ -749,6 +750,19 @@ export default function CaloriesPage() {
                   strokeOpacity={0.6}
                   dot={{ r: 3, fill: '#f59e0b', strokeWidth: 1, stroke: '#0d0d12', opacity: 0.6 }}
                   animationDuration={1500}
+                />
+                <ReferenceLine
+                  y={calorieLimit}
+                  stroke="#ff0080"
+                  strokeDasharray="3 3"
+                  strokeWidth={2}
+                  label={{
+                    position: 'right',
+                    value: 'Limit',
+                    fill: '#ff0080',
+                    fontSize: 10,
+                    fontWeight: 'bold'
+                  }}
                 />
               </LineChart>
             </ResponsiveContainer>
