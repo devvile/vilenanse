@@ -5,17 +5,7 @@ import { Plus, X, Palette, Smile, Trash2, Archive, Check, Edit2 } from 'lucide-r
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { addHabit, updateHabit, deleteHabit, Habit } from '@/lib/habits'
-
-const COLORS = [
-    { name: 'Emerald', value: '#10b981' },
-    { name: 'Blue', value: '#3b82f6' },
-    { name: 'Purple', value: '#a855f7' },
-    { name: 'Amber', value: '#f59e0b' },
-    { name: 'Rose', value: '#f43f5e' },
-    { name: 'Indigo', value: '#6366f1' },
-]
-
-const EMOJIS = ['🚀', '💪', '💧', '🥗', '🧘', '📚', '🏃', '💤', '🧠', '✨']
+import { HABIT_COLORS as COLORS, HABIT_EMOJIS as EMOJIS } from '@/lib/habit-constants'
 
 interface HabitManagerProps {
     habits: Habit[]

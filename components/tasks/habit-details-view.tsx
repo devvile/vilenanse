@@ -16,7 +16,9 @@ import {
     Trash2,
     ChevronDown,
     Settings2,
-    Loader2
+    Loader2,
+    X,
+    Edit2
 } from 'lucide-react'
 import {
     Habit,
@@ -26,6 +28,7 @@ import {
     updateHabit,
     deleteHabit
 } from '@/lib/habits'
+import { HABIT_COLORS, HABIT_EMOJIS } from '@/lib/habit-constants'
 import { cn } from '@/lib/utils'
 import { format, startOfMonth, endOfMonth, differenceInDays, parseISO } from 'date-fns'
 import { HabitHeatmap } from './habit-heatmap'
@@ -58,8 +61,23 @@ export function HabitDetailsView({
     const [streaks, setStreaks] = useState({ current: 0, longest: 0 })
     const [loading, setLoading] = useState(true)
 
+    // Edit State
+    const [isEditing, setIsEditing] = useState(false)
+    const [editName, setEditName] = useState('')
+    const [editEmoji, setEditEmoji] = useState('')
+    const [editColor, setEditColor] = useState('')
+    const [saving, setSaving] = useState(false)
+
     const habit = habits.find(h => h.id === activeHabitId)
     const activeHabits = habits.filter(h => !h.is_archived)
+
+    useEffect(() => {
+        if (habit) {
+            setEditName(habit.name)
+            setEditEmoji(habit.emoji)
+            setEditColor(habit.color)
+        }
+    }, [habit])
 
     const fetchDetails = useCallback(async () => {
         if (!activeHabitId) return
@@ -121,6 +139,25 @@ export function HabitDetailsView({
         }
     }
 
+    const handleUpdate = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!editName || saving) return
+        setSaving(true)
+        try {
+            await updateHabit(habit.id, {
+                name: editName,
+                emoji: editEmoji,
+                color: editColor
+            })
+            setIsEditing(false)
+            onRefresh()
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setSaving(false)
+        }
+    }
+
     return (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Top Navigation */}
@@ -160,40 +197,126 @@ export function HabitDetailsView({
                 </button>
             </div>
 
-            {/* Horizontal Icons Row */}
-            <div className="flex items-center justify-center gap-4 mb-10 overflow-x-auto no-scrollbar pb-2">
-                {activeHabits.map(h => (
-                    <button
-                        key={h.id}
-                        onClick={() => onHabitChange(h.id)}
-                        className={cn(
-                            "w-12 h-12 flex items-center justify-center rounded-2xl transition-all shrink-0",
-                            h.id === activeHabitId
-                                ? "bg-white/[0.1] scale-110 shadow-lg border border-white/10"
-                                : "opacity-40 hover:opacity-100 hover:bg-white/[0.05]"
-                        )}
-                    >
-                        <span className="text-2xl">{h.emoji}</span>
-                    </button>
-                ))}
-            </div>
+            {/* Editing Form Overlay/Section */}
+            {isEditing ? (
+                <div className="bg-white/[0.02] border border-white/10 rounded-[2.5rem] p-8 mb-10 animate-in zoom-in-95 duration-300">
+                    <form onSubmit={handleUpdate} className="space-y-8">
+                        <div className="flex items-center justify-between mb-2">
+                            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-emerald-500">Edit Protocol</h3>
+                            <button
+                                type="button"
+                                onClick={() => setIsEditing(false)}
+                                className="w-8 h-8 flex items-center justify-center bg-white/[0.05] rounded-full text-gray-500 hover:text-white transition-colors"
+                            >
+                                <X className="h-4 w-4" />
+                            </button>
+                        </div>
 
-            {/* Contribution Grid */}
-            <div className="mb-10">
-                {loading ? (
-                    <div className="bg-white/[0.02] border border-white/[0.05] rounded-3xl p-6 h-[178px] flex flex-col items-center justify-center gap-4">
-                        <Loader2 className="h-8 w-8 text-emerald-500 animate-spin opacity-50" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 animate-pulse">
-                            Loading Analysis...
-                        </span>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Identity</label>
+                            <input
+                                autoFocus
+                                value={editName}
+                                onChange={e => setEditName(e.target.value)}
+                                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-4 text-white font-bold outline-none focus:border-emerald-500/50 transition-all text-lg"
+                                placeholder="Habit Name"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Symbol</label>
+                                <div className="flex flex-wrap gap-3">
+                                    {HABIT_EMOJIS.map(e => (
+                                        <button
+                                            key={e}
+                                            type="button"
+                                            onClick={() => setEditEmoji(e)}
+                                            className={cn(
+                                                "w-11 h-11 flex items-center justify-center rounded-xl transition-all text-2xl pb-1",
+                                                editEmoji === e
+                                                    ? "bg-emerald-500 scale-110 shadow-lg shadow-emerald-500/20"
+                                                    : "bg-white/[0.03] hover:bg-white/[0.08]"
+                                            )}
+                                        >
+                                            {e}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Signature Color</label>
+                                <div className="flex flex-wrap gap-3">
+                                    {HABIT_COLORS.map(c => (
+                                        <button
+                                            key={c.value}
+                                            type="button"
+                                            onClick={() => setEditColor(c.value)}
+                                            className={cn(
+                                                "w-11 h-11 rounded-xl transition-all border-2",
+                                                editColor === c.value ? "border-white scale-110 shadow-lg" : "border-transparent opacity-40 hover:opacity-100"
+                                            )}
+                                            style={{ backgroundColor: c.value }}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            disabled={saving || !editName}
+                            className="w-full py-5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-black uppercase tracking-widest text-xs rounded-2xl transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2"
+                        >
+                            {saving ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    Synchronizing...
+                                </>
+                            ) : (
+                                "Confirm Changes"
+                            )}
+                        </button>
+                    </form>
+                </div>
+            ) : (
+                <>
+                    {/* Horizontal Icons Row */}
+                    <div className="flex items-center justify-center gap-4 mb-10 overflow-x-auto no-scrollbar pb-2">
+                        {activeHabits.map(h => (
+                            <button
+                                key={h.id}
+                                onClick={() => onHabitChange(h.id)}
+                                className={cn(
+                                    "w-12 h-12 flex items-center justify-center rounded-2xl transition-all shrink-0",
+                                    h.id === activeHabitId
+                                        ? "bg-white/[0.1] scale-110 shadow-lg border border-white/10"
+                                        : "opacity-40 hover:opacity-100 hover:bg-white/[0.05]"
+                                )}
+                            >
+                                <span className="text-2xl">{h.emoji}</span>
+                            </button>
+                        ))}
                     </div>
-                ) : (
-                    <HabitHeatmap
-                        completions={completions.map(c => c.completed_at)}
-                        color={habit.color}
-                    />
-                )}
-            </div>
+
+                    {/* Contribution Grid */}
+                    <div className="mb-10">
+                        {loading ? (
+                            <div className="bg-white/[0.02] border border-white/[0.05] rounded-3xl p-6 h-[178px] flex flex-col items-center justify-center gap-4">
+                                <Loader2 className="h-8 w-8 text-emerald-500 animate-spin opacity-50" />
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 animate-pulse">
+                                    Loading Analysis...
+                                </span>
+                            </div>
+                        ) : (
+                            <HabitHeatmap
+                                completions={completions.map(c => c.completed_at)}
+                                color={habit.color}
+                            />
+                        )}
+                    </div>
+                </>
+            )}
 
             {/* Metrics Grid */}
             <div className="grid grid-cols-2 gap-4 mb-10">
@@ -264,6 +387,13 @@ export function HabitDetailsView({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <button
+                        onClick={() => setIsEditing(true)}
+                        className="flex items-center justify-center gap-3 py-4 px-6 bg-white/[0.03] border border-white/5 rounded-[1.5rem] hover:bg-white/5 hover:border-white/10 transition-all text-sm font-bold text-white group"
+                    >
+                        <Edit2 className="h-4 w-4 text-gray-500 group-hover:text-emerald-500 transition-colors" />
+                        Edit Habit
+                    </button>
+                    <button
                         onClick={handleArchive}
                         className="flex items-center justify-center gap-3 py-4 px-6 bg-white/[0.03] border border-white/5 rounded-[1.5rem] hover:bg-white/5 hover:border-white/10 transition-all text-sm font-bold text-white group"
                     >
@@ -272,7 +402,7 @@ export function HabitDetailsView({
                     </button>
                     <button
                         onClick={handleDelete}
-                        className="flex items-center justify-center gap-3 py-4 px-6 bg-red-500/5 border border-red-500/10 rounded-[1.5rem] hover:bg-red-500/10 hover:border-red-500/20 transition-all text-sm font-bold text-red-500"
+                        className="flex items-center justify-center gap-3 py-4 px-6 bg-red-500/5 border border-red-500/10 rounded-[1.5rem] hover:bg-red-500/10 hover:border-red-500/20 transition-all text-sm font-bold text-red-500 sm:col-span-2"
                     >
                         <Trash2 className="h-4 w-4" />
                         Permanently Delete
