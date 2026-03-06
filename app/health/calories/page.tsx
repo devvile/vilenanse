@@ -44,6 +44,7 @@ import {
   getCalorieLimit,
   updateCalorieLimit
 } from '@/lib/calories'
+import { getTrainings, Training } from '@/lib/fitness'
 import {
   LineChart,
   Line,
@@ -108,11 +109,13 @@ export default function CaloriesPage() {
   const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }))
   const [weekType, setWeekType] = useState<'this' | 'last' | 'picker'>('this')
   const [weekMeals, setWeekMeals] = useState<Meal[]>([])
+  const [weekTrainings, setWeekTrainings] = useState<Training[]>([])
   const [showWeekPicker, setShowWeekPicker] = useState(false)
 
   // Month View State
   const [monthDate, setMonthDate] = useState(new Date())
   const [monthMeals, setMonthMeals] = useState<Meal[]>([])
+  const [monthTrainings, setMonthTrainings] = useState<Training[]>([])
 
   // --- Data Fetching ---
 
@@ -128,10 +131,18 @@ export default function CaloriesPage() {
   const fetchWeekData = useCallback(async (start: Date) => {
     try {
       const end = endOfWeek(start, { weekStartsOn: 1 })
-      const data = await getMealsForWeek(format(start, 'yyyy-MM-dd'), format(end, 'yyyy-MM-dd'))
-      setWeekMeals(data as any)
+      const startDateStr = format(start, 'yyyy-MM-dd')
+      const endDateStr = format(end, 'yyyy-MM-dd')
+
+      const [mealData, trainingData] = await Promise.all([
+        getMealsForWeek(startDateStr, endDateStr),
+        getTrainings(startDateStr, endDateStr)
+      ])
+
+      setWeekMeals(mealData as any)
+      setWeekTrainings(trainingData)
     } catch (error) {
-      console.error('Failed to fetch week meals', error)
+      console.error('Failed to fetch week data', error)
     }
   }, [])
 
@@ -141,14 +152,18 @@ export default function CaloriesPage() {
       const monthEnd = endOfMonth(date)
       const rangeStart = startOfWeek(monthStart, { weekStartsOn: 1 })
       const rangeEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
+      const rangeStartStr = format(rangeStart, 'yyyy-MM-dd')
+      const rangeEndStr = format(rangeEnd, 'yyyy-MM-dd')
 
-      const data = await getMealsForWeek(
-        format(rangeStart, 'yyyy-MM-dd'),
-        format(rangeEnd, 'yyyy-MM-dd')
-      )
-      setMonthMeals(data as any)
+      const [mealData, trainingData] = await Promise.all([
+        getMealsForWeek(rangeStartStr, rangeEndStr),
+        getTrainings(rangeStartStr, rangeEndStr)
+      ])
+
+      setMonthMeals(mealData as any)
+      setMonthTrainings(trainingData)
     } catch (error) {
-      console.error('Failed to fetch month meals', error)
+      console.error('Failed to fetch month data', error)
     }
   }, [])
 
@@ -351,10 +366,19 @@ export default function CaloriesPage() {
   const weekChartData = daysInWeek.map(day => {
     const dayStr = format(day, 'yyyy-MM-dd')
     const dayMeals = weekMeals.filter(m => m.eaten_at === dayStr)
+    const dayTrainings = weekTrainings.filter(t => t.training_date === dayStr)
+
+    const eatenTotal = dayMeals.reduce((sum, m) => sum + m.calories, 0)
+    const burntTotal = dayTrainings.reduce((sum, t) => sum + t.calories, 0)
+    const netTotal = eatenTotal - burntTotal
+
     return {
       name: format(day, 'EEE'),
-      total: dayMeals.reduce((sum, m) => sum + m.calories, 0),
-      munchies: dayMeals.filter(m => m.is_munchies).reduce((sum, m) => sum + m.calories, 0)
+      total: netTotal, // This is what the line chart follows
+      rawEaten: eatenTotal > 0 && burntTotal > 0 ? eatenTotal : null, // Only show if we HAVE both
+      munchies: dayMeals.filter(m => m.is_munchies).reduce((sum, m) => sum + m.calories, 0),
+      hasTraining: burntTotal > 0,
+      burnt: burntTotal
     }
   })
 
@@ -754,15 +778,33 @@ export default function CaloriesPage() {
                 <Line
                   type="monotone"
                   dataKey="total"
-                  name="Total"
+                  name="Net Calories"
                   stroke="#10b981"
                   strokeWidth={3}
                   dot={{ r: 4, fill: '#10b981', strokeWidth: 2, stroke: '#0d0d12' }}
                   activeDot={{ r: 6, strokeWidth: 0 }}
                   animationDuration={1500}
                 >
-                  <LabelList dataKey="total" position="top" offset={10} style={{ fill: '#10b981', fontSize: 10, fontWeight: 'bold' }} />
+                  <LabelList
+                    dataKey="total"
+                    position="top"
+                    offset={10}
+                    style={{ fill: '#10b981', fontSize: 10, fontWeight: 'bold' }}
+                    formatter={(val: any) => val > 0 ? val : ''}
+                  />
                 </Line>
+                <Line
+                  type="monotone"
+                  dataKey="rawEaten"
+                  name="Total Intake"
+                  stroke="#4b5563"
+                  strokeWidth={0}
+                  strokeDasharray="5 5"
+                  dot={{ r: 3, fill: '#4b5563', strokeWidth: 1, stroke: '#0d0d12' }}
+                  activeDot={{ r: 4, strokeWidth: 0 }}
+                  animationDuration={1500}
+                  connectNulls={false}
+                />
                 <Line
                   type="monotone"
                   dataKey="munchies"
