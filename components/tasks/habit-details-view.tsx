@@ -280,135 +280,139 @@ export function HabitDetailsView({
                     </form>
                 </div>
             ) : (
-                <>
-                    {/* Horizontal Icons Row */}
-                    <div className="flex items-center justify-center gap-4 mb-10 overflow-x-auto no-scrollbar pb-2">
-                        {activeHabits.map(h => (
-                            <button
-                                key={h.id}
-                                onClick={() => onHabitChange(h.id)}
-                                className={cn(
-                                    "w-12 h-12 flex items-center justify-center rounded-2xl transition-all shrink-0",
-                                    h.id === activeHabitId
-                                        ? "bg-white/[0.1] scale-110 shadow-lg border border-white/10"
-                                        : "opacity-40 hover:opacity-100 hover:bg-white/[0.05]"
-                                )}
-                            >
-                                <span className="text-2xl">{h.emoji}</span>
-                            </button>
-                        ))}
-                    </div>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                    <div className="lg:col-span-2 space-y-10">
+                        {/* Horizontal Icons Row */}
+                        <div className="flex items-center justify-center lg:justify-start gap-4 overflow-x-auto no-scrollbar pb-2">
+                            {activeHabits.map(h => (
+                                <button
+                                    key={h.id}
+                                    onClick={() => onHabitChange(h.id)}
+                                    className={cn(
+                                        "w-12 h-12 flex items-center justify-center rounded-2xl transition-all shrink-0",
+                                        h.id === activeHabitId
+                                            ? "bg-white/[0.1] scale-110 shadow-lg border border-white/10"
+                                            : "opacity-40 hover:opacity-100 hover:bg-white/[0.05]"
+                                    )}
+                                >
+                                    <span className="text-2xl">{h.emoji}</span>
+                                </button>
+                            ))}
+                        </div>
 
-                    {/* Contribution Grid */}
-                    <div className="mb-10">
-                        {loading ? (
-                            <div className="bg-white/[0.02] border border-white/[0.05] rounded-3xl p-6 h-[178px] flex flex-col items-center justify-center gap-4">
-                                <Loader2 className="h-8 w-8 text-emerald-500 animate-spin opacity-50" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 animate-pulse">
-                                    Loading Analysis...
-                                </span>
-                            </div>
-                        ) : (
-                            <HabitHeatmap
-                                completions={completions.map(c => c.completed_at)}
-                                color={habit.color}
+                        {/* Contribution Grid */}
+                        <div>
+                            {loading ? (
+                                <div className="bg-white/[0.02] border border-white/[0.05] rounded-3xl p-6 h-[178px] flex flex-col items-center justify-center gap-4">
+                                    <Loader2 className="h-8 w-8 text-emerald-500 animate-spin opacity-50" />
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 animate-pulse">
+                                        Loading Analysis...
+                                    </span>
+                                </div>
+                            ) : (
+                                <HabitHeatmap
+                                    completions={completions.map(c => c.completed_at)}
+                                    color={habit.color}
+                                />
+                            )}
+                        </div>
+
+                        {/* Metrics Grid */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <HabitMetricCard
+                                icon={Calendar}
+                                iconColor={habit.color}
+                                value={completionsThisMonth}
+                                label="Days"
+                                sublabel={`success in ${format(now, 'MMMM')}`}
                             />
-                        )}
+                            <HabitMetricCard
+                                icon={Target}
+                                iconColor="#10b981"
+                                value={totalCompletions}
+                                label="Days"
+                                sublabel="Total Success"
+                            />
+                            <HabitMetricCard
+                                icon={Flame}
+                                iconColor="#f97316"
+                                value={streaks.current}
+                                label="Days"
+                                sublabel="Current Streak"
+                            />
+                            <HabitMetricCard
+                                icon={Trophy}
+                                iconColor="#eab308"
+                                value={streaks.longest}
+                                label="Days"
+                                sublabel="Best Streak"
+                            />
+                            <HabitMetricCard
+                                icon={Activity}
+                                iconColor={habit.color}
+                                value={completionsThisMonth}
+                                label=""
+                                sublabel={`Vol. in ${format(now, 'MMM')}`}
+                            />
+                            <HabitMetricCard
+                                icon={BarChart3}
+                                iconColor="#818cf8"
+                                value={totalCompletions}
+                                label=""
+                                sublabel="Vol. Total"
+                            />
+                            <HabitMetricCard
+                                icon={PieChart}
+                                iconColor="#f472b6"
+                                value={dailyAvg}
+                                label=""
+                                sublabel="Daily Avg."
+                            />
+                            <HabitMetricCard
+                                icon={Activity}
+                                iconColor="#2dd4bf"
+                                value={`${overallRate.toFixed(2)}%`}
+                                label=""
+                                sublabel="Overall Rate"
+                            />
+                        </div>
                     </div>
-                </>
+
+                    {/* Actions / Danger Zone */}
+                    <div className="lg:col-span-1">
+                        <div className="bg-white/[0.02] border border-white/[0.05] rounded-[2.5rem] p-8 space-y-4 sticky top-32">
+                            <div className="flex items-center gap-3 mb-4">
+                                <Settings2 className="h-5 w-5 text-gray-500" />
+                                <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">Habit Management</h3>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+                                <button
+                                    onClick={() => setIsEditing(true)}
+                                    className="flex items-center justify-center gap-3 py-4 px-6 bg-white/[0.03] border border-white/5 rounded-[1.5rem] hover:bg-white/5 hover:border-white/10 transition-all text-sm font-bold text-white group"
+                                >
+                                    <Edit2 className="h-4 w-4 text-gray-500 group-hover:text-emerald-500 transition-colors" />
+                                    Edit Habit
+                                </button>
+                                <button
+                                    onClick={handleArchive}
+                                    className="flex items-center justify-center gap-3 py-4 px-6 bg-white/[0.03] border border-white/5 rounded-[1.5rem] hover:bg-white/5 hover:border-white/10 transition-all text-sm font-bold text-white group"
+                                >
+                                    <Archive className="h-4 w-4 text-gray-500 group-hover:text-amber-500 transition-colors" />
+                                    Archive Habit
+                                </button>
+                                <button
+                                    onClick={handleDelete}
+                                    className="flex items-center justify-center gap-3 py-4 px-6 bg-red-500/5 border border-red-500/10 rounded-[1.5rem] hover:bg-red-500/10 hover:border-red-500/20 transition-all text-sm font-bold text-red-500 sm:col-span-2 lg:col-span-1"
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                    Permanently Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
-
-            {/* Metrics Grid */}
-            <div className="grid grid-cols-2 gap-4 mb-10">
-                <HabitMetricCard
-                    icon={Calendar}
-                    iconColor={habit.color}
-                    value={completionsThisMonth}
-                    label="Days"
-                    sublabel={`success in ${format(now, 'MMMM')}`}
-                />
-                <HabitMetricCard
-                    icon={Target}
-                    iconColor="#10b981"
-                    value={totalCompletions}
-                    label="Days"
-                    sublabel="Total Success"
-                />
-                <HabitMetricCard
-                    icon={Flame}
-                    iconColor="#f97316"
-                    value={streaks.current}
-                    label="Days"
-                    sublabel="Current Streak"
-                />
-                <HabitMetricCard
-                    icon={Trophy}
-                    iconColor="#eab308"
-                    value={streaks.longest}
-                    label="Days"
-                    sublabel="Best Streak"
-                />
-                <HabitMetricCard
-                    icon={Activity}
-                    iconColor={habit.color}
-                    value={completionsThisMonth}
-                    label=""
-                    sublabel={`Vol. in ${format(now, 'MMM')}`}
-                />
-                <HabitMetricCard
-                    icon={BarChart3}
-                    iconColor="#818cf8"
-                    value={totalCompletions}
-                    label=""
-                    sublabel="Vol. Total"
-                />
-                <HabitMetricCard
-                    icon={PieChart}
-                    iconColor="#f472b6"
-                    value={dailyAvg}
-                    label=""
-                    sublabel="Daily Avg."
-                />
-                <HabitMetricCard
-                    icon={Activity}
-                    iconColor="#2dd4bf"
-                    value={`${overallRate.toFixed(2)}%`}
-                    label=""
-                    sublabel="Overall Rate"
-                />
-            </div>
-
-            {/* Actions / Danger Zone */}
-            <div className="bg-white/[0.02] border border-white/[0.05] rounded-[2.5rem] p-8 space-y-4">
-                <div className="flex items-center gap-3 mb-4">
-                    <Settings2 className="h-5 w-5 text-gray-500" />
-                    <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">Habit Management</h3>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <button
-                        onClick={() => setIsEditing(true)}
-                        className="flex items-center justify-center gap-3 py-4 px-6 bg-white/[0.03] border border-white/5 rounded-[1.5rem] hover:bg-white/5 hover:border-white/10 transition-all text-sm font-bold text-white group"
-                    >
-                        <Edit2 className="h-4 w-4 text-gray-500 group-hover:text-emerald-500 transition-colors" />
-                        Edit Habit
-                    </button>
-                    <button
-                        onClick={handleArchive}
-                        className="flex items-center justify-center gap-3 py-4 px-6 bg-white/[0.03] border border-white/5 rounded-[1.5rem] hover:bg-white/5 hover:border-white/10 transition-all text-sm font-bold text-white group"
-                    >
-                        <Archive className="h-4 w-4 text-gray-500 group-hover:text-amber-500 transition-colors" />
-                        Archive Habit
-                    </button>
-                    <button
-                        onClick={handleDelete}
-                        className="flex items-center justify-center gap-3 py-4 px-6 bg-red-500/5 border border-red-500/10 rounded-[1.5rem] hover:bg-red-500/10 hover:border-red-500/20 transition-all text-sm font-bold text-red-500 sm:col-span-2"
-                    >
-                        <Trash2 className="h-4 w-4" />
-                        Permanently Delete
-                    </button>
-                </div>
-            </div>
         </div>
     )
 }

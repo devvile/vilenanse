@@ -140,20 +140,21 @@ export function HabitWeeklyGrid({ habits, completions, onRefresh }: HabitWeeklyG
                     <table className="w-full">
                         <thead>
                             <tr className="border-b border-white/[0.05]">
-                                <th className="py-4 text-left font-black text-[10px] text-gray-500 uppercase tracking-widest min-w-[48px] pl-4">Habit</th>
+                                <th className="py-4 text-left font-black text-[10px] text-gray-500 uppercase tracking-widest min-w-[48px] md:min-w-[150px] pl-4">Habit</th>
                                 {days.map(day => {
                                     const isToday = isSameDay(day, today)
                                     return (
-                                        <th key={day.toString()} className="py-4 px-1 min-w-[40px] text-center">
+                                        <th key={day.toString()} className="py-4 px-1 min-w-[40px] md:min-w-[64px] text-center">
                                             <div className="flex flex-col items-center justify-center gap-1 mx-auto">
                                                 <span className={cn(
-                                                    "text-[9px] font-black uppercase tracking-tight",
+                                                    "text-[9px] md:text-[10px] font-black uppercase tracking-tight md:tracking-widest",
                                                     isToday ? "text-emerald-400" : "text-gray-500"
                                                 )}>
-                                                    {format(day, 'EEEEEE')}
+                                                    <span className="md:hidden">{format(day, 'EEEEEE')}</span>
+                                                    <span className="hidden md:inline">{format(day, 'EEE')}</span>
                                                 </span>
                                                 <span className={cn(
-                                                    "w-7 h-7 flex items-center justify-center rounded-full text-[11px] font-bold transition-all",
+                                                    "w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-full text-[11px] md:text-xs font-bold transition-all",
                                                     isToday ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20" : "text-white hover:bg-white/5"
                                                 )}>
                                                     {format(day, 'd')}
@@ -162,15 +163,18 @@ export function HabitWeeklyGrid({ habits, completions, onRefresh }: HabitWeeklyG
                                         </th>
                                     )
                                 })}
-                                <th className="py-4 px-2 text-center font-black text-[10px] text-gray-500 uppercase tracking-widest min-w-[50px]">Streak</th>
+                                <th className="py-4 px-2 text-center font-black text-[10px] text-gray-500 uppercase tracking-widest min-w-[50px] md:min-w-[80px]">Streak</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/[0.03]">
                             {activeHabits.map(habit => (
                                 <tr key={habit.id} className="group hover:bg-white/[0.01] transition-colors">
                                     <td className="py-4 pl-4 pr-2">
-                                        <div className="flex items-center justify-center w-8 h-8 rounded-xl" style={{ backgroundColor: `${habit.color}15` }}>
-                                            <span className="text-lg leading-none">{habit.emoji}</span>
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex items-center justify-center w-8 h-8 rounded-xl shrink-0" style={{ backgroundColor: `${habit.color}15` }}>
+                                                <span className="text-lg leading-none">{habit.emoji}</span>
+                                            </div>
+                                            <span className="hidden md:inline text-sm font-bold text-white whitespace-nowrap">{habit.name}</span>
                                         </div>
                                     </td>
                                     {days.map(day => {

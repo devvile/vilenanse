@@ -40,7 +40,7 @@ export default function HabitsPage() {
 
     if (loading) {
         return (
-            <div className="p-4 sm:p-6 lg:p-8 max-w-lg mx-auto pt-24 space-y-6 animate-pulse">
+            <div className="p-4 sm:p-6 lg:p-8 max-w-lg md:max-w-2xl lg:max-w-5xl mx-auto pt-24 space-y-6 animate-pulse">
                 <div className="h-20 bg-white/[0.05] rounded-[2.5rem]" />
                 <div className="h-64 bg-white/[0.05] rounded-[2.5rem]" />
                 <div className="h-64 bg-white/[0.05] rounded-[2.5rem]" />
@@ -50,7 +50,7 @@ export default function HabitsPage() {
 
     if (selectedHabitId) {
         return (
-            <div className="p-4 sm:p-6 lg:p-8 max-w-lg mx-auto pt-24 pb-20 min-h-screen">
+            <div className="p-4 sm:p-6 lg:p-8 max-w-lg md:max-w-2xl lg:max-w-5xl mx-auto pt-24 pb-20 min-h-screen">
                 <HabitDetailsView
                     habits={habits}
                     activeHabitId={selectedHabitId}
@@ -67,7 +67,7 @@ export default function HabitsPage() {
     }
 
     return (
-        <div className="p-4 sm:p-6 lg:p-8 max-w-lg mx-auto pt-24 pb-20 space-y-10 min-h-screen">
+        <div className="p-4 sm:p-6 lg:p-8 max-w-lg md:max-w-2xl lg:max-w-5xl mx-auto pt-24 pb-20 space-y-10 min-h-screen">
             {/* Header Area */}
             <div className="flex items-center justify-between">
                 <div>

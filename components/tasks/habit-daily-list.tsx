@@ -71,7 +71,7 @@ export function HabitDailyList({ habits, completions, selectedDate, onRefresh }:
     const activeHabits = habits.filter(h => !h.is_archived)
 
     return (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {activeHabits.map((habit) => {
                 const isDone = optimisticCompletions.includes(habit.id)
                 const streak = streaks[habit.id]
