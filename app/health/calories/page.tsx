@@ -442,9 +442,24 @@ export default function CaloriesPage() {
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
-                <div className="flex items-center gap-2 font-medium">
-                  <CalendarIcon className="h-4 w-4 text-emerald-500" />
-                  <span className="text-sm sm:text-base">{format(selectedDate, 'PPPP')}</span>
+                <div className="relative group/date">
+                  <input
+                    type="date"
+                    value={format(selectedDate, 'yyyy-MM-dd')}
+                    onChange={(e) => {
+                      const newDate = new Date(e.target.value)
+                      if (!isNaN(newDate.getTime())) {
+                        setSelectedDate(newDate)
+                        fetchDayData(newDate)
+                      }
+                    }}
+                    className="absolute inset-0 opacity-0 cursor-pointer z-20 w-full"
+                    title="Select date"
+                  />
+                  <div className="flex items-center gap-2 font-medium group-hover/date:text-emerald-400 transition-colors cursor-pointer">
+                    <CalendarIcon className="h-4 w-4 text-emerald-500" />
+                    <span className="text-sm sm:text-base">{format(selectedDate, 'PPPP')}</span>
+                  </div>
                 </div>
                 <button
                   onClick={() => {
@@ -760,13 +775,13 @@ export default function CaloriesPage() {
                 />
                 <ReferenceLine
                   y={calorieLimit}
-                  stroke="#ff0080"
+                  stroke="#38bdf8"
                   strokeDasharray="3 3"
                   strokeWidth={2}
                   label={{
                     position: 'right',
                     value: 'Limit',
-                    fill: '#ff0080',
+                    fill: '#38bdf8',
                     fontSize: 10,
                     fontWeight: 'bold'
                   }}
