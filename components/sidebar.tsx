@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Wallet, Heart, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Wallet, Heart, CheckSquare, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
 
@@ -19,6 +19,12 @@ const areas = [
     href: '/health/calories',
     activePattern: /^\/health/,
   },
+  {
+    name: 'Tasks',
+    icon: CheckSquare,
+    href: '/tasks/habits',
+    activePattern: /^\/tasks/,
+  },
 ]
 
 export function Sidebar() {
@@ -28,7 +34,7 @@ export function Sidebar() {
   // Don't show sidebar on landing page or auth pages
   const isAuthPage = pathname?.startsWith('/auth')
   const isLandingPage = pathname === '/'
-  
+
   if (isAuthPage || isLandingPage) return null
 
   return (
@@ -58,8 +64,8 @@ export function Sidebar() {
               href={area.href}
               className={cn(
                 "flex items-center gap-3 px-3 py-3 rounded-xl transition-all group relative",
-                isActive 
-                  ? "bg-emerald-500/10 text-emerald-400" 
+                isActive
+                  ? "bg-emerald-500/10 text-emerald-400"
                   : "text-gray-400 hover:text-white hover:bg-white/[0.05]"
               )}
             >

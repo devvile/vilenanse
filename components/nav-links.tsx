@@ -18,13 +18,18 @@ const healthLinks = [
   { href: '/health/fitness', label: 'Fitness', icon: Dumbbell },
 ]
 
+const tasksLinks = [
+  { href: '/tasks/habits', label: 'Habits', icon: Clock },
+]
+
 export function NavLinks() {
   const pathname = usePathname()
 
   const isFinance = pathname?.startsWith('/finance')
   const isHealth = pathname?.startsWith('/health')
+  const isTasks = pathname?.startsWith('/tasks')
 
-  const links = isFinance ? financeLinks : isHealth ? healthLinks : []
+  const links = isFinance ? financeLinks : isHealth ? healthLinks : isTasks ? tasksLinks : []
 
   if (links.length === 0) return null
 
@@ -38,8 +43,8 @@ export function NavLinks() {
             href={link.href}
             className={cn(
               "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
-              isActive 
-                ? "text-emerald-400 bg-emerald-500/10" 
+              isActive
+                ? "text-emerald-400 bg-emerald-500/10"
                 : "text-text-secondary hover:text-text-primary hover:bg-background-secondary"
             )}
           >
