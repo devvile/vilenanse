@@ -20,9 +20,10 @@ const EMOJIS = ['🚀', '💪', '💧', '🥗', '🧘', '📚', '🏃', '💤', 
 interface HabitManagerProps {
     habits: Habit[]
     onRefresh: () => void
+    onViewDetails: (id: string) => void
 }
 
-export function HabitManager({ habits, onRefresh }: HabitManagerProps) {
+export function HabitManager({ habits, onRefresh, onViewDetails }: HabitManagerProps) {
     const [isAdding, setIsAdding] = useState(false)
     const [editingHabit, setEditingHabit] = useState<Habit | null>(null)
     const [name, setName] = useState('')
@@ -180,7 +181,8 @@ export function HabitManager({ habits, onRefresh }: HabitManagerProps) {
                 {activeHabits.map(habit => (
                     <div
                         key={habit.id}
-                        className="group flex items-center justify-between p-4 bg-white/[0.02] hover:bg-white/[0.04] rounded-2xl border border-white/[0.05] transition-all"
+                        onClick={() => onViewDetails(habit.id)}
+                        className="group flex items-center justify-between p-4 bg-white/[0.02] hover:bg-white/[0.04] rounded-2xl border border-white/[0.05] transition-all cursor-pointer"
                     >
                         <div className="flex items-center gap-4">
                             <div
@@ -191,11 +193,14 @@ export function HabitManager({ habits, onRefresh }: HabitManagerProps) {
                             </div>
                             <div>
                                 <h4 className="font-bold text-white">{habit.name}</h4>
-                                <p className="text-xs text-text-secondary">Daily Goal</p>
+                                <p className="text-xs text-text-secondary font-medium">Daily Goal</p>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div
+                            className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={(e) => e.stopPropagation()}
+                        >
                             <button
                                 onClick={() => handleEdit(habit)}
                                 className="p-2 text-gray-500 hover:text-white transition-colors"

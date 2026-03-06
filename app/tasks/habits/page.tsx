@@ -86,7 +86,11 @@ export default function HabitsPage() {
 
             {showManager ? (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <HabitManager habits={habits} onRefresh={fetchData} />
+                    <HabitManager
+                        habits={habits}
+                        onRefresh={fetchData}
+                        onViewDetails={setSelectedHabitId}
+                    />
                     <button
                         onClick={() => setShowManager(false)}
                         className="w-full mt-8 py-4 bg-white/[0.05] text-white font-black uppercase tracking-widest text-[10px] rounded-[1.5rem] hover:bg-white/[0.08] transition-all"
@@ -111,7 +115,6 @@ export default function HabitsPage() {
                             completions={completions}
                             selectedDate={selectedDate}
                             onRefresh={fetchData}
-                            onSelectHabit={setSelectedHabitId}
                         />
                     </div>
 
