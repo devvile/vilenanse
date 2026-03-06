@@ -15,8 +15,20 @@ interface HabitDailyListProps {
 
 export function HabitDailyList({ habits, completions, selectedDate, onRefresh }: HabitDailyListProps) {
     const [streaks, setStreaks] = useState<Record<string, { current: number; longest: number }>>({})
+    const [optimisticCompletions, setOptimisticCompletions] = useState<string[]>([])
+
     const today = startOfDay(new Date())
+    const dateStr = format(selectedDate, 'yyyy-MM-dd')
     const isSelectedToday = isSameDay(selectedDate, today)
+
+    // Sync optimistic state with props when they change (e.g. after refresh or page load)
+    useEffect(() => {
+        setOptimisticCompletions(
+            completions
+                .filter(c => c.completed_at === dateStr)
+                .map(c => c.habit_id)
+        )
+    }, [completions, dateStr])
 
     const fetchStreaks = useCallback(async () => {
         const results: Record<string, { current: number; longest: number }> = {}
@@ -32,11 +44,27 @@ export function HabitDailyList({ habits, completions, selectedDate, onRefresh }:
 
     const handleToggle = async (habitId: string) => {
         if (!isSelectedToday) return
+
+        // Optimistic update
+        const isCurrentlyDone = optimisticCompletions.includes(habitId)
+        setOptimisticCompletions(prev =>
+            isCurrentlyDone
+                ? prev.filter(id => id !== habitId)
+                : [...prev, habitId]
+        )
+
         try {
-            await toggleHabitCompletion(habitId, format(selectedDate, 'yyyy-MM-dd'))
+            await toggleHabitCompletion(habitId, dateStr)
+            // Still refresh to get official state and updated streaks
             onRefresh()
         } catch (error) {
             console.error(error)
+            // Revert on error
+            setOptimisticCompletions(prev =>
+                isCurrentlyDone
+                    ? [...prev, habitId]
+                    : prev.filter(id => id !== habitId)
+            )
         }
     }
 
@@ -45,9 +73,7 @@ export function HabitDailyList({ habits, completions, selectedDate, onRefresh }:
     return (
         <div className="space-y-4">
             {activeHabits.map((habit) => {
-                const isDone = completions.some(
-                    c => c.habit_id === habit.id && c.completed_at === format(selectedDate, 'yyyy-MM-dd')
-                )
+                const isDone = optimisticCompletions.includes(habit.id)
                 const streak = streaks[habit.id]
 
                 return (
