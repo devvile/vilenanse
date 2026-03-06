@@ -398,15 +398,22 @@ export default function CaloriesPage() {
       return d >= ws && d <= we
     })
 
+    const wTrainings = monthTrainings.filter(t => {
+      const d = new Date(t.training_date)
+      return d >= ws && d <= we
+    })
+
     // Days with entries
     const daysWithEntries = new Set(wMeals.map(m => m.eaten_at)).size
-    const total = wMeals.reduce((sum, m) => sum + m.calories, 0)
-    const avg = daysWithEntries > 0 ? Math.round(total / daysWithEntries) : 0
+    const eatenTotal = wMeals.reduce((sum, m) => sum + m.calories, 0)
+    const burntTotal = wTrainings.reduce((sum, t) => sum + t.calories, 0)
+    const netTotal = eatenTotal - burntTotal
+    const avg = daysWithEntries > 0 ? Math.round(netTotal / daysWithEntries) : 0
 
     weekRows.push({
       start: ws,
       end: we,
-      total,
+      total: netTotal,
       avg
     })
 
@@ -587,20 +594,22 @@ export default function CaloriesPage() {
                 </button>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                <Link
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto flex-1">
+                  {/* <Link
                   href="/health/calories/import"
                   className="flex items-center justify-center gap-2 px-4 py-2 bg-white/[0.05] hover:bg-white/[0.08] text-text-secondary hover:text-white font-bold rounded-xl transition-all border border-transparent hover:border-white/[0.1]"
                 >
                   <FileUp className="h-3.5 w-3.5" />
                   Import CSV
-                </Link>
-                <button
-                  type="submit"
-                  disabled={isSubmitting || !mealName || !mealCalories}
-                  className="px-6 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex-1 sm:flex-none"
-                >
-                  {isSubmitting ? 'Adding...' : 'Add meal'}
-                </button>
+                </Link> */}
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || !mealName || !mealCalories}
+                    className="px-8 py-4 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-black uppercase tracking-widest text-xs rounded-2xl transition-all shadow-xl shadow-emerald-500/20 flex-1"
+                  >
+                    {isSubmitting ? 'Adding Protocol...' : 'Record Meal'}
+                  </button>
+                </div>
               </div>
             </div>
           </form>
