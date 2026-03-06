@@ -115,12 +115,12 @@ export function HabitWeeklyGrid({ habits, completions, onRefresh }: HabitWeeklyG
                     <table className="w-full">
                         <thead>
                             <tr className="border-b border-white/[0.05]">
-                                <th className="py-4 text-left font-black text-[10px] text-gray-500 uppercase tracking-widest min-w-[140px]">Habit</th>
+                                <th className="py-4 text-left font-black text-[10px] text-gray-500 uppercase tracking-widest min-w-[140px] pl-4">Habit</th>
                                 {days.map(day => {
                                     const isToday = isSameDay(day, today)
                                     return (
-                                        <th key={day.toString()} className="py-4 px-2 min-w-[48px]">
-                                            <div className="flex flex-col items-center gap-1">
+                                        <th key={day.toString()} className="py-4 px-2 min-w-[64px] text-center">
+                                            <div className="flex flex-col items-center justify-center gap-1 mx-auto">
                                                 <span className={cn(
                                                     "text-[10px] font-black uppercase tracking-widest",
                                                     isToday ? "text-emerald-400" : "text-gray-500"
@@ -128,8 +128,8 @@ export function HabitWeeklyGrid({ habits, completions, onRefresh }: HabitWeeklyG
                                                     {format(day, 'EEE')}
                                                 </span>
                                                 <span className={cn(
-                                                    "w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold",
-                                                    isToday ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20" : "text-white"
+                                                    "w-8 h-8 flex items-center justify-center rounded-full text-xs font-bold transition-all",
+                                                    isToday ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20" : "text-white hover:bg-white/5"
                                                 )}>
                                                     {format(day, 'd')}
                                                 </span>
@@ -143,7 +143,7 @@ export function HabitWeeklyGrid({ habits, completions, onRefresh }: HabitWeeklyG
                         <tbody className="divide-y divide-white/[0.03]">
                             {activeHabits.map(habit => (
                                 <tr key={habit.id} className="group hover:bg-white/[0.01] transition-colors">
-                                    <td className="py-4 pr-4">
+                                    <td className="py-4 pl-4 pr-4">
                                         <div className="flex items-center gap-3">
                                             <span className="text-xl">{habit.emoji}</span>
                                             <span className="text-sm font-bold text-white whitespace-nowrap">{habit.name}</span>
@@ -152,29 +152,30 @@ export function HabitWeeklyGrid({ habits, completions, onRefresh }: HabitWeeklyG
                                     {days.map(day => {
                                         const done = isCompleted(habit.id, day)
                                         const isToday = isSameDay(day, today)
-                                        const isPast = !isToday && !isAfter(day, today)
 
                                         return (
-                                            <td key={day.toString()} className="py-4 px-2 text-center">
-                                                <button
-                                                    disabled={!isToday}
-                                                    onClick={() => handleToggle(habit.id, day)}
-                                                    className={cn(
-                                                        "w-8 h-8 rounded-lg flex items-center justify-center transition-all",
-                                                        done
-                                                            ? "shadow-lg"
-                                                            : isToday
-                                                                ? "bg-white/[0.05] hover:bg-white/[0.1] border border-white/10"
-                                                                : "bg-white/[0.02] border border-transparent",
-                                                        !isToday && "cursor-default"
-                                                    )}
-                                                    style={{
-                                                        backgroundColor: done ? habit.color : undefined,
-                                                        boxShadow: done ? `0 4px 12px ${habit.color}40` : undefined
-                                                    }}
-                                                >
-                                                    {done && <Check className="h-4 w-4 text-white" />}
-                                                </button>
+                                            <td key={day.toString()} className="py-4 px-2">
+                                                <div className="flex justify-center">
+                                                    <button
+                                                        disabled={!isToday}
+                                                        onClick={() => handleToggle(habit.id, day)}
+                                                        className={cn(
+                                                            "w-8 h-8 rounded-full flex items-center justify-center transition-all",
+                                                            done
+                                                                ? "shadow-lg"
+                                                                : isToday
+                                                                    ? "bg-white/[0.05] hover:bg-white/[0.1] border border-white/10"
+                                                                    : "bg-white/[0.02] border border-transparent",
+                                                            !isToday && "cursor-default opacity-40"
+                                                        )}
+                                                        style={{
+                                                            backgroundColor: done ? habit.color : undefined,
+                                                            boxShadow: done ? `0 4px 12px ${habit.color}40` : undefined
+                                                        }}
+                                                    >
+                                                        {done && <Check className="h-4 w-4 text-white" />}
+                                                    </button>
+                                                </div>
                                             </td>
                                         )
                                     })}
