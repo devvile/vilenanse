@@ -89,6 +89,7 @@ export default function CaloriesPage() {
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [dayType, setDayType] = useState<'today' | 'yesterday' | 'picker'>('today')
   const [meals, setMeals] = useState<Meal[]>([])
+  const [dayTrainings, setDayTrainings] = useState<Training[]>([])
   const [showDatePicker, setShowDatePicker] = useState(false)
 
   // Form State
@@ -121,10 +122,15 @@ export default function CaloriesPage() {
 
   const fetchDayData = useCallback(async (date: Date) => {
     try {
-      const data = await getMealsForDay(format(date, 'yyyy-MM-dd'))
-      setMeals(data as any)
+      const dateStr = format(date, 'yyyy-MM-dd')
+      const [mealData, trainingData] = await Promise.all([
+        getMealsForDay(dateStr),
+        getTrainings(dateStr, dateStr)
+      ])
+      setMeals(mealData as any)
+      setDayTrainings(trainingData)
     } catch (error) {
-      console.error('Failed to fetch day meals', error)
+      console.error('Failed to fetch day data', error)
     }
   }, [])
 
@@ -348,11 +354,13 @@ export default function CaloriesPage() {
   // --- Calculations ---
 
   const consumedToday = meals.reduce((sum, m) => sum + m.calories, 0)
-  const remainingToday = calorieLimit - consumedToday
-  const progressPercent = Math.min((consumedToday / calorieLimit) * 100, 100)
+  const burntToday = dayTrainings.reduce((sum, t) => sum + t.calories, 0)
+  const netToday = consumedToday - burntToday
+  const remainingToday = calorieLimit - netToday
+  const progressPercent = Math.min((netToday / calorieLimit) * 100, 100)
 
   const getProgressColor = (percent: number) => {
-    if (consumedToday > calorieLimit) return 'bg-red-500'
+    if (netToday > calorieLimit) return 'bg-red-500'
     if (percent >= 85) return 'bg-amber-500'
     return 'bg-emerald-500'
   }
@@ -540,13 +548,20 @@ export default function CaloriesPage() {
               />
             </div>
             <div className="flex justify-between text-xs sm:text-sm font-medium">
-              <span className="text-text-secondary">
-                <span className="text-white">{consumedToday}</span> kcal consumed
-              </span>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-text-secondary">
+                  <span className="text-white font-bold">{netToday}</span> kcal net
+                </span>
+                {burntToday > 0 && (
+                  <span className="text-[10px] text-text-secondary opacity-60">
+                    ({consumedToday} in - {burntToday} burnt)
+                  </span>
+                )}
+              </div>
               {remainingToday >= 0 ? (
-                <span className="text-emerald-400">{remainingToday} kcal remaining</span>
+                <span className="text-emerald-400 font-bold">{remainingToday} kcal remaining</span>
               ) : (
-                <span className="text-red-500">{Math.abs(remainingToday)} kcal over limit</span>
+                <span className="text-red-500 font-bold">{Math.abs(remainingToday)} kcal over limit</span>
               )}
             </div>
           </div>
@@ -593,23 +608,21 @@ export default function CaloriesPage() {
                   Munchies
                 </button>
               </div>
-              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto flex-1">
-                  {/* <Link
+              <div className="flex flex-col sm:flex-row gap-2 w-full flex-1">
+                {/* <Link
                   href="/health/calories/import"
                   className="flex items-center justify-center gap-2 px-4 py-2 bg-white/[0.05] hover:bg-white/[0.08] text-text-secondary hover:text-white font-bold rounded-xl transition-all border border-transparent hover:border-white/[0.1]"
                 >
                   <FileUp className="h-3.5 w-3.5" />
                   Import CSV
                 </Link> */}
-                  <button
-                    type="submit"
-                    disabled={isSubmitting || !mealName || !mealCalories}
-                    className="px-8 py-4 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-black uppercase tracking-widest text-xs rounded-2xl transition-all shadow-xl shadow-emerald-500/20 flex-1"
-                  >
-                    {isSubmitting ? 'Adding Protocol...' : 'Record Meal'}
-                  </button>
-                </div>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !mealName || !mealCalories}
+                  className="px-8 py-5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-black uppercase tracking-widest text-sm rounded-2xl transition-all shadow-xl shadow-emerald-500/20 flex-1 active:scale-[0.98]"
+                >
+                  {isSubmitting ? 'Adding...' : 'Add meal'}
+                </button>
               </div>
             </div>
           </form>
@@ -705,13 +718,13 @@ export default function CaloriesPage() {
               )}
             </div>
 
-            <div className="flex bg-background rounded-full p-1 border border-white/[0.05]">
+            <div className="flex w-full sm:w-auto bg-background rounded-full p-1 border border-white/[0.05]">
               {(['this', 'last', 'picker'] as const).map((type) => (
                 <button
                   key={type}
                   onClick={() => handleWeekTypeChange(type)}
                   className={cn(
-                    "px-4 py-1.5 text-[10px] font-bold rounded-full transition-all uppercase tracking-tight",
+                    "flex-1 px-4 py-1.5 text-[10px] font-bold rounded-full transition-all uppercase tracking-tight",
                     weekType === type
                       ? "bg-emerald-500 text-black"
                       : "text-text-secondary hover:text-text-primary"
