@@ -278,13 +278,13 @@ export default function SleepPage() {
               Sleep Tracker
             </h2>
 
-            <div className="flex bg-background rounded-full p-1 border border-white/[0.05]">
+            <div className="flex w-full sm:w-auto bg-background rounded-full p-1 border border-white/[0.05]">
               {(['today', 'yesterday', 'picker'] as const).map((type) => (
                 <button
                   key={type}
                   onClick={() => handleDayTypeChange(type)}
                   className={cn(
-                    "px-4 py-1.5 text-[10px] font-bold rounded-full transition-all uppercase tracking-tight",
+                    "flex-1 px-4 py-1.5 text-[10px] font-bold rounded-full transition-all uppercase tracking-tight",
                     dayType === type
                       ? "bg-emerald-500 text-black shadow-[0_0_15px_rgba(34,197,94,0.3)]"
                       : "text-text-secondary hover:text-text-primary"
@@ -440,13 +440,13 @@ export default function SleepPage() {
               </h2>
             </div>
 
-            <div className="flex bg-background rounded-full p-1 border border-white/[0.05]">
+            <div className="flex w-full sm:w-auto bg-background rounded-full p-1 border border-white/[0.05]">
               {(['this', 'last', 'picker'] as const).map((type) => (
                 <button
                   key={type}
                   onClick={() => handleWeekTypeChange(type)}
                   className={cn(
-                    "px-4 py-1.5 text-[10px] font-bold rounded-full transition-all uppercase tracking-tight",
+                    "flex-1 px-4 py-1.5 text-[10px] font-bold rounded-full transition-all uppercase tracking-tight",
                     weekType === type
                       ? "bg-emerald-500 text-black shadow-[0_0_15px_rgba(34,197,94,0.3)]"
                       : "text-text-secondary hover:text-text-primary"
