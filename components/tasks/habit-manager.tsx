@@ -197,31 +197,7 @@ export function HabitManager({ habits, onRefresh, onViewDetails }: HabitManagerP
                             </div>
                         </div>
 
-                        <div
-                            className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <button
-                                onClick={() => handleEdit(habit)}
-                                className="p-2 text-gray-500 hover:text-white transition-colors"
-                            >
-                                <Edit2 className="h-4 w-4" />
-                            </button>
-                            <button
-                                onClick={() => handleArchive(habit)}
-                                className="p-2 text-gray-500 hover:text-amber-500 transition-colors"
-                                title="Archive"
-                            >
-                                <Archive className="h-4 w-4" />
-                            </button>
-                            <button
-                                onClick={() => handleDelete(habit)}
-                                className="p-2 text-gray-500 hover:text-red-500 transition-colors"
-                                title="Delete Forever"
-                            >
-                                <Trash2 className="h-4 w-4" />
-                            </button>
-                        </div>
+                        {/* Actions available in Details View */}
                     </div>
                 ))}
 
