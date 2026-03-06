@@ -1,16 +1,16 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { 
-  Moon, 
-  Sun, 
-  Rocket, 
-  Plus, 
-  Trash2, 
-  Edit2, 
-  Settings, 
-  ChevronLeft, 
-  ChevronRight, 
+import {
+  Moon,
+  Sun,
+  Rocket,
+  Plus,
+  Trash2,
+  Edit2,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
   Calendar as CalendarIcon,
   Check,
   X,
@@ -18,22 +18,22 @@ import {
 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { 
-  format, 
-  startOfWeek, 
-  endOfWeek, 
-  eachDayOfInterval, 
-  subDays, 
+import {
+  format,
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval,
+  subDays,
   addDays,
   differenceInMinutes,
   parseISO,
   isSameDay
 } from 'date-fns'
-import { 
-  getSleepRecord, 
-  getSleepRecordsForWeek, 
-  getSleepRecordsLast30Days, 
-  upsertSleepRecord, 
+import {
+  getSleepRecord,
+  getSleepRecordsForWeek,
+  getSleepRecordsLast30Days,
+  upsertSleepRecord,
   deleteSleepField,
   getSleepPreferences,
   updateSleepPreferences,
@@ -50,7 +50,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  ReferenceDot
+  ReferenceDot,
+  ReferenceLine
 } from 'recharts'
 
 // --- Utility Hooks ---
@@ -58,7 +59,7 @@ import {
 const useSleepData = (selectedDate: Date) => {
   const [record, setRecord] = useState<SleepRecord | null>(null)
   const [prefs, setPrefs] = useState<SleepPreferences | null>(null)
-  const [avg30, setAvg30] = useState<{woke: string, start: string, bed: string} | null>(null)
+  const [avg30, setAvg30] = useState<{ woke: string, start: string, bed: string } | null>(null)
   const [loading, setLoading] = useState(true)
 
   const fetchData = useCallback(async () => {
@@ -69,10 +70,10 @@ const useSleepData = (selectedDate: Date) => {
         getSleepPreferences(),
         getSleepRecordsLast30Days()
       ])
-      
+
       setRecord(rec)
       setPrefs(preferences)
-      
+
       // Calculate 30-day averages using circular math
       if (last30.length > 0) {
         const calculateAvg = (field: keyof SleepRecord) => {
@@ -87,16 +88,16 @@ const useSleepData = (selectedDate: Date) => {
             }
             return mins
           })
-          
+
           if (valid.length === 0) return null
-          
+
           const sum = valid.reduce((a, b) => a + b, 0)
           const avgMins = Math.round(sum / valid.length / 15) * 15 // 15m precision
           const h = Math.floor(avgMins / 60) % 24
           const m = avgMins % 60
           return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`
         }
-        
+
         setAvg30({
           woke: calculateAvg('woke_up_at') || '--:--',
           start: calculateAvg('started_day_at') || '--:--',
@@ -133,7 +134,7 @@ export default function SleepPage() {
   const [editingField, setEditingField] = useState<string | null>(null)
   const [deletingField, setDeletingField] = useState<string | null>(null)
   const [isEditingPrefs, setIsEditingPrefs] = useState(false)
-  
+
   // Week View State
   const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }))
   const [weekType, setWeekType] = useState<'this' | 'last' | 'picker'>('this')
@@ -193,13 +194,13 @@ export default function SleepPage() {
     const end = endOfWeek(weekStart, { weekStartsOn: 1 })
     const data = await getSleepRecordsForWeek(format(weekStart, 'yyyy-MM-dd'), format(end, 'yyyy-MM-dd'))
     const preferences = await getSleepPreferences()
-    
+
     const daysInWeek = eachDayOfInterval({ start: weekStart, end })
-    
+
     const chartData = daysInWeek.map(day => {
       const dateStr = format(day, 'yyyy-MM-dd')
       const rec = data.find(r => r.logical_date === dateStr)
-      
+
       const toMinutes = (iso: string | null | undefined, isBed = false) => {
         if (!iso) return null
         const d = new Date(iso)
@@ -226,17 +227,17 @@ export default function SleepPage() {
         woke: toMinutes(rec?.woke_up_at),
         wokeLabel: rec?.woke_up_at ? format(new Date(rec.woke_up_at), 'HH:mm') : null,
         wokeDeviates: checkDeviation(toMinutes(rec?.woke_up_at), preferences.desired_woke_up_at),
-        
+
         start: toMinutes(rec?.started_day_at),
         startLabel: rec?.started_day_at ? format(new Date(rec.started_day_at), 'HH:mm') : null,
         startDeviates: checkDeviation(toMinutes(rec?.started_day_at), preferences.desired_started_day_at),
-        
+
         bed: toMinutes(rec?.went_to_bed_at, true),
         bedLabel: rec?.went_to_bed_at ? format(new Date(rec.went_to_bed_at), 'HH:mm') : null,
         bedDeviates: checkDeviation(toMinutes(rec?.went_to_bed_at, true), preferences.desired_went_to_bed_at, true)
       }
     })
-    
+
     setWeekData(chartData)
   }, [weekStart])
 
@@ -267,7 +268,7 @@ export default function SleepPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto pt-24 pb-20 space-y-8 min-h-screen animate-fade-in">
-      
+
       {/* SECTION 1: DAY VIEW */}
       <Card className="bg-card border-white/[0.08] overflow-hidden">
         <div className="p-6 space-y-8">
@@ -276,7 +277,7 @@ export default function SleepPage() {
               <TrendingUp className="h-5 w-5 text-emerald-500" />
               Sleep Tracker
             </h2>
-            
+
             <div className="flex bg-background rounded-full p-1 border border-white/[0.05]">
               {(['today', 'yesterday', 'picker'] as const).map((type) => (
                 <button
@@ -284,8 +285,8 @@ export default function SleepPage() {
                   onClick={() => handleDayTypeChange(type)}
                   className={cn(
                     "px-4 py-1.5 text-[10px] font-bold rounded-full transition-all uppercase tracking-tight",
-                    dayType === type 
-                      ? "bg-emerald-500 text-black shadow-[0_0_15px_rgba(34,197,94,0.3)]" 
+                    dayType === type
+                      ? "bg-emerald-500 text-black shadow-[0_0_15px_rgba(34,197,94,0.3)]"
                       : "text-text-secondary hover:text-text-primary"
                   )}
                 >
@@ -297,17 +298,17 @@ export default function SleepPage() {
 
           {showDatePicker && (
             <div className="p-4 bg-background/50 rounded-2xl border border-white/[0.05] flex items-center justify-between gap-4">
-              <button onClick={() => setSelectedDate(subDays(selectedDate, 1))} className="p-2 hover:bg-white/5 rounded-full transition-colors"><ChevronLeft className="h-5 w-5"/></button>
+              <button onClick={() => setSelectedDate(subDays(selectedDate, 1))} className="p-2 hover:bg-white/5 rounded-full transition-colors"><ChevronLeft className="h-5 w-5" /></button>
               <div className="flex items-center gap-2 font-medium">
                 <CalendarIcon className="h-4 w-4 text-emerald-500" />
                 <span>{format(selectedDate, 'PPPP')}</span>
               </div>
-              <button 
+              <button
                 disabled={isSameDay(selectedDate, new Date())}
-                onClick={() => setSelectedDate(addDays(selectedDate, 1))} 
+                onClick={() => setSelectedDate(addDays(selectedDate, 1))}
                 className="p-2 hover:bg-white/5 rounded-full transition-colors disabled:opacity-20"
               >
-                <ChevronRight className="h-5 w-5"/>
+                <ChevronRight className="h-5 w-5" />
               </button>
             </div>
           )}
@@ -329,12 +330,12 @@ export default function SleepPage() {
 
                   <div className="flex items-center gap-3">
                     {isEditing ? (
-                      <TimePicker 
-                        value={val} 
+                      <TimePicker
+                        value={val}
                         allowNextDay={slot.id === 'went_to_bed_at'}
                         baseDate={selectedDate}
-                        onChange={(v) => handleUpsert(slot.id, v)} 
-                        onCancel={() => setEditingField(null)} 
+                        onChange={(v) => handleUpsert(slot.id, v)}
+                        onCancel={() => setEditingField(null)}
                       />
                     ) : (
                       <>
@@ -344,19 +345,19 @@ export default function SleepPage() {
                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                               {isDeleting ? (
                                 <div className="flex items-center gap-1 bg-accent-red/10 rounded-lg p-1">
-                                  <button onClick={() => handleDelete(slot.id as any)} className="p-1 bg-accent-red text-white rounded-md"><Check className="h-3 w-3"/></button>
-                                  <button onClick={() => setDeletingField(null)} className="p-1 bg-white/10 text-white rounded-md"><X className="h-3 w-3"/></button>
+                                  <button onClick={() => handleDelete(slot.id as any)} className="p-1 bg-accent-red text-white rounded-md"><Check className="h-3 w-3" /></button>
+                                  <button onClick={() => setDeletingField(null)} className="p-1 bg-white/10 text-white rounded-md"><X className="h-3 w-3" /></button>
                                 </div>
                               ) : (
                                 <>
-                                  <button onClick={() => setEditingField(slot.id)} className="p-2 text-text-muted hover:text-white transition-colors"><Edit2 className="h-3.5 w-3.5"/></button>
-                                  <button onClick={() => setDeletingField(slot.id)} className="p-2 text-text-muted hover:text-accent-red transition-colors"><Trash2 className="h-3.5 w-3.5"/></button>
+                                  <button onClick={() => setEditingField(slot.id)} className="p-2 text-text-muted hover:text-white transition-colors"><Edit2 className="h-3.5 w-3.5" /></button>
+                                  <button onClick={() => setDeletingField(slot.id)} className="p-2 text-text-muted hover:text-accent-red transition-colors"><Trash2 className="h-3.5 w-3.5" /></button>
                                 </>
                               )}
                             </div>
                           </div>
                         ) : (
-                          <button 
+                          <button
                             onClick={() => setEditingField(slot.id)}
                             className="p-2 bg-white/[0.03] hover:bg-white/[0.06] rounded-xl text-emerald-500 transition-all"
                           >
@@ -375,9 +376,9 @@ export default function SleepPage() {
             <div className="flex flex-wrap items-center gap-4 text-sm text-text-muted">
               <span>30-day avg:</span>
               <div className="flex items-center gap-4 text-white font-medium">
-                <span className="flex items-center gap-1.5"><Sun className="h-3.5 w-3.5 text-blue-400"/> {avg30?.woke}</span>
-                <span className="flex items-center gap-1.5"><Rocket className="h-3.5 w-3.5 text-emerald-400"/> {avg30?.start}</span>
-                <span className="flex items-center gap-1.5"><Moon className="h-3.5 w-3.5 text-purple-400"/> {avg30?.bed}</span>
+                <span className="flex items-center gap-1.5"><Sun className="h-3.5 w-3.5 text-blue-400" /> {avg30?.woke}</span>
+                <span className="flex items-center gap-1.5"><Rocket className="h-3.5 w-3.5 text-emerald-400" /> {avg30?.start}</span>
+                <span className="flex items-center gap-1.5"><Moon className="h-3.5 w-3.5 text-purple-400" /> {avg30?.bed}</span>
               </div>
             </div>
 
@@ -438,7 +439,7 @@ export default function SleepPage() {
                 Weekly Analysis
               </h2>
             </div>
-            
+
             <div className="flex bg-background rounded-full p-1 border border-white/[0.05]">
               {(['this', 'last', 'picker'] as const).map((type) => (
                 <button
@@ -446,8 +447,8 @@ export default function SleepPage() {
                   onClick={() => handleWeekTypeChange(type)}
                   className={cn(
                     "px-4 py-1.5 text-[10px] font-bold rounded-full transition-all uppercase tracking-tight",
-                    weekType === type 
-                      ? "bg-emerald-500 text-black shadow-[0_0_15px_rgba(34,197,94,0.3)]" 
+                    weekType === type
+                      ? "bg-emerald-500 text-black shadow-[0_0_15px_rgba(34,197,94,0.3)]"
                       : "text-text-secondary hover:text-text-primary"
                   )}
                 >
@@ -459,12 +460,12 @@ export default function SleepPage() {
 
           {showWeekPicker && (
             <div className="p-4 bg-background/50 rounded-2xl border border-white/[0.05] flex items-center justify-between">
-              <button onClick={() => setWeekStart(subDays(weekStart, 7))} className="p-2 hover:bg-white/5 rounded-full transition-colors"><ChevronLeft className="h-5 w-5"/></button>
+              <button onClick={() => setWeekStart(subDays(weekStart, 7))} className="p-2 hover:bg-white/5 rounded-full transition-colors"><ChevronLeft className="h-5 w-5" /></button>
               <div className="text-center">
                 <div className="text-[10px] text-text-muted uppercase tracking-widest font-bold mb-0.5">Week of</div>
                 <div className="font-medium text-sm">{format(weekStart, 'MMM d')} – {format(endOfWeek(weekStart, { weekStartsOn: 1 }), 'MMM d, yyyy')}</div>
               </div>
-              <button onClick={() => setWeekStart(addDays(weekStart, 7))} className="p-2 hover:bg-white/5 rounded-full transition-colors"><ChevronRight className="h-5 w-5"/></button>
+              <button onClick={() => setWeekStart(addDays(weekStart, 7))} className="p-2 hover:bg-white/5 rounded-full transition-colors"><ChevronRight className="h-5 w-5" /></button>
             </div>
           )}
 
@@ -472,15 +473,15 @@ export default function SleepPage() {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={weekData} margin={{ top: 20, right: 30, left: 10, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff05" />
-                <XAxis 
-                  dataKey="name" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: '#6b7280', fontSize: 12, fontWeight: 500 }} 
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#6b7280', fontSize: 12, fontWeight: 500 }}
                   dy={10}
                 />
-                <YAxis 
-                  domain={[300, 1800]} 
+                <YAxis
+                  domain={[300, 1800]}
                   ticks={[360, 480, 600, 720, 840, 960, 1080, 1200, 1320, 1440, 1560, 1680]}
                   tickFormatter={(val) => {
                     const h = Math.floor(val / 60) % 24
@@ -490,7 +491,7 @@ export default function SleepPage() {
                   tickLine={false}
                   tick={{ fill: '#6b7280', fontSize: 10 }}
                 />
-                <Tooltip 
+                <Tooltip
                   contentStyle={{ backgroundColor: '#1a1a24', border: '1px solid #ffffff10', borderRadius: '16px', padding: '12px' }}
                   itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
                   labelStyle={{ marginBottom: '8px', color: '#9ca3af', fontWeight: 'bold' }}
@@ -500,19 +501,19 @@ export default function SleepPage() {
                     return [`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`, name || '']
                   }}
                 />
-                <Legend 
-                  verticalAlign="bottom" 
-                  align="center" 
+                <Legend
+                  verticalAlign="bottom"
+                  align="center"
                   iconType="circle"
                   wrapperStyle={{ paddingTop: '30px', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}
                 />
-                
-                <Line 
+
+                <Line
                   connectNulls
-                  type="monotone" 
-                  dataKey="woke" 
+                  type="monotone"
+                  dataKey="woke"
                   name="Woke up"
-                  stroke="#60a5fa" 
+                  stroke="#60a5fa"
                   strokeWidth={3}
                   dot={(props: any) => {
                     const { cx, cy, value } = props
@@ -523,12 +524,12 @@ export default function SleepPage() {
                   }}
                   activeDot={{ r: 8, strokeWidth: 0 }}
                 />
-                <Line 
+                <Line
                   connectNulls
-                  type="monotone" 
-                  dataKey="start" 
+                  type="monotone"
+                  dataKey="start"
                   name="Started Day"
-                  stroke="#34d399" 
+                  stroke="#34d399"
                   strokeWidth={3}
                   dot={(props: any) => {
                     const { cx, cy, value } = props
@@ -539,12 +540,12 @@ export default function SleepPage() {
                   }}
                   activeDot={{ r: 8, strokeWidth: 0 }}
                 />
-                <Line 
+                <Line
                   connectNulls
-                  type="monotone" 
-                  dataKey="bed" 
+                  type="monotone"
+                  dataKey="bed"
                   name="Went to Bed"
-                  stroke="#a855f7" 
+                  stroke="#a855f7"
                   strokeWidth={3}
                   dot={(props: any) => {
                     const { cx, cy, value } = props
@@ -555,28 +556,66 @@ export default function SleepPage() {
                   }}
                   activeDot={{ r: 8, strokeWidth: 0 }}
                 />
+
+                {/* Target Reference Lines */}
+                {prefs && (
+                  <>
+                    <ReferenceLine
+                      y={(() => {
+                        const [h, m] = prefs.desired_woke_up_at.split(':').map(Number)
+                        return h * 60 + m
+                      })()}
+                      stroke="#60a5fa"
+                      strokeDasharray="5 5"
+                      strokeOpacity={0.3}
+                      strokeWidth={1}
+                    />
+                    <ReferenceLine
+                      y={(() => {
+                        const [h, m] = prefs.desired_started_day_at.split(':').map(Number)
+                        return h * 60 + m
+                      })()}
+                      stroke="#34d399"
+                      strokeDasharray="5 5"
+                      strokeOpacity={0.3}
+                      strokeWidth={1}
+                    />
+                    <ReferenceLine
+                      y={(() => {
+                        const [h, m] = prefs.desired_went_to_bed_at.split(':').map(Number)
+                        let mins = h * 60 + m
+                        if (h < 12) mins += 24 * 60
+                        return mins
+                      })()}
+                      stroke="#a855f7"
+                      strokeDasharray="5 5"
+                      strokeOpacity={0.3}
+                      strokeWidth={1}
+                    />
+                  </>
+                )}
               </LineChart>
             </ResponsiveContainer>
           </div>
 
           <div className="flex items-center justify-center gap-6 pt-4 border-t border-white/[0.05] text-xs font-bold uppercase tracking-wider text-text-muted">
-             {(() => {
-                const getAvg = (key: string) => {
-                  const valid = weekData.filter(d => d[key] !== null).map(d => d[key])
-                  if (valid.length === 0) return '--:--'
-                  const avg = Math.round(valid.reduce((a, b) => a + b, 0) / valid.length)
-                  const h = Math.floor(avg / 60) % 24
-                  const m = avg % 60
-                  return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`
-                }
-                return (
-                  <>
-                    <span className="flex items-center gap-2">Avg Weak: <span className="text-blue-400">{getAvg('woke')}</span></span>
-                    <span className="flex items-center gap-2">Avg Start: <span className="text-emerald-400">{getAvg('start')}</span></span>
-                    <span className="flex items-center gap-2">Avg Bed: <span className="text-purple-400">{getAvg('bed')}</span></span>
-                  </>
-                )
-             })()}
+            {(() => {
+              const getAvg = (key: string) => {
+                const valid = weekData.filter(d => d[key] !== null).map(d => d[key])
+                if (valid.length === 0) return '--:--'
+                const avg = Math.round(valid.reduce((a, b) => a + b, 0) / valid.length)
+                const h = Math.floor(avg / 60) % 24
+                const m = avg % 60
+                return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`
+              }
+              return (
+                <>
+                  <span className="flex items-center gap-2">Avg Weak: <span className="text-blue-400">{getAvg('woke')}</span></span>
+                  <span className="flex items-center gap-2">Avg Start: <span className="text-emerald-400">{getAvg('start')}</span></span>
+                  <span className="flex items-center gap-2">Avg Bed: <span className="text-purple-400">{getAvg('bed')}</span></span>
+                </>
+              )
+            })()}
           </div>
         </div>
       </Card>
