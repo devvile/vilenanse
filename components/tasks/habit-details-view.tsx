@@ -15,7 +15,8 @@ import {
     Archive,
     Trash2,
     ChevronDown,
-    Settings2
+    Settings2,
+    Loader2
 } from 'lucide-react'
 import {
     Habit,
@@ -174,10 +175,19 @@ export function HabitDetailsView({
 
             {/* Contribution Grid */}
             <div className="mb-10">
-                <HabitHeatmap
-                    completions={completions.map(c => c.completed_at)}
-                    color={habit.color}
-                />
+                {loading ? (
+                    <div className="bg-white/[0.02] border border-white/[0.05] rounded-3xl p-6 h-[178px] flex flex-col items-center justify-center gap-4">
+                        <Loader2 className="h-8 w-8 text-emerald-500 animate-spin opacity-50" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 animate-pulse">
+                            Loading Analysis...
+                        </span>
+                    </div>
+                ) : (
+                    <HabitHeatmap
+                        completions={completions.map(c => c.completed_at)}
+                        color={habit.color}
+                    />
+                )}
             </div>
 
             {/* Metrics Grid */}
