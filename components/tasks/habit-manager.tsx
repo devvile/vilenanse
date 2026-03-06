@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, X, Palette, Smile, Trash2, Archive, Check } from 'lucide-react'
+import { Plus, X, Palette, Smile, Trash2, Archive, Check, Edit2 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { addHabit, updateHabit, deleteHabit, Habit } from '@/lib/habits'
