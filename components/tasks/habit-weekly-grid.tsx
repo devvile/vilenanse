@@ -27,6 +27,7 @@ interface HabitWeeklyGridProps {
 export function HabitWeeklyGrid({ habits, completions, onRefresh }: HabitWeeklyGridProps) {
     const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }))
     const [streaks, setStreaks] = useState<Record<string, { current: number; longest: number }>>({})
+    const [optimisticCompletions, setOptimisticCompletions] = useState<Record<string, boolean>>({})
 
     const today = startOfDay(new Date())
     const weekStart = currentWeekStart
@@ -44,6 +45,14 @@ export function HabitWeeklyGrid({ habits, completions, onRefresh }: HabitWeeklyG
         fetchStreaks()
     }, [habits, completions])
 
+    useEffect(() => {
+        const todayStr = format(today, 'yyyy-MM-dd')
+        const current = completions
+            .filter(c => c.completed_at === todayStr)
+            .reduce((acc, c) => ({ ...acc, [c.habit_id]: true }), {})
+        setOptimisticCompletions(current)
+    }, [completions])
+
     const handlePrevWeek = () => {
         setCurrentWeekStart(subWeeks(currentWeekStart, 1))
     }
@@ -57,6 +66,11 @@ export function HabitWeeklyGrid({ habits, completions, onRefresh }: HabitWeeklyG
 
     const isCompleted = (habitId: string, day: Date) => {
         const dayStr = format(day, 'yyyy-MM-dd')
+        const isToday = isSameDay(day, today)
+
+        if (isToday) {
+            return !!optimisticCompletions[habitId]
+        }
         return completions.some(c => c.habit_id === habitId && c.completed_at === dayStr)
     }
 
@@ -64,11 +78,22 @@ export function HabitWeeklyGrid({ habits, completions, onRefresh }: HabitWeeklyG
         // Retroactive check-ins not allowed
         if (!isSameDay(day, today)) return
 
+        // Optimistic update
+        setOptimisticCompletions(prev => ({
+            ...prev,
+            [habitId]: !prev[habitId]
+        }))
+
         try {
             await toggleHabitCompletion(habitId, format(day, 'yyyy-MM-dd'))
             onRefresh()
         } catch (error) {
             console.error(error)
+            // Revert optimistic update on error
+            setOptimisticCompletions(prev => ({
+                ...prev,
+                [habitId]: !prev[habitId]
+            }))
         }
     }
 
