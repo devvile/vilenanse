@@ -198,3 +198,22 @@ export async function getHabitStreaks(habitId: string) {
 
     return { current: currentStreak, longest: longestStreak }
 }
+
+export async function getHabitCompletionsForHabit(habitId: string): Promise<HabitCompletion[]> {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Unauthorized')
+
+    const { data, error } = await supabase
+        .from('habit_completions')
+        .select('*')
+        .eq('habit_id', habitId)
+        .eq('user_id', user.id)
+        .order('completed_at', { ascending: true })
+
+    if (error) {
+        console.error('Error fetching habit completions:', error)
+        return []
+    }
+    return data as HabitCompletion[]
+}
