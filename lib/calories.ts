@@ -42,30 +42,6 @@ export async function getMealsForWeek(startDate: string, endDate: string) {
   return data || []
 }
 
-export async function getMealsForMonth(year: number, month: number) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
-
-  const startDate = `${year}-${String(month).padStart(2, '0')}-01`
-  const lastDay = new Date(year, month, 0).getDate()
-  const endDate = `${year}-${String(month).padStart(2, '0')}-${lastDay}`
-
-  const { data, error } = await supabase
-    .from('meals')
-    .select('*')
-    .eq('user_id', user.id)
-    .gte('eaten_at', startDate)
-    .lte('eaten_at', endDate)
-    .order('eaten_at', { ascending: true })
-
-  if (error) {
-    console.error('Error fetching meals for month:', error)
-    return []
-  }
-  return data || []
-}
-
 export async function addMeal(meal: {
   name: string
   calories: number

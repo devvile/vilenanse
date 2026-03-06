@@ -38,7 +38,6 @@ import {
 import {
   getMealsForDay,
   getMealsForWeek,
-  getMealsForMonth,
   addMeal,
   updateMeal,
   deleteMeal,
@@ -138,7 +137,15 @@ export default function CaloriesPage() {
 
   const fetchMonthData = useCallback(async (date: Date) => {
     try {
-      const data = await getMealsForMonth(date.getFullYear(), date.getMonth() + 1)
+      const monthStart = startOfMonth(date)
+      const monthEnd = endOfMonth(date)
+      const rangeStart = startOfWeek(monthStart, { weekStartsOn: 1 })
+      const rangeEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
+
+      const data = await getMealsForWeek(
+        format(rangeStart, 'yyyy-MM-dd'),
+        format(rangeEnd, 'yyyy-MM-dd')
+      )
       setMonthMeals(data as any)
     } catch (error) {
       console.error('Failed to fetch month meals', error)
