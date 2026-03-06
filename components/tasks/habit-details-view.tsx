@@ -14,7 +14,8 @@ import {
     PieChart,
     Archive,
     Trash2,
-    ChevronDown
+    ChevronDown,
+    Settings2
 } from 'lucide-react'
 import {
     Habit,

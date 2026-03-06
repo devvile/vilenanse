@@ -11,9 +11,10 @@ interface HabitDailyListProps {
     completions: HabitCompletion[]
     selectedDate: Date
     onRefresh: () => void
+    onSelectHabit: (id: string) => void
 }
 
-export function HabitDailyList({ habits, completions, selectedDate, onRefresh }: HabitDailyListProps) {
+export function HabitDailyList({ habits, completions, selectedDate, onRefresh, onSelectHabit }: HabitDailyListProps) {
     const [streaks, setStreaks] = useState<Record<string, { current: number; longest: number }>>({})
     const today = startOfDay(new Date())
     const isSelectedToday = isSameDay(selectedDate, today)
@@ -51,16 +52,14 @@ export function HabitDailyList({ habits, completions, selectedDate, onRefresh }:
                 const streak = streaks[habit.id]
 
                 return (
-                    <button
+                    <div
                         key={habit.id}
-                        onClick={() => handleToggle(habit.id)}
-                        disabled={!isSelectedToday}
                         className={cn(
                             "w-full flex items-center justify-between p-4 rounded-[2.5rem] transition-all border outline-none group",
                             isDone
                                 ? "border-transparent shadow-lg"
-                                : "bg-white/[0.03] border-white/[0.05] hover:bg-white/[0.06] active:scale-[0.98]",
-                            !isSelectedToday && "cursor-default opacity-80"
+                                : "bg-white/[0.03] border-white/[0.05] hover:bg-white/[0.06]",
+                            !isSelectedToday && "opacity-80"
                         )}
                         style={{
                             backgroundColor: isDone ? habit.color : undefined,
@@ -68,7 +67,10 @@ export function HabitDailyList({ habits, completions, selectedDate, onRefresh }:
                             borderColor: isDone ? 'transparent' : undefined
                         }}
                     >
-                        <div className="flex items-center gap-5">
+                        <div
+                            onClick={() => onSelectHabit(habit.id)}
+                            className="flex items-center gap-5 flex-1 cursor-pointer"
+                        >
                             <div className={cn(
                                 "w-14 h-14 flex items-center justify-center rounded-[1.5rem] text-3xl transition-transform",
                                 isDone ? "bg-black/10 scale-95" : "bg-white/[0.05]"
@@ -101,13 +103,26 @@ export function HabitDailyList({ habits, completions, selectedDate, onRefresh }:
                                     {streak.current} {streak.current === 1 ? 'Day' : 'Days'}
                                 </div>
                             )}
-                            {isDone && (
-                                <div className="w-8 h-8 flex items-center justify-center rounded-full bg-black/10">
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleToggle(habit.id);
+                                }}
+                                disabled={!isSelectedToday}
+                                className={cn(
+                                    "w-10 h-10 flex items-center justify-center rounded-full transition-all",
+                                    isDone ? "bg-black/10" : "bg-white/5 hover:bg-white/10",
+                                    !isSelectedToday && "cursor-default opacity-40"
+                                )}
+                            >
+                                {isDone ? (
                                     <Check className="h-5 w-5 text-black stroke-[3]" />
-                                </div>
-                            )}
+                                ) : (
+                                    <div className="w-2 h-2 rounded-full bg-white/20" />
+                                )}
+                            </button>
                         </div>
-                    </button>
+                    </div>
                 )
             })}
 

@@ -7,6 +7,7 @@ import { HabitWeeklyGrid } from '@/components/tasks/habit-weekly-grid'
 import { HabitManager } from '@/components/tasks/habit-manager'
 import { HabitDailyList } from '@/components/tasks/habit-daily-list'
 import { HabitHorizontalPicker } from '@/components/tasks/habit-horizontal-picker'
+import { HabitDetailsView } from '@/components/tasks/habit-details-view'
 import { format, startOfWeek, endOfWeek, startOfDay } from 'date-fns'
 
 export default function HabitsPage() {
@@ -15,6 +16,7 @@ export default function HabitsPage() {
     const [loading, setLoading] = useState(true)
     const [showManager, setShowManager] = useState(false)
     const [showAnalysis, setShowAnalysis] = useState(false)
+    const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
     const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()))
 
     const fetchData = useCallback(async () => {
@@ -43,6 +45,20 @@ export default function HabitsPage() {
                 <div className="h-20 bg-white/[0.05] rounded-[2.5rem]" />
                 <div className="h-64 bg-white/[0.05] rounded-[2.5rem]" />
                 <div className="h-64 bg-white/[0.05] rounded-[2.5rem]" />
+            </div>
+        )
+    }
+
+    if (selectedHabitId) {
+        return (
+            <div className="p-4 sm:p-6 lg:p-8 max-w-lg mx-auto pt-24 pb-20 min-h-screen">
+                <HabitDetailsView
+                    habits={habits}
+                    activeHabitId={selectedHabitId}
+                    onBack={() => setSelectedHabitId(null)}
+                    onHabitChange={setSelectedHabitId}
+                    onRefresh={fetchData}
+                />
             </div>
         )
     }
@@ -95,6 +111,7 @@ export default function HabitsPage() {
                             completions={completions}
                             selectedDate={selectedDate}
                             onRefresh={fetchData}
+                            onSelectHabit={setSelectedHabitId}
                         />
                     </div>
 
