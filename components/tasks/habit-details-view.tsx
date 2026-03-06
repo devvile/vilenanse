@@ -43,6 +43,7 @@ interface HabitDetailsViewProps {
     onBack: () => void
     onHabitChange: (id: string) => void
     onRefresh: () => void
+    onCreateHabit: () => void
 }
 
 export function HabitDetailsView({
@@ -50,7 +51,8 @@ export function HabitDetailsView({
     activeHabitId,
     onBack,
     onHabitChange,
-    onRefresh
+    onRefresh,
+    onCreateHabit
 }: HabitDetailsViewProps) {
     const [completions, setCompletions] = useState<HabitCompletion[]>([])
     const [streaks, setStreaks] = useState({ current: 0, longest: 0 })
@@ -125,33 +127,36 @@ export function HabitDetailsView({
             <div className="flex items-center justify-between mb-8">
                 <button
                     onClick={onBack}
-                    className="w-10 h-10 flex items-center justify-center bg-white/[0.05] rounded-xl hover:bg-white/[0.1] transition-all"
+                    className="w-12 h-12 flex items-center justify-center bg-white/[0.05] rounded-2xl hover:bg-white/[0.1] transition-all"
                 >
-                    <ChevronLeft className="h-5 w-5 text-white" />
+                    <ChevronLeft className="h-6 w-6 text-white" />
                 </button>
 
                 <DropdownMenu>
-                    <DropdownMenuTrigger className="flex items-center gap-2 px-4 py-2 bg-white/[0.05] rounded-full outline-none hover:bg-white/[0.1] transition-all">
-                        <span className="text-xl leading-none">{habit.emoji}</span>
-                        <span className="text-sm font-black text-white">{habit.name}</span>
-                        <ChevronDown className="h-4 w-4 text-gray-500" />
+                    <DropdownMenuTrigger className="flex items-center gap-3 px-6 py-3 bg-white/[0.05] rounded-[2rem] outline-none hover:bg-white/[0.1] transition-all border border-white/5">
+                        <span className="text-2xl leading-none">{habit.emoji}</span>
+                        <span className="text-lg font-black text-white tracking-tight">{habit.name}</span>
+                        <ChevronDown className="h-5 w-5 text-gray-500 ml-1" />
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-[#1a1a1f] border-white/[0.08] text-white rounded-2xl w-56">
+                    <DropdownMenuContent className="bg-[#1a1a1f] border-white/[0.08] text-white rounded-3xl w-64 p-2 shadow-2xl">
                         {activeHabits.map(h => (
                             <DropdownMenuItem
                                 key={h.id}
                                 onClick={() => onHabitChange(h.id)}
-                                className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/[0.05] cursor-pointer"
+                                className="flex items-center gap-4 px-4 py-4 rounded-2xl hover:bg-white/[0.05] cursor-pointer"
                             >
-                                <span className="text-lg">{h.emoji}</span>
-                                <span className="font-bold">{h.name}</span>
+                                <span className="text-2xl">{h.emoji}</span>
+                                <span className="font-bold text-base">{h.name}</span>
                             </DropdownMenuItem>
                         ))}
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-                <button className="w-10 h-10 flex items-center justify-center bg-emerald-500 rounded-xl hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20">
-                    <Plus className="h-5 w-5 text-black" />
+                <button
+                    onClick={onCreateHabit}
+                    className="w-12 h-12 flex items-center justify-center bg-emerald-500 rounded-2xl hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/20 active:scale-90"
+                >
+                    <Plus className="h-6 w-6 text-black stroke-[3]" />
                 </button>
             </div>
 

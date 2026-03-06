@@ -58,6 +58,10 @@ export default function HabitsPage() {
                     onBack={() => setSelectedHabitId(null)}
                     onHabitChange={setSelectedHabitId}
                     onRefresh={fetchData}
+                    onCreateHabit={() => {
+                        setSelectedHabitId(null)
+                        setShowManager(true)
+                    }}
                 />
             </div>
         )
