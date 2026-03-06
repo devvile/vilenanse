@@ -469,48 +469,48 @@ export default function CaloriesPage() {
           </div>
 
           {showDatePicker && (
-            <div className="p-4 bg-background/50 rounded-2xl border border-white/[0.05] flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => {
-                    const d = subDays(selectedDate, 1)
-                    setSelectedDate(d)
-                    fetchDayData(d)
+            <div className="p-4 bg-background/50 rounded-2xl border border-white/[0.05] flex items-center justify-center gap-4">
+              <button
+                onClick={() => {
+                  const d = subDays(selectedDate, 1)
+                  setSelectedDate(d)
+                  fetchDayData(d)
+                }}
+                className="p-2 hover:bg-white/5 rounded-full transition-colors shrink-0"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+
+              <div className="relative group/date">
+                <input
+                  type="date"
+                  value={format(selectedDate, 'yyyy-MM-dd')}
+                  onChange={(e) => {
+                    const newDate = new Date(e.target.value)
+                    if (!isNaN(newDate.getTime())) {
+                      setSelectedDate(newDate)
+                      fetchDayData(newDate)
+                    }
                   }}
-                  className="p-2 hover:bg-white/5 rounded-full transition-colors"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-                <div className="relative group/date">
-                  <input
-                    type="date"
-                    value={format(selectedDate, 'yyyy-MM-dd')}
-                    onChange={(e) => {
-                      const newDate = new Date(e.target.value)
-                      if (!isNaN(newDate.getTime())) {
-                        setSelectedDate(newDate)
-                        fetchDayData(newDate)
-                      }
-                    }}
-                    className="absolute inset-0 opacity-0 cursor-pointer z-20 w-full"
-                    title="Select date"
-                  />
-                  <div className="flex items-center gap-2 font-medium group-hover/date:text-emerald-400 transition-colors cursor-pointer">
-                    <CalendarIcon className="h-4 w-4 text-emerald-500" />
-                    <span className="text-sm sm:text-base">{format(selectedDate, 'PPPP')}</span>
-                  </div>
+                  className="absolute inset-0 opacity-0 cursor-pointer z-20 w-full"
+                  title="Select date"
+                />
+                <div className="flex items-center gap-2 font-medium group-hover/date:text-emerald-400 transition-colors cursor-pointer">
+                  <CalendarIcon className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span className="text-sm sm:text-base leading-none">{format(selectedDate, 'PPPP')}</span>
                 </div>
-                <button
-                  onClick={() => {
-                    const d = addDays(selectedDate, 1)
-                    setSelectedDate(d)
-                    fetchDayData(d)
-                  }}
-                  className="p-2 hover:bg-white/5 rounded-full transition-colors"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </button>
               </div>
+
+              <button
+                onClick={() => {
+                  const d = addDays(selectedDate, 1)
+                  setSelectedDate(d)
+                  fetchDayData(d)
+                }}
+                className="p-2 hover:bg-white/5 rounded-full transition-colors shrink-0"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
             </div>
           )}
 

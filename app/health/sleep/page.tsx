@@ -298,15 +298,17 @@ export default function SleepPage() {
 
           {showDatePicker && (
             <div className="p-4 bg-background/50 rounded-2xl border border-white/[0.05] flex items-center justify-between gap-4">
-              <button onClick={() => setSelectedDate(subDays(selectedDate, 1))} className="p-2 hover:bg-white/5 rounded-full transition-colors"><ChevronLeft className="h-5 w-5" /></button>
+              <button onClick={() => setSelectedDate(subDays(selectedDate, 1))} className="p-2 hover:bg-white/5 rounded-full transition-colors shrink-0">
+                <ChevronLeft className="h-5 w-5" />
+              </button>
               <div className="flex items-center gap-2 font-medium">
-                <CalendarIcon className="h-4 w-4 text-emerald-500" />
-                <span>{format(selectedDate, 'PPPP')}</span>
+                <CalendarIcon className="h-4 w-4 text-emerald-500 shrink-0" />
+                <span className="leading-none">{format(selectedDate, 'PPPP')}</span>
               </div>
               <button
                 disabled={isSameDay(selectedDate, new Date())}
                 onClick={() => setSelectedDate(addDays(selectedDate, 1))}
-                className="p-2 hover:bg-white/5 rounded-full transition-colors disabled:opacity-20"
+                className="p-2 hover:bg-white/5 rounded-full transition-colors disabled:opacity-20 shrink-0"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
