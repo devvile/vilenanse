@@ -4,17 +4,18 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { 
-  Menu, 
-  X, 
-  Wallet, 
-  Heart, 
-  LayoutDashboard, 
-  BarChart3, 
-  FileText, 
-  Clock, 
-  Activity, 
-  Moon, 
+import {
+  Menu,
+  X,
+  Wallet,
+  Heart,
+  CheckSquare,
+  LayoutDashboard,
+  BarChart3,
+  FileText,
+  Clock,
+  Activity,
+  Moon,
   Dumbbell,
   ChevronRight,
 } from 'lucide-react'
@@ -44,6 +45,15 @@ const areas = [
       { href: '/health/fitness', label: 'Fitness', icon: Dumbbell },
     ]
   },
+  {
+    name: 'Tasks',
+    icon: CheckSquare,
+    href: '/tasks/habits',
+    activePattern: /^\/tasks/,
+    links: [
+      { href: '/tasks/habits', label: 'Habits', icon: Clock },
+    ]
+  },
 ]
 
 function MobileNavDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
@@ -52,7 +62,7 @@ function MobileNavDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
   return (
     <>
       {/* Backdrop — solid dark overlay */}
-      <div 
+      <div
         className={cn(
           "fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity duration-300",
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -65,8 +75,8 @@ function MobileNavDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
       <div
         className={cn(
           "fixed inset-0 w-screen h-screen bg-[#0d0d12] transition-all duration-500 ease-[cubic-bezier(0.32,0,0.67,0)] flex flex-col",
-          isOpen 
-            ? "translate-y-0 opacity-100" 
+          isOpen
+            ? "translate-y-0 opacity-100"
             : "-translate-y-full opacity-0 pointer-events-none"
         )}
         style={{ zIndex: 99999 }}
@@ -110,8 +120,8 @@ function MobileNavDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                         onClick={onClose}
                         className={cn(
                           "flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all",
-                          isLinkActive 
-                            ? "bg-emerald-500/10 text-white font-bold border border-emerald-500/20" 
+                          isLinkActive
+                            ? "bg-emerald-500/10 text-white font-bold border border-emerald-500/20"
                             : "text-gray-400 hover:text-white hover:bg-white/[0.03]"
                         )}
                       >
