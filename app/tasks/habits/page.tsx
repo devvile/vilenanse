@@ -15,7 +15,6 @@ export default function HabitsPage() {
     const [completions, setCompletions] = useState<HabitCompletion[]>([])
     const [loading, setLoading] = useState(true)
     const [showManager, setShowManager] = useState(false)
-    const [showAnalysis, setShowAnalysis] = useState(false)
     const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
     const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()))
 
@@ -122,21 +121,9 @@ export default function HabitsPage() {
                         />
                     </div>
 
-                    {/* Bottom Actions / Secondary View toggle */}
-                    <div className="pt-10 flex flex-col items-center gap-6">
-                        <button
-                            onClick={() => setShowAnalysis(!showAnalysis)}
-                            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 hover:text-emerald-400 transition-colors"
-                        >
-                            <Calendar className="h-3 w-3" />
-                            {showAnalysis ? "Hide Analysis" : "Show Weekly Analysis"}
-                        </button>
-
-                        {showAnalysis && (
-                            <div className="w-full animate-in zoom-in-95 duration-300">
-                                <HabitWeeklyGrid habits={habits} completions={completions} onRefresh={fetchData} />
-                            </div>
-                        )}
+                    {/* Weekly Analysis */}
+                    <div className="pt-10">
+                        <HabitWeeklyGrid habits={habits} completions={completions} onRefresh={fetchData} />
                     </div>
                 </>
             )}

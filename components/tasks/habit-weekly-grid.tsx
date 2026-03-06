@@ -115,20 +115,20 @@ export function HabitWeeklyGrid({ habits, completions, onRefresh }: HabitWeeklyG
                     <table className="w-full">
                         <thead>
                             <tr className="border-b border-white/[0.05]">
-                                <th className="py-4 text-left font-black text-[10px] text-gray-500 uppercase tracking-widest min-w-[140px] pl-4">Habit</th>
+                                <th className="py-4 text-left font-black text-[10px] text-gray-500 uppercase tracking-widest min-w-[48px] pl-4">Habit</th>
                                 {days.map(day => {
                                     const isToday = isSameDay(day, today)
                                     return (
-                                        <th key={day.toString()} className="py-4 px-2 min-w-[64px] text-center">
+                                        <th key={day.toString()} className="py-4 px-1 min-w-[40px] text-center">
                                             <div className="flex flex-col items-center justify-center gap-1 mx-auto">
                                                 <span className={cn(
-                                                    "text-[10px] font-black uppercase tracking-widest",
+                                                    "text-[9px] font-black uppercase tracking-tight",
                                                     isToday ? "text-emerald-400" : "text-gray-500"
                                                 )}>
-                                                    {format(day, 'EEE')}
+                                                    {format(day, 'EEEEEE')}
                                                 </span>
                                                 <span className={cn(
-                                                    "w-8 h-8 flex items-center justify-center rounded-full text-xs font-bold transition-all",
+                                                    "w-7 h-7 flex items-center justify-center rounded-full text-[11px] font-bold transition-all",
                                                     isToday ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20" : "text-white hover:bg-white/5"
                                                 )}>
                                                     {format(day, 'd')}
@@ -137,16 +137,15 @@ export function HabitWeeklyGrid({ habits, completions, onRefresh }: HabitWeeklyG
                                         </th>
                                     )
                                 })}
-                                <th className="py-4 px-4 text-center font-black text-[10px] text-gray-500 uppercase tracking-widest min-w-[80px]">Streak</th>
+                                <th className="py-4 px-2 text-center font-black text-[10px] text-gray-500 uppercase tracking-widest min-w-[50px]">Streak</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/[0.03]">
                             {activeHabits.map(habit => (
                                 <tr key={habit.id} className="group hover:bg-white/[0.01] transition-colors">
-                                    <td className="py-4 pl-4 pr-4">
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-xl">{habit.emoji}</span>
-                                            <span className="text-sm font-bold text-white whitespace-nowrap">{habit.name}</span>
+                                    <td className="py-4 pl-4 pr-2">
+                                        <div className="flex items-center justify-center w-8 h-8 rounded-xl" style={{ backgroundColor: `${habit.color}15` }}>
+                                            <span className="text-lg leading-none">{habit.emoji}</span>
                                         </div>
                                     </td>
                                     {days.map(day => {
