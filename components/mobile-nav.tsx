@@ -18,6 +18,7 @@ import {
   Moon,
   Dumbbell,
   ChevronRight,
+  Lightbulb,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -52,6 +53,15 @@ const areas = [
     activePattern: /^\/tasks/,
     links: [
       { href: '/tasks/habits', label: 'Habits', icon: Clock },
+    ]
+  },
+  {
+    name: 'Evolution',
+    icon: Lightbulb,
+    href: '/evolution',
+    activePattern: /^\/evolution/,
+    links: [
+      { href: '/evolution', label: 'Proposals', icon: Lightbulb },
     ]
   },
 ]

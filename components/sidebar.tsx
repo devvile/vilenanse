@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Wallet, Heart, CheckSquare, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Wallet, Heart, CheckSquare, ChevronLeft, ChevronRight, Lightbulb } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
 
@@ -24,6 +24,12 @@ const areas = [
     icon: CheckSquare,
     href: '/tasks/habits',
     activePattern: /^\/tasks/,
+  },
+  {
+    name: 'Evolution',
+    icon: Lightbulb,
+    href: '/evolution',
+    activePattern: /^\/evolution/,
   },
 ]
 
