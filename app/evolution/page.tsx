@@ -54,7 +54,7 @@ const STATUS_CONFIG = {
 export default function EvolutionPage() {
   const [proposals, setProposals] = useState<Proposal[]>([])
   const [loading, setLoading] = useState(true)
-  const [showArchived, setShowArchived] = useState(false)
+  const [activeFilter, setActiveFilter] = useState<'active' | 'completed' | 'archived'>('active')
   
   // Form state
   const [title, setTitle] = useState('')
@@ -114,18 +114,10 @@ export default function EvolutionPage() {
     }
   }
 
-  // Filtering: only reported and in_progress by default
-  const filteredProposals = proposals.filter(p => {
-    if (showArchived) return p.status === 'archived'
-    return p.status === 'reported' || p.status === 'in_progress' || p.status === 'completed'
-  }).filter(p => {
-    if (showArchived) return true
-    return p.status !== 'archived' && (p.status !== 'completed' || showArchived) // Completed is hidden by default in plain list but user can toggle
-  })
-
-  // User specifically said: "By default only 'reported' and 'in progress' task shall be visible"
+  // Filtered list based on active tab
   const displayProposals = proposals.filter(p => {
-    if (showArchived) return p.status === 'archived'
+    if (activeFilter === 'archived') return p.status === 'archived'
+    if (activeFilter === 'completed') return p.status === 'completed'
     return p.status === 'reported' || p.status === 'in_progress'
   })
 
@@ -142,24 +134,33 @@ export default function EvolutionPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowArchived(!showArchived)}
-            className={cn(
-              "px-4 py-2 rounded-xl text-sm font-bold transition-all border",
-              showArchived 
-                ? "bg-white/10 border-white/20 text-white" 
-                : "bg-transparent border-white/10 text-text-secondary hover:text-white hover:border-white/20"
-            )}
-          >
-            {showArchived ? 'View Active' : 'View Archived'}
-          </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5">
+            {[
+              { id: 'active', label: 'Active' },
+              { id: 'completed', label: 'Completed' },
+              { id: 'archived', label: 'Archived' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveFilter(tab.id as any)}
+                className={cn(
+                  "px-4 py-2 rounded-xl text-xs font-bold transition-all",
+                  activeFilter === tab.id 
+                    ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20" 
+                    : "text-text-secondary hover:text-white"
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
           <button
             onClick={() => setShowForm(!showForm)}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
+            className="flex items-center gap-2 px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white font-bold rounded-2xl border border-white/5 transition-all active:scale-95"
           >
-            <Plus className="h-4 w-4" />
-            Propose Change
+            <Plus className={cn("h-4 w-4 transition-transform", showForm && "rotate-45")} />
+            {showForm ? 'Close' : 'Propose Change'}
           </button>
         </div>
       </div>
@@ -220,9 +221,11 @@ export default function EvolutionPage() {
               <AlertCircle className="h-6 w-6 text-text-muted" />
             </div>
             <h3 className="text-lg font-bold text-white mb-1">No proposals found</h3>
-            <p className="text-text-secondary text-sm">
-              {showArchived ? 'No archived proposals.' : 'Start by proposing a change to the app.'}
-            </p>
+              <p className="text-text-secondary text-sm">
+                {activeFilter === 'archived' ? 'No archived proposals.' : 
+                 activeFilter === 'completed' ? 'No completed tasks yet.' : 
+                 'Start by proposing a change to the app.'}
+              </p>
           </div>
         ) : (
           displayProposals.map((proposal) => (
