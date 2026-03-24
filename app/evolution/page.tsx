@@ -230,28 +230,30 @@ export default function EvolutionPage() {
               key={proposal.id}
               className={cn(
                 "group bg-card border-white/[0.08] hover:border-white/20 transition-all overflow-hidden",
-                proposal.status === 'in_progress' && "border-blue-500/30"
+                proposal.status === 'in_progress' && "border-blue-500/30 shadow-[0_0_30px_rgba(59,130,246,0.1)]"
               )}
             >
-              <div className="p-6 flex flex-col sm:flex-row sm:items-start justify-between gap-6">
-                <div className="space-y-2 flex-1 min-w-0">
-                  <div className="flex items-center gap-3">
-                    <div className={cn(
-                      "flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest",
-                      STATUS_CONFIG[proposal.status].bgColor,
-                      STATUS_CONFIG[proposal.status].color
-                    )}>
-                      {proposal.status === 'reported' && <Clock className="h-3 w-3" />}
-                      {proposal.status === 'in_progress' && <Clock className="h-3 w-3 animate-spin-slow" />}
-                      {proposal.status === 'completed' && <Check className="h-3 w-3" />}
-                      {proposal.status === 'archived' && <Archive className="h-3 w-3" />}
-                      {STATUS_CONFIG[proposal.status].label}
-                    </div>
-                    <span className="text-[10px] text-text-muted font-bold tracking-wider">
-                      {format(new Date(proposal.created_at), 'MMM d, yyyy')}
-                    </span>
+              <div className="flex flex-col h-full">
+                {/* 1. Header Row */}
+                <div className="px-6 pt-6 flex items-center justify-between">
+                  <div className={cn(
+                    "flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest",
+                    STATUS_CONFIG[proposal.status].bgColor,
+                    STATUS_CONFIG[proposal.status].color
+                  )}>
+                    {proposal.status === 'reported' && <Clock className="h-3 w-3" />}
+                    {proposal.status === 'in_progress' && <Clock className="h-3 w-3 animate-spin-slow" />}
+                    {proposal.status === 'completed' && <Check className="h-3 w-3" />}
+                    {proposal.status === 'archived' && <Archive className="h-3 w-3" />}
+                    {STATUS_CONFIG[proposal.status].label}
                   </div>
-                  
+                  <span className="text-[10px] text-text-muted font-bold tracking-wider">
+                    {format(new Date(proposal.created_at), 'MMM d, yyyy')}
+                  </span>
+                </div>
+
+                {/* 2. Content Body */}
+                <div className="px-6 py-4 space-y-2 flex-1">
                   <h3 className="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">
                     {proposal.title}
                   </h3>
@@ -262,52 +264,54 @@ export default function EvolutionPage() {
                   )}
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 self-end sm:self-center">
-                  {proposal.status === 'reported' && (
-                    <button
-                      onClick={() => handleUpdateStatus(proposal.id, 'in_progress')}
-                      className="flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-400 text-black font-bold rounded-2xl transition-all shadow-lg shadow-blue-500/20 group/btn active:scale-95"
-                    >
-                      <span>Start working</span>
-                      <ArrowRight className="h-5 w-5 group-hover/btn:translate-x-1 transition-transform" />
-                    </button>
-                  )}
-                  {proposal.status === 'in_progress' && (
-                    <button
-                      onClick={() => handleUpdateStatus(proposal.id, 'completed')}
-                      className="flex items-center gap-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-2xl transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
-                    >
-                      <Check className="h-5 w-5" />
-                      <span>Complete</span>
-                    </button>
-                  )}
-
-                  <div className="flex items-center gap-2">
-                    {proposal.status !== 'archived' && (
+                {/* 3. Actions Footer */}
+                <div className="px-6 py-4 border-t border-white/[0.04] bg-white/[0.01] flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-1">
+                    {proposal.status !== 'archived' ? (
                       <button
                         onClick={() => handleUpdateStatus(proposal.id, 'archived')}
-                        className="p-3 bg-white/5 hover:bg-white/10 text-text-muted hover:text-white rounded-xl transition-all"
+                        className="p-2.5 text-text-muted hover:text-white hover:bg-white/[0.05] rounded-xl transition-all"
                         title="Archive"
                       >
-                        <Archive className="h-5 w-5" />
+                        <Archive className="h-4 w-4" />
                       </button>
-                    )}
-                    {proposal.status === 'archived' && (
-                       <button
-                       onClick={() => handleUpdateStatus(proposal.id, 'reported')}
-                       className="p-3 bg-white/5 hover:bg-white/10 text-text-muted hover:text-white rounded-xl transition-all"
-                       title="Restore"
-                     >
-                       <Plus className="h-5 w-5 rotate-45" />
-                     </button>
+                    ) : (
+                      <button
+                        onClick={() => handleUpdateStatus(proposal.id, 'reported')}
+                        className="p-2.5 text-text-muted hover:text-white hover:bg-white/[0.05] rounded-xl transition-all"
+                        title="Restore"
+                      >
+                        <Plus className="h-4 w-4 rotate-45" />
+                      </button>
                     )}
                     <button
                       onClick={() => handleDelete(proposal.id)}
-                      className="p-3 bg-red-500/5 hover:bg-red-500/10 text-text-muted hover:text-red-400 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                      className="p-2.5 text-text-muted hover:text-red-400 hover:bg-red-500/5 rounded-xl transition-all opacity-0 group-hover:opacity-100"
                       title="Delete permanently"
                     >
-                      <Trash2 className="h-5 w-5" />
+                      <Trash2 className="h-4 w-4" />
                     </button>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {proposal.status === 'reported' && (
+                      <button
+                        onClick={() => handleUpdateStatus(proposal.id, 'in_progress')}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-400 text-black text-sm font-bold rounded-xl transition-all shadow-lg shadow-blue-500/20 active:scale-95 group/btn"
+                      >
+                        <span>Start working</span>
+                        <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+                      </button>
+                    )}
+                    {proposal.status === 'in_progress' && (
+                      <button
+                        onClick={() => handleUpdateStatus(proposal.id, 'completed')}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
+                      >
+                        <Check className="h-4 w-4" />
+                        <span>Complete</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
