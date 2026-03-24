@@ -2,12 +2,63 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Heart, Wallet, Brain, BarChart3, Activity, Shield, ArrowRight, Sparkles, Dumbbell, Moon } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
+const QUOTES = [
+  "Excellence is not a destination; it's a continuous journey.",
+  "Your only limit is the one you set for yourself.",
+  "Success is the sum of small efforts, repeated day in and day out.",
+  "The best way to predict the future is to create it.",
+  "Discipline is the bridge between goals and accomplishment.",
+  "Don't watch the clock; do what it does. Keep going.",
+  "The secret of getting ahead is getting started.",
+  "Strive for progress, not perfection.",
+  "Your life only gets better when you get better.",
+  "Action is the foundational key to all success.",
+  "The man who moves a mountain begins by carrying away small stones.",
+  "Don't be afraid to give up the good to go for the great.",
+  "Hardships often prepare ordinary people for an extraordinary destiny.",
+  "The only place where success comes before work is in the dictionary.",
+  "Focus on being productive instead of busy.",
+  "Your time is limited, so don't waste it living someone else's life.",
+  "The only way to do great work is to love what you do.",
+  "Energy and persistence conquer all things.",
+  "Everything you’ve ever wanted is on the other side of fear.",
+  "Be so good they can't ignore you.",
+]
+
 export default async function Home() {
   const supabase = await createClient()
   
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  if (user) {
+    const randomQuote = QUOTES[Math.floor(Math.random() * QUOTES.length)]
+    
+    return (
+      <div className="min-h-screen bg-[#0d0d12] flex flex-col items-center justify-center p-6 text-center">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-emerald-500/5 rounded-full blur-3xl -z-10" />
+        
+        <div className="max-w-2xl space-y-12 animate-in fade-in duration-1000 slide-in-from-bottom-4">
+          <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-white/90 italic tracking-tight leading-relaxed">
+            "{randomQuote}"
+          </p>
+          
+          <div className="pt-4">
+            <Link
+              href="/finance/dashboard"
+              className="group inline-flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-8 py-4 text-lg font-semibold text-black shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 hover:scale-105 transition-all"
+            >
+              Aim for Excellence
+              <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-[#0d0d12]">
@@ -35,31 +86,20 @@ export default async function Home() {
             Track your finances, monitor your health, and optimize your habits — all in one beautiful platform built for those who refuse to settle.
           </p>
           <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4 sm:px-0">
-            {user ? (
-              <Link
-                href="/finance/dashboard"
-                className="group flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-6 sm:px-8 py-3.5 sm:py-4 text-base sm:text-lg font-semibold text-black shadow-lg shadow-emerald-500/25 hover:bg-emerald-400 transition-all"
-              >
-                Aim for Excellence
-                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            ) : (
-              <>
-                <Link
-                  href="/auth/signup"
-                  className="group flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-6 sm:px-8 py-3.5 sm:py-4 text-base sm:text-lg font-semibold text-black shadow-lg shadow-emerald-500/25 hover:bg-emerald-400 transition-all"
-                >
-                  Get Started Free
-                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  href="/auth/login"
-                  className="rounded-full border border-white/[0.15] bg-white/[0.05] px-6 sm:px-8 py-3.5 sm:py-4 text-base sm:text-lg font-semibold text-white hover:bg-white/[0.1] transition-colors text-center"
-                >
-                  Sign In
-                </Link>
-              </>
-            )}
+            {/* Guest View CTAs */}
+            <Link
+              href="/auth/signup"
+              className="group flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-6 sm:px-8 py-3.5 sm:py-4 text-base sm:text-lg font-semibold text-black shadow-lg shadow-emerald-500/25 hover:bg-emerald-400 transition-all"
+            >
+              Get Started Free
+              <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link
+              href="/auth/login"
+              className="rounded-full border border-white/[0.15] bg-white/[0.05] px-6 sm:px-8 py-3.5 sm:py-4 text-base sm:text-lg font-semibold text-white hover:bg-white/[0.1] transition-colors text-center"
+            >
+              Sign In
+            </Link>
           </div>
         </div>
       </section>
@@ -175,23 +215,13 @@ export default async function Home() {
               Start your journey to excellence today. Free forever.
             </p>
             <div className="mt-6 sm:mt-8">
-              {user ? (
-                <Link
-                  href="/finance/dashboard"
-                  className="inline-flex items-center gap-2 rounded-full bg-white px-6 sm:px-8 py-3.5 sm:py-4 text-base sm:text-lg font-semibold text-emerald-600 shadow-lg hover:bg-gray-50 transition-colors"
-                >
-                  Aim for Excellence
-                  <ArrowRight className="h-5 w-5" />
-                </Link>
-              ) : (
-                <Link
-                  href="/auth/signup"
-                  className="inline-flex items-center gap-2 rounded-full bg-white px-6 sm:px-8 py-3.5 sm:py-4 text-base sm:text-lg font-semibold text-emerald-600 shadow-lg hover:bg-gray-50 transition-colors"
-                >
-                  Get Started Free
-                  <ArrowRight className="h-5 w-5" />
-                </Link>
-              )}
+              <Link
+                href="/auth/signup"
+                className="inline-flex items-center gap-2 rounded-full bg-white px-6 sm:px-8 py-3.5 sm:py-4 text-base sm:text-lg font-semibold text-emerald-600 shadow-lg hover:bg-gray-50 transition-colors"
+              >
+                Get Started Free
+                <ArrowRight className="h-5 w-5" />
+              </Link>
             </div>
           </div>
         </div>
