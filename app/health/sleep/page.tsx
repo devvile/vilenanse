@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import {
   Moon,
   Sun,
@@ -61,15 +61,23 @@ const useSleepData = (selectedDate: Date) => {
   const [prefs, setPrefs] = useState<SleepPreferences | null>(null)
   const [avg30, setAvg30] = useState<{ woke: string, start: string, bed: string } | null>(null)
   const [loading, setLoading] = useState(true)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   const fetchData = useCallback(async () => {
+    if (abortControllerRef.current) abortControllerRef.current.abort()
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+    
     setLoading(true)
     try {
+      const dateStr = format(selectedDate, 'yyyy-MM-dd')
       const [rec, preferences, last30] = await Promise.all([
-        getSleepRecord(format(selectedDate, 'yyyy-MM-dd')),
+        getSleepRecord(dateStr),
         getSleepPreferences(),
         getSleepRecordsLast30Days()
       ])
+
+      if (controller.signal.aborted) return
 
       setRecord(rec)
       setPrefs(preferences)
@@ -140,6 +148,7 @@ export default function SleepPage() {
   const [weekType, setWeekType] = useState<'this' | 'last' | 'picker'>('this')
   const [showWeekPicker, setShowWeekPicker] = useState(false)
   const [weekData, setWeekData] = useState<any[]>([])
+  const weekAbortControllerRef = useRef<AbortController | null>(null)
 
   const { record, prefs, avg30, loading, refresh } = useSleepData(selectedDate)
 
@@ -191,54 +200,71 @@ export default function SleepPage() {
   // --- Week View Logic ---
 
   const fetchWeekViewData = useCallback(async () => {
-    const end = endOfWeek(weekStart, { weekStartsOn: 1 })
-    const data = await getSleepRecordsForWeek(format(weekStart, 'yyyy-MM-dd'), format(end, 'yyyy-MM-dd'))
-    const preferences = await getSleepPreferences()
+    if (weekAbortControllerRef.current) weekAbortControllerRef.current.abort()
+    const controller = new AbortController()
+    weekAbortControllerRef.current = controller
 
-    const daysInWeek = eachDayOfInterval({ start: weekStart, end })
+    try {
+      const end = endOfWeek(weekStart, { weekStartsOn: 1 })
+      const startDateStr = format(weekStart, 'yyyy-MM-dd')
+      const endDateStr = format(end, 'yyyy-MM-dd')
+      
+      const [data, preferences] = await Promise.all([
+        getSleepRecordsForWeek(startDateStr, endDateStr),
+        getSleepPreferences()
+      ])
 
-    const chartData = daysInWeek.map(day => {
-      const dateStr = format(day, 'yyyy-MM-dd')
-      const rec = data.find(r => r.logical_date === dateStr)
+      if (controller.signal.aborted) return
 
-      const toMinutes = (iso: string | null | undefined, isBed = false) => {
-        if (!iso) return null
-        const d = new Date(iso)
-        let mins = d.getHours() * 60 + d.getMinutes()
-        if (isBed && d.getHours() < 12) mins += 24 * 60
-        return mins
-      }
+      const endDay = endOfWeek(weekStart, { weekStartsOn: 1 })
+      const daysInWeek = eachDayOfInterval({ start: weekStart, end: endDay })
 
-      const prefToMinutes = (timeStr: string, isBed = false) => {
-        const [h, m] = timeStr.split(':').map(Number)
-        let mins = h * 60 + m
-        if (isBed && h < 12) mins += 24 * 60
-        return mins
-      }
+      const chartData = daysInWeek.map(day => {
+        const dateStr = format(day, 'yyyy-MM-dd')
+        const rec = data.find(r => r.logical_date === dateStr)
 
-      const checkDeviation = (mins: number | null, prefTime: string, isBed = false) => {
-        if (mins === null) return false
-        const prefMins = prefToMinutes(prefTime, isBed)
-        return Math.abs(mins - prefMins) > 60
-      }
+        const toMinutes = (iso: string | null | undefined, isBed = false) => {
+          if (!iso) return null
+          const d = new Date(iso)
+          let mins = d.getHours() * 60 + d.getMinutes()
+          if (isBed && d.getHours() < 12) mins += 24 * 60
+          return mins
+        }
 
-      return {
-        name: format(day, 'EEE'),
-        woke: toMinutes(rec?.woke_up_at),
-        wokeLabel: rec?.woke_up_at ? format(new Date(rec.woke_up_at), 'HH:mm') : null,
-        wokeDeviates: checkDeviation(toMinutes(rec?.woke_up_at), preferences.desired_woke_up_at),
+        const prefToMinutes = (timeStr: string, isBed = false) => {
+          const [h, m] = timeStr.split(':').map(Number)
+          let mins = h * 60 + m
+          if (isBed && h < 12) mins += 24 * 60
+          return mins
+        }
 
-        start: toMinutes(rec?.started_day_at),
-        startLabel: rec?.started_day_at ? format(new Date(rec.started_day_at), 'HH:mm') : null,
-        startDeviates: checkDeviation(toMinutes(rec?.started_day_at), preferences.desired_started_day_at),
+        const checkDeviation = (mins: number | null, prefTime: string, isBed = false) => {
+          if (mins === null) return false
+          const prefMins = prefToMinutes(prefTime, isBed)
+          return Math.abs(mins - prefMins) > 60
+        }
 
-        bed: toMinutes(rec?.went_to_bed_at, true),
-        bedLabel: rec?.went_to_bed_at ? format(new Date(rec.went_to_bed_at), 'HH:mm') : null,
-        bedDeviates: checkDeviation(toMinutes(rec?.went_to_bed_at, true), preferences.desired_went_to_bed_at, true)
-      }
-    })
+        return {
+          name: format(day, 'EEE'),
+          woke: toMinutes(rec?.woke_up_at),
+          wokeLabel: rec?.woke_up_at ? format(new Date(rec.woke_up_at), 'HH:mm') : null,
+          wokeDeviates: checkDeviation(toMinutes(rec?.woke_up_at), preferences.desired_woke_up_at),
 
-    setWeekData(chartData)
+          start: toMinutes(rec?.started_day_at),
+          startLabel: rec?.started_day_at ? format(new Date(rec.started_day_at), 'HH:mm') : null,
+          startDeviates: checkDeviation(toMinutes(rec?.started_day_at), preferences.desired_started_day_at),
+
+          bed: toMinutes(rec?.went_to_bed_at, true),
+          bedLabel: rec?.went_to_bed_at ? format(new Date(rec.went_to_bed_at), 'HH:mm') : null,
+          bedDeviates: checkDeviation(toMinutes(rec?.went_to_bed_at, true), preferences.desired_went_to_bed_at, true)
+        }
+      })
+
+      setWeekData(chartData)
+    } catch (error: any) {
+      if (error.name === 'AbortError') return
+      console.error('Failed to fetch week view data', error)
+    }
   }, [weekStart])
 
   useEffect(() => {

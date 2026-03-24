@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   Plus,
   ChevronLeft,
@@ -113,6 +113,11 @@ export default function CaloriesPage() {
   const [weekTrainings, setWeekTrainings] = useState<Training[]>([])
   const [showWeekPicker, setShowWeekPicker] = useState(false)
 
+  // Abort Controllers for fetchers
+  const dayAbortControllerRef = useRef<AbortController | null>(null)
+  const weekAbortControllerRef = useRef<AbortController | null>(null)
+  const monthAbortControllerRef = useRef<AbortController | null>(null)
+
   // Month View State
   const [monthDate, setMonthDate] = useState(new Date())
   const [monthMeals, setMonthMeals] = useState<Meal[]>([])
@@ -121,20 +126,32 @@ export default function CaloriesPage() {
   // --- Data Fetching ---
 
   const fetchDayData = useCallback(async (date: Date) => {
+    if (dayAbortControllerRef.current) dayAbortControllerRef.current.abort()
+    const controller = new AbortController()
+    dayAbortControllerRef.current = controller
+
     try {
       const dateStr = format(date, 'yyyy-MM-dd')
       const [mealData, trainingData] = await Promise.all([
         getMealsForDay(dateStr),
         getTrainings(dateStr, dateStr)
       ])
+      
+      if (controller.signal.aborted) return
+      
       setMeals(mealData as any)
       setDayTrainings(trainingData)
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === 'AbortError') return
       console.error('Failed to fetch day data', error)
     }
   }, [])
 
   const fetchWeekData = useCallback(async (start: Date) => {
+    if (weekAbortControllerRef.current) weekAbortControllerRef.current.abort()
+    const controller = new AbortController()
+    weekAbortControllerRef.current = controller
+
     try {
       const end = endOfWeek(start, { weekStartsOn: 1 })
       const startDateStr = format(start, 'yyyy-MM-dd')
@@ -145,14 +162,21 @@ export default function CaloriesPage() {
         getTrainings(startDateStr, endDateStr)
       ])
 
+      if (controller.signal.aborted) return
+
       setWeekMeals(mealData as any)
       setWeekTrainings(trainingData)
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === 'AbortError') return
       console.error('Failed to fetch week data', error)
     }
   }, [])
 
   const fetchMonthData = useCallback(async (date: Date) => {
+    if (monthAbortControllerRef.current) monthAbortControllerRef.current.abort()
+    const controller = new AbortController()
+    monthAbortControllerRef.current = controller
+
     try {
       const monthStart = startOfMonth(date)
       const monthEnd = endOfMonth(date)
@@ -166,9 +190,12 @@ export default function CaloriesPage() {
         getTrainings(rangeStartStr, rangeEndStr)
       ])
 
+      if (controller.signal.aborted) return
+
       setMonthMeals(mealData as any)
       setMonthTrainings(trainingData)
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === 'AbortError') return
       console.error('Failed to fetch month data', error)
     }
   }, [])

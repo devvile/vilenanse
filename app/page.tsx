@@ -38,11 +38,20 @@ export default async function Home() {
     const randomQuote = QUOTES[Math.floor(Math.random() * QUOTES.length)]
     
     return (
-      <div className="min-h-screen bg-[#0d0d12] flex flex-col items-center justify-center p-6 text-center">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-emerald-500/5 rounded-full blur-3xl -z-10" />
+      <div className="relative min-h-screen flex flex-col items-center justify-center p-6 text-center overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/backgrounds/moody_mountain.png" 
+            alt="Background" 
+            className="w-full h-full object-cover"
+          />
+          {/* Dark Overlay for readability */}
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+        </div>
         
-        <div className="max-w-2xl space-y-12 animate-in fade-in duration-1000 slide-in-from-bottom-4">
-          <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-white/90 italic tracking-tight leading-relaxed">
+        <div className="relative z-10 max-w-2xl space-y-12 animate-in fade-in duration-1000 slide-in-from-bottom-4">
+          <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-white italic tracking-tight leading-relaxed drop-shadow-sm">
             "{randomQuote}"
           </p>
           
