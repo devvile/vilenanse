@@ -60,7 +60,10 @@ export function SubcategoryChart({
         </div>
       )}
 
-      <div className="flex-1 min-h-[300px] flex items-center justify-center">
+      <div 
+        className="flex-1 flex items-center justify-center p-2"
+        style={{ height: data.length > 0 ? `${Math.max(300, data.length * 45)}px` : '300px' }}
+      >
         {(!data || data.length === 0) && !loading ? (
           <div className="text-text-muted text-sm">
             {categoryName ? 'No subcategory data available' : 'Click on the chart to analyze specifics'}

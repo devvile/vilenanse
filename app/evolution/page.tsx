@@ -262,50 +262,53 @@ export default function EvolutionPage() {
                   )}
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 self-end sm:self-center">
                   {proposal.status === 'reported' && (
                     <button
                       onClick={() => handleUpdateStatus(proposal.id, 'in_progress')}
-                      className="p-3 bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white rounded-xl transition-all shadow-lg hover:shadow-blue-500/20 group/btn"
-                      title="Start Working"
+                      className="flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-400 text-black font-bold rounded-2xl transition-all shadow-lg shadow-blue-500/20 group/btn active:scale-95"
                     >
+                      <span>Start working</span>
                       <ArrowRight className="h-5 w-5 group-hover/btn:translate-x-1 transition-transform" />
                     </button>
                   )}
                   {proposal.status === 'in_progress' && (
                     <button
-                      onClick={() => handleUpdateStatus(proposal.id, 'completed',)}
-                      className="p-3 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white rounded-xl transition-all shadow-lg hover:shadow-emerald-500/20"
-                      title="Mark Completed"
+                      onClick={() => handleUpdateStatus(proposal.id, 'completed')}
+                      className="flex items-center gap-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-2xl transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
                     >
                       <Check className="h-5 w-5" />
+                      <span>Complete</span>
                     </button>
                   )}
-                  {proposal.status !== 'archived' && (
+
+                  <div className="flex items-center gap-2">
+                    {proposal.status !== 'archived' && (
+                      <button
+                        onClick={() => handleUpdateStatus(proposal.id, 'archived')}
+                        className="p-3 bg-white/5 hover:bg-white/10 text-text-muted hover:text-white rounded-xl transition-all"
+                        title="Archive"
+                      >
+                        <Archive className="h-5 w-5" />
+                      </button>
+                    )}
+                    {proposal.status === 'archived' && (
+                       <button
+                       onClick={() => handleUpdateStatus(proposal.id, 'reported')}
+                       className="p-3 bg-white/5 hover:bg-white/10 text-text-muted hover:text-white rounded-xl transition-all"
+                       title="Restore"
+                     >
+                       <Plus className="h-5 w-5 rotate-45" />
+                     </button>
+                    )}
                     <button
-                      onClick={() => handleUpdateStatus(proposal.id, 'archived')}
-                      className="p-3 bg-white/5 hover:bg-white/10 text-text-muted hover:text-white rounded-xl transition-all"
-                      title="Archive"
+                      onClick={() => handleDelete(proposal.id)}
+                      className="p-3 bg-red-500/5 hover:bg-red-500/10 text-text-muted hover:text-red-400 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                      title="Delete permanently"
                     >
-                      <Archive className="h-5 w-5" />
+                      <Trash2 className="h-5 w-5" />
                     </button>
-                  )}
-                  {proposal.status === 'archived' && (
-                     <button
-                     onClick={() => handleUpdateStatus(proposal.id, 'reported')}
-                     className="p-3 bg-white/5 hover:bg-white/10 text-text-muted hover:text-white rounded-xl transition-all"
-                     title="Restore"
-                   >
-                     <Plus className="h-5 w-5 rotate-45" />
-                   </button>
-                  )}
-                  <button
-                    onClick={() => handleDelete(proposal.id)}
-                    className="p-3 bg-red-500/5 hover:bg-red-500/10 text-text-muted hover:text-red-400 rounded-xl transition-all opacity-0 group-hover:opacity-100"
-                    title="Delete permanently"
-                  >
-                    <Trash2 className="h-5 w-5" />
-                  </button>
+                  </div>
                 </div>
               </div>
             </Card>
