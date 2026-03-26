@@ -15,14 +15,9 @@ import {
 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import {
-  getProposals,
-  addProposal,
-  updateProposal,
-  deleteProposal,
-  Proposal
-} from '@/lib/evolution'
+import { getProposals, addProposal, updateProposal, deleteProposal, Proposal } from '@/lib/evolution'
 import { format } from 'date-fns'
+import { createClient } from '@/lib/supabase/client'
 
 const STATUS_CONFIG = {
   reported: {
@@ -54,6 +49,7 @@ const STATUS_CONFIG = {
 export default function EvolutionPage() {
   const [proposals, setProposals] = useState<Proposal[]>([])
   const [loading, setLoading] = useState(true)
+  const [currentUser, setCurrentUser] = useState<any>(null)
   const [activeFilter, setActiveFilter] = useState<'active' | 'completed' | 'archived'>('active')
   
   // Form state
@@ -75,6 +71,12 @@ export default function EvolutionPage() {
   }, [])
 
   useEffect(() => {
+    const getUser = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      setCurrentUser(user)
+    }
+    getUser()
     fetchData()
   }, [fetchData])
 
@@ -239,16 +241,23 @@ export default function EvolutionPage() {
               <div className="flex flex-col h-full">
                 {/* 1. Header Row */}
                 <div className="px-6 pt-6 flex items-center justify-between">
-                  <div className={cn(
-                    "flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest",
-                    STATUS_CONFIG[proposal.status].bgColor,
-                    STATUS_CONFIG[proposal.status].color
-                  )}>
-                    {proposal.status === 'reported' && <Clock className="h-3 w-3" />}
-                    {proposal.status === 'in_progress' && <Clock className="h-3 w-3 animate-spin-slow" />}
-                    {proposal.status === 'completed' && <Check className="h-3 w-3" />}
-                    {proposal.status === 'archived' && <Archive className="h-3 w-3" />}
-                    {STATUS_CONFIG[proposal.status].label}
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest",
+                      STATUS_CONFIG[proposal.status].bgColor,
+                      STATUS_CONFIG[proposal.status].color
+                    )}>
+                      {proposal.status === 'reported' && <Clock className="h-3 w-3" />}
+                      {proposal.status === 'in_progress' && <Clock className="h-3 w-3 animate-spin-slow" />}
+                      {proposal.status === 'completed' && <Check className="h-3 w-3" />}
+                      {proposal.status === 'archived' && <Archive className="h-3 w-3" />}
+                      {STATUS_CONFIG[proposal.status].label}
+                    </div>
+                    {currentUser?.id === proposal.user_id && (
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-bold">
+                        Your Submission
+                      </span>
+                    )}
                   </div>
                   <span className="text-[10px] text-text-muted font-bold tracking-wider">
                     {format(new Date(proposal.created_at), 'MMM d, yyyy')}
@@ -270,50 +279,58 @@ export default function EvolutionPage() {
                 {/* 3. Actions Footer */}
                 <div className="px-6 py-4 border-t border-white/[0.04] bg-white/[0.01] flex items-center justify-between gap-4">
                   <div className="flex items-center gap-1">
-                    {proposal.status !== 'archived' ? (
-                      <button
-                        onClick={() => handleUpdateStatus(proposal.id, 'archived')}
-                        className="p-2.5 text-text-muted hover:text-white hover:bg-white/[0.05] rounded-xl transition-all"
-                        title="Archive"
-                      >
-                        <Archive className="h-4 w-4" />
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleUpdateStatus(proposal.id, 'reported')}
-                        className="p-2.5 text-text-muted hover:text-white hover:bg-white/[0.05] rounded-xl transition-all"
-                        title="Restore"
-                      >
-                        <Plus className="h-4 w-4 rotate-45" />
-                      </button>
+                    {currentUser?.id === proposal.user_id && (
+                      <>
+                        {proposal.status !== 'archived' ? (
+                          <button
+                            onClick={() => handleUpdateStatus(proposal.id, 'archived')}
+                            className="p-2.5 text-text-muted hover:text-white hover:bg-white/[0.05] rounded-xl transition-all"
+                            title="Archive"
+                          >
+                            <Archive className="h-4 w-4" />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleUpdateStatus(proposal.id, 'reported')}
+                            className="p-2.5 text-text-muted hover:text-white hover:bg-white/[0.05] rounded-xl transition-all"
+                            title="Restore"
+                          >
+                            <Plus className="h-4 w-4 rotate-45" />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDelete(proposal.id)}
+                          className="p-2.5 text-text-muted hover:text-red-400 hover:bg-red-500/5 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                          title="Delete permanently"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </>
                     )}
-                    <button
-                      onClick={() => handleDelete(proposal.id)}
-                      className="p-2.5 text-text-muted hover:text-red-400 hover:bg-red-500/5 rounded-xl transition-all opacity-0 group-hover:opacity-100"
-                      title="Delete permanently"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {proposal.status === 'reported' && (
-                      <button
-                        onClick={() => handleUpdateStatus(proposal.id, 'in_progress')}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-400 text-black text-sm font-bold rounded-xl transition-all shadow-lg shadow-blue-500/20 active:scale-95 group/btn"
-                      >
-                        <span>Start working</span>
-                        <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
-                      </button>
-                    )}
-                    {proposal.status === 'in_progress' && (
-                      <button
-                        onClick={() => handleUpdateStatus(proposal.id, 'completed')}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
-                      >
-                        <Check className="h-4 w-4" />
-                        <span>Complete</span>
-                      </button>
+                    {currentUser?.id === proposal.user_id && (
+                      <>
+                        {proposal.status === 'reported' && (
+                          <button
+                            onClick={() => handleUpdateStatus(proposal.id, 'in_progress')}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-400 text-black text-sm font-bold rounded-xl transition-all shadow-lg shadow-blue-500/20 active:scale-95 group/btn"
+                          >
+                            <span>Start working</span>
+                            <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+                          </button>
+                        )}
+                        {proposal.status === 'in_progress' && (
+                          <button
+                            onClick={() => handleUpdateStatus(proposal.id, 'completed')}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
+                          >
+                            <Check className="h-4 w-4" />
+                            <span>Complete</span>
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

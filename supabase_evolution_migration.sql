@@ -17,9 +17,9 @@ CREATE POLICY "Users can create their own proposals"
     ON public.proposals FOR INSERT 
     WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can view their own proposals" 
+CREATE POLICY "Users can view all proposals" 
     ON public.proposals FOR SELECT 
-    USING (auth.uid() = user_id);
+    USING (auth.role() = 'authenticated');
 
 CREATE POLICY "Users can update their own proposals" 
     ON public.proposals FOR UPDATE 

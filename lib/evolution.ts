@@ -21,7 +21,6 @@ export async function getProposals() {
   const { data, error } = await supabase
     .from('proposals')
     .select('*')
-    .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
   if (error) {
