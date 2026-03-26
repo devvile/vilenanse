@@ -6,38 +6,12 @@ export function playSuccessSound() {
   if (typeof window === 'undefined') return;
 
   try {
-    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContextClass) return;
-
-    const context = new AudioContextClass();
-    
-    // Create a smooth "ding" sound
-    const oscillator = context.createOscillator();
-    const gainNode = context.createGain();
-
-    // Soft sine wave
-    oscillator.type = 'sine';
-    
-    // Start at 660Hz (E5) and slide up slightly for a positive feel
-    oscillator.frequency.setValueAtTime(660, context.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(880, context.currentTime + 0.05);
-
-    // Fade out quickly for a "pop" effect
-    gainNode.gain.setValueAtTime(0.2, context.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.3);
-
-    oscillator.connect(gainNode);
-    gainNode.connect(context.destination);
-
-    oscillator.start();
-    oscillator.stop(context.currentTime + 0.3);
-
-    // Clean up context after sound finishes to free resources
-    setTimeout(() => {
-      context.close();
-    }, 400);
+    const audio = new Audio('/habbit-sound.mp3');
+    audio.play().catch(error => {
+      console.warn('Audio playback failed', error);
+    });
   } catch (error) {
-    console.warn('Audio playback failed', error);
+    console.warn('Audio playback initialization failed', error);
   }
 }
 
