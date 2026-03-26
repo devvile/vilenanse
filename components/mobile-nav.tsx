@@ -194,9 +194,9 @@ export function MobileNav() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="rounded-lg p-2 text-text-secondary hover:bg-card-hover hover:text-text-primary transition-colors lg:hidden"
+        className="rounded-xl p-3 text-text-secondary hover:bg-white/10 hover:text-white transition-all active:scale-95 lg:hidden"
       >
-        <Menu className="h-5 w-5" />
+        <Menu className="h-8 w-8" />
       </button>
 
       {/* Portal: render drawer at document.body root so it's outside any stacking context */}
