@@ -2,9 +2,8 @@
 
 import { cn } from '@/lib/utils'
 import { Flame, Check, Trophy } from 'lucide-react'
-import { Habit, HabitCompletion, toggleHabitCompletion, getHabitStreaks } from '@/lib/habits'
-import { useEffect, useState, useCallback } from 'react'
 import { isSameDay, format, isAfter, startOfDay } from 'date-fns'
+import { playSuccessSound } from '@/lib/utils/audio'
 
 interface HabitDailyListProps {
     habits: Habit[]
@@ -47,11 +46,18 @@ export function HabitDailyList({ habits, completions, selectedDate, onRefresh }:
 
         // Optimistic update
         const isCurrentlyDone = optimisticCompletions.includes(habitId)
-        setOptimisticCompletions(prev =>
-            isCurrentlyDone
+        setOptimisticCompletions(prev => {
+            const next = isCurrentlyDone
                 ? prev.filter(id => id !== habitId)
                 : [...prev, habitId]
-        )
+            
+            // Play sound if we just marked it as done
+            if (!isCurrentlyDone) {
+                playSuccessSound()
+            }
+            
+            return next
+        })
 
         try {
             await toggleHabitCompletion(habitId, dateStr)
