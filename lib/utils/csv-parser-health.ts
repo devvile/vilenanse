@@ -6,6 +6,8 @@ export interface ParsedMeal {
     eaten_at: string
     is_munchies: boolean
     caused_hurt: boolean
+    is_period: boolean
+    is_pms: boolean
 }
 
 export interface MealCSVParseResult {
@@ -32,6 +34,8 @@ export async function parseMealCSV(file: File): Promise<MealCSVParseResult> {
                         const eaten_at = row.eaten_at?.trim()
                         const is_munchies = row.is_munchies?.toLowerCase() === 'true'
                         const caused_hurt = row.caused_hurt?.toLowerCase() === 'true'
+                        const is_period = row.is_period?.toLowerCase() === 'true'
+                        const is_pms = row.is_pms?.toLowerCase() === 'true'
 
                         if (!name || isNaN(calories) || !eaten_at) {
                             skipped++
@@ -49,7 +53,9 @@ export async function parseMealCSV(file: File): Promise<MealCSVParseResult> {
                             calories,
                             eaten_at,
                             is_munchies,
-                            caused_hurt
+                            caused_hurt,
+                            is_period,
+                            is_pms
                         })
                     } catch (e) {
                         skipped++

@@ -160,6 +160,8 @@ export function MealCSVUpload() {
                                                     <div className="flex gap-1">
                                                         {meal.is_munchies && <span className="px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[8px] font-black uppercase">Munchies</span>}
                                                         {meal.caused_hurt && <span className="px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 text-[8px] font-black uppercase">Hurt</span>}
+                                                        {meal.is_period && <span className="px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 text-[8px] font-black uppercase">Period</span>}
+                                                        {meal.is_pms && <span className="px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 text-[8px] font-black uppercase">PMS</span>}
                                                     </div>
                                                 </td>
                                             </tr>
@@ -193,7 +195,7 @@ export function MealCSVUpload() {
                     CSV Format Requirements
                 </h3>
                 <code className="block p-4 rounded-xl bg-black text-[10px] text-emerald-500/80 font-mono mb-4">
-                    name,calories,eaten_at,is_munchies,caused_hurt
+                    name,calories,eaten_at,is_munchies,caused_hurt,is_period,is_pms
                 </code>
                 <ul className="text-xs text-gray-500 space-y-2 list-disc ml-4 font-medium">
                     <li><span className="text-gray-300 font-bold">name:</span> Name of the meal</li>
@@ -201,6 +203,8 @@ export function MealCSVUpload() {
                     <li><span className="text-gray-300 font-bold">eaten_at:</span> Date in YYYY-MM-DD format</li>
                     <li><span className="text-gray-300 font-bold">is_munchies:</span> TRUE or FALSE</li>
                     <li><span className="text-gray-300 font-bold">caused_hurt:</span> TRUE or FALSE</li>
+                    <li><span className="text-gray-300 font-bold">is_period:</span> TRUE or FALSE</li>
+                    <li><span className="text-gray-300 font-bold">is_pms:</span> TRUE or FALSE</li>
                 </ul>
             </Card>
         </div>
