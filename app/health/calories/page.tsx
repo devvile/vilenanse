@@ -66,6 +66,8 @@ interface Meal {
   eaten_at: string
   caused_hurt: boolean
   is_munchies: boolean
+  is_period: boolean
+  is_pms: boolean
   created_at: string
 }
 
@@ -97,6 +99,8 @@ export default function CaloriesPage() {
   const [mealCalories, setMealCalories] = useState('')
   const [causedHurt, setCausedHurt] = useState(false)
   const [isMunchies, setIsMunchies] = useState(false)
+  const [isPeriod, setIsPeriod] = useState(false)
+  const [isPMS, setIsPMS] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Edit Drawer State
@@ -316,6 +320,8 @@ export default function CaloriesPage() {
       eaten_at: format(selectedDate, 'yyyy-MM-dd'),
       caused_hurt: causedHurt,
       is_munchies: isMunchies,
+      is_period: isPeriod,
+      is_pms: isPMS,
     }
 
     try {
@@ -325,6 +331,8 @@ export default function CaloriesPage() {
       setMealCalories('')
       setCausedHurt(false)
       setIsMunchies(false)
+      setIsPeriod(false)
+      setIsPMS(false)
       // Refresh all data to sync
       await Promise.all([
         fetchDayData(selectedDate),
@@ -363,6 +371,8 @@ export default function CaloriesPage() {
         calories: editingMeal.calories,
         caused_hurt: editingMeal.caused_hurt,
         is_munchies: editingMeal.is_munchies,
+        is_period: editingMeal.is_period,
+        is_pms: editingMeal.is_pms,
       })
       setIsDrawerOpen(false)
       setEditingMeal(null)
@@ -413,7 +423,9 @@ export default function CaloriesPage() {
       rawEaten: eatenTotal > 0 && burntTotal > 0 ? eatenTotal : null, // Only show if we HAVE both
       munchies: dayMeals.filter(m => m.is_munchies).reduce((sum, m) => sum + m.calories, 0),
       hasTraining: burntTotal > 0,
-      burnt: burntTotal
+      burnt: burntTotal,
+      isPeriod: dayMeals.some(m => m.is_period),
+      isPMS: dayMeals.some(m => m.is_pms)
     }
   })
 
@@ -634,6 +646,26 @@ export default function CaloriesPage() {
                   <Zap className="h-3.5 w-3.5" />
                   Munchies
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setIsPeriod(!isPeriod)}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all",
+                    isPeriod ? "bg-red-500/10 border-red-500/30 text-red-400" : "bg-white/[0.05] border-transparent text-text-secondary hover:bg-white/[0.08]"
+                  )}
+                >
+                  Period
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsPMS(!isPMS)}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all",
+                    isPMS ? "bg-rose-500/10 border-rose-500/30 text-rose-400" : "bg-white/[0.05] border-transparent text-text-secondary hover:bg-white/[0.08]"
+                  )}
+                >
+                  PMS
+                </button>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full flex-1">
                 {/* <Link
@@ -802,8 +834,19 @@ export default function CaloriesPage() {
                   dataKey="name"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: '#9ca3af', fontSize: 12 }}
-                  dy={10}
+                  tick={(props: any) => {
+                    const { x, y, payload } = props;
+                    const dayData = weekChartData.find(d => d.name === payload.value);
+                    let fill = '#9ca3af';
+                    if (dayData?.isPeriod) fill = '#ef4444';
+                    else if (dayData?.isPMS) fill = '#fb7185';
+                    
+                    return (
+                      <text x={x} y={y} dy={16} textAnchor="middle" fill={fill} fontSize={12} fontWeight={dayData?.isPeriod || dayData?.isPMS ? 'black' : 'bold'}>
+                        {payload.value}
+                      </text>
+                    );
+                  }}
                 />
                 <YAxis
                   hide={true}
@@ -1042,6 +1085,40 @@ export default function CaloriesPage() {
                           <span className="font-semibold">Munchies</span>
                         </div>
                         {editingMeal?.is_munchies && <Check className="h-5 w-5" />}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setEditingMeal(prev => prev ? { ...prev, is_period: !prev.is_period } : null)}
+                        className={cn(
+                          "w-full flex items-center justify-between px-4 py-4 rounded-2xl border transition-all",
+                          editingMeal?.is_period ? "bg-red-500/10 border-red-500/30 text-red-400" : "bg-white/[0.02] border-white/[0.08] text-text-secondary hover:bg-white/[0.04]"
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-5 h-5 rounded-full bg-red-500/20 flex items-center justify-center">
+                            <div className="w-2 h-2 rounded-full bg-red-500" />
+                          </div>
+                          <span className="font-semibold">Period</span>
+                        </div>
+                        {editingMeal?.is_period && <Check className="h-5 w-5" />}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setEditingMeal(prev => prev ? { ...prev, is_pms: !prev.is_pms } : null)}
+                        className={cn(
+                          "w-full flex items-center justify-between px-4 py-4 rounded-2xl border transition-all",
+                          editingMeal?.is_pms ? "bg-rose-500/10 border-rose-500/30 text-rose-400" : "bg-white/[0.02] border-white/[0.08] text-text-secondary hover:bg-white/[0.04]"
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-5 h-5 rounded-full bg-rose-500/20 flex items-center justify-center">
+                            <div className="w-2 h-2 rounded-full bg-rose-500" />
+                          </div>
+                          <span className="font-semibold">PMS</span>
+                        </div>
+                        {editingMeal?.is_pms && <Check className="h-5 w-5" />}
                       </button>
                     </div>
                   </div>

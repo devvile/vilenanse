@@ -48,6 +48,8 @@ export async function addMeal(meal: {
   eaten_at: string
   caused_hurt: boolean
   is_munchies: boolean
+  is_period: boolean
+  is_pms: boolean
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -70,6 +72,8 @@ export async function bulkAddMeals(meals: {
   eaten_at: string
   caused_hurt: boolean
   is_munchies: boolean
+  is_period: boolean
+  is_pms: boolean
 }[]) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -96,6 +100,8 @@ export async function updateMeal(mealId: string, updates: {
   eaten_at?: string
   caused_hurt?: boolean
   is_munchies?: boolean
+  is_period?: boolean
+  is_pms?: boolean
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

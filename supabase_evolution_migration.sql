@@ -13,18 +13,23 @@ CREATE TABLE IF NOT EXISTS public.proposals (
 ALTER TABLE public.proposals ENABLE ROW LEVEL SECURITY;
 
 -- Add RLS policies
+DROP POLICY IF EXISTS "Users can create their own proposals" ON public.proposals;
 CREATE POLICY "Users can create their own proposals" 
     ON public.proposals FOR INSERT 
     WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can view their own proposals" ON public.proposals;
+DROP POLICY IF EXISTS "Users can view all proposals" ON public.proposals;
 CREATE POLICY "Users can view all proposals" 
     ON public.proposals FOR SELECT 
     USING (auth.role() = 'authenticated');
 
+DROP POLICY IF EXISTS "Users can update their own proposals" ON public.proposals;
 CREATE POLICY "Users can update their own proposals" 
     ON public.proposals FOR UPDATE 
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete their own proposals" ON public.proposals;
 CREATE POLICY "Users can delete their own proposals" 
     ON public.proposals FOR DELETE 
     USING (auth.uid() = user_id);
@@ -38,6 +43,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS set_proposals_updated_at ON public.proposals;
 CREATE TRIGGER set_proposals_updated_at
     BEFORE UPDATE ON public.proposals
     FOR EACH ROW
