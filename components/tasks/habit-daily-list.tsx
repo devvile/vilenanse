@@ -2,6 +2,8 @@
 
 import { cn } from '@/lib/utils'
 import { Flame, Check, Trophy } from 'lucide-react'
+import { Habit, HabitCompletion, toggleHabitCompletion, getHabitStreaks } from '@/lib/habits'
+import { useEffect, useState, useCallback } from 'react'
 import { isSameDay, format, isAfter, startOfDay } from 'date-fns'
 import { playSuccessSound } from '@/lib/utils/audio'
 
