@@ -44,7 +44,7 @@ export function HabitDailyList({ habits, completions, selectedDate, onRefresh }:
     }, [fetchStreaks])
 
     const handleToggle = async (habitId: string) => {
-        if (!isSelectedToday) return
+        if (isAfter(startOfDay(selectedDate), today)) return
 
         // Optimistic update
         const isCurrentlyDone = optimisticCompletions.includes(habitId)
@@ -88,13 +88,13 @@ export function HabitDailyList({ habits, completions, selectedDate, onRefresh }:
                     <button
                         key={habit.id}
                         onClick={() => handleToggle(habit.id)}
-                        disabled={!isSelectedToday}
+                        disabled={isAfter(startOfDay(selectedDate), today)}
                         className={cn(
                             "w-full flex items-center justify-between p-4 rounded-[2.5rem] transition-all border outline-none group",
                             isDone
                                 ? "border-transparent shadow-lg"
                                 : "bg-white/[0.03] border-white/[0.05] hover:bg-white/[0.06] active:scale-[0.98]",
-                            !isSelectedToday && "cursor-default opacity-80"
+                            isAfter(startOfDay(selectedDate), today) && "cursor-default opacity-80"
                         )}
                         style={{
                             backgroundColor: isDone ? habit.color : undefined,

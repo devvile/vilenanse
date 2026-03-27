@@ -8,7 +8,7 @@ import { HabitManager } from '@/components/tasks/habit-manager'
 import { HabitDailyList } from '@/components/tasks/habit-daily-list'
 import { HabitHorizontalPicker } from '@/components/tasks/habit-horizontal-picker'
 import { HabitDetailsView } from '@/components/tasks/habit-details-view'
-import { format, startOfWeek, endOfWeek, startOfDay } from 'date-fns'
+import { format, startOfWeek, endOfWeek, startOfDay, isSameDay } from 'date-fns'
 
 export default function HabitsPage() {
     const [habits, setHabits] = useState<Habit[]>([])
@@ -17,6 +17,8 @@ export default function HabitsPage() {
     const [showManager, setShowManager] = useState(false)
     const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
     const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()))
+
+    const isSelectedToday = isSameDay(selectedDate, startOfDay(new Date()))
 
     const fetchData = useCallback(async () => {
         try {
@@ -75,7 +77,7 @@ export default function HabitsPage() {
                         {format(selectedDate, 'eeee')}
                     </h2>
                     <h1 className="text-4xl font-black text-white tracking-tighter mt-1">
-                        Today
+                        {isSelectedToday ? "Today" : format(selectedDate, 'MMMM do')}
                     </h1>
                 </div>
 

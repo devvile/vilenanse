@@ -46,10 +46,10 @@ export function HabitWeeklyGrid({ habits, completions, onRefresh }: HabitWeeklyG
     }, [habits, completions])
 
     useEffect(() => {
-        const todayStr = format(today, 'yyyy-MM-dd')
-        const current = completions
-            .filter(c => c.completed_at === todayStr)
-            .reduce((acc, c) => ({ ...acc, [c.habit_id]: true }), {})
+        const current = completions.reduce((acc, c) => ({
+            ...acc,
+            [`${c.habit_id}-${c.completed_at}`]: true
+        }), {})
         setOptimisticCompletions(current)
     }, [completions])
 
@@ -66,33 +66,31 @@ export function HabitWeeklyGrid({ habits, completions, onRefresh }: HabitWeeklyG
 
     const isCompleted = (habitId: string, day: Date) => {
         const dayStr = format(day, 'yyyy-MM-dd')
-        const isToday = isSameDay(day, today)
-
-        if (isToday) {
-            return !!optimisticCompletions[habitId]
-        }
-        return completions.some(c => c.habit_id === habitId && c.completed_at === dayStr)
+        return !!optimisticCompletions[`${habitId}-${dayStr}`]
     }
 
     const handleToggle = async (habitId: string, day: Date) => {
-        // Retroactive check-ins not allowed
-        if (!isSameDay(day, today)) return
+        // Prevent future check-ins
+        if (isAfter(startOfDay(day), today)) return
+
+        const dateStr = format(day, 'yyyy-MM-dd')
+        const key = `${habitId}-${dateStr}`
 
         // Optimistic update
         setOptimisticCompletions(prev => ({
             ...prev,
-            [habitId]: !prev[habitId]
+            [key]: !prev[key]
         }))
 
         try {
-            await toggleHabitCompletion(habitId, format(day, 'yyyy-MM-dd'))
+            await toggleHabitCompletion(habitId, dateStr)
             onRefresh()
         } catch (error) {
             console.error(error)
             // Revert optimistic update on error
             setOptimisticCompletions(prev => ({
                 ...prev,
-                [habitId]: !prev[habitId]
+                [key]: !prev[key]
             }))
         }
     }
@@ -185,16 +183,16 @@ export function HabitWeeklyGrid({ habits, completions, onRefresh }: HabitWeeklyG
                                             <td key={day.toString()} className="py-4 px-2">
                                                 <div className="flex justify-center">
                                                     <button
-                                                        disabled={!isToday}
+                                                        disabled={isAfter(startOfDay(day), today)}
                                                         onClick={() => handleToggle(habit.id, day)}
                                                         className={cn(
                                                             "w-8 h-8 rounded-full flex items-center justify-center transition-all",
                                                             done
                                                                 ? "shadow-lg"
-                                                                : isToday
+                                                                : !isAfter(startOfDay(day), today)
                                                                     ? "bg-white/[0.05] hover:bg-white/[0.1] border border-white/10"
                                                                     : "bg-white/[0.02] border border-transparent",
-                                                            !isToday && "cursor-default opacity-40"
+                                                            isAfter(startOfDay(day), today) && "cursor-default opacity-20"
                                                         )}
                                                         style={{
                                                             backgroundColor: done ? habit.color : undefined,
